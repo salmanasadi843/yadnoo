@@ -448,20 +448,20 @@ $('config-save-btn').addEventListener('click', () => {
   const raw = $('config-input').value.trim();
   const errEl = $('config-error');
   errEl.style.display = 'none';
-  let parsed;
-  try {
-    // allow pasting either valid JSON or a JS object literal with unquoted keys
-    const jsonish = raw
-      .replace(/(^|[{,])(\s*)([A-Za-z_]\w*)\s*:/g, '$1$2"$3":')
-      .replace(/,(\s*[}\]])/g, '$1');
-    parsed = JSON.parse(jsonish.startsWith('{') ? jsonish : `{${jsonish}}`);
-  } catch (e) {
-    errEl.textContent = 'فرمت وارد شده قابل خواندن نیست. لطفاً دقیقاً همون چیزی که Firebase نشون داده رو بچسبون.';
-    errEl.style.display = 'block';
-    return;
+
+  // Extract key: "value" pairs directly, regardless of braces, quote
+  // style, trailing commas, or line-wraps inserted by mobile copy/paste.
+  // Any accidental whitespace/newline inside a value (from word-wrap) is
+  // stripped, since no real Firebase config value contains whitespace.
+  const parsed = {};
+  const re = /([A-Za-z_]\w*)\s*:\s*["']([\s\S]*?)["']/g;
+  let m;
+  while ((m = re.exec(raw)) !== null) {
+    parsed[m[1]] = m[2].replace(/\s+/g, '');
   }
+
   if (!parsed.apiKey || !parsed.projectId) {
-    errEl.textContent = 'این تنظیمات کامل به نظر نمی‌رسه؛ apiKey و projectId لازمه.';
+    errEl.textContent = 'این تنظیمات کامل به نظر نمی‌رسه؛ apiKey و projectId لازمه. دوباره کد کامل رو از Firebase کپی کن.';
     errEl.style.display = 'block';
     return;
   }
