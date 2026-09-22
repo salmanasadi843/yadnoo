@@ -452,8 +452,8 @@ $('config-save-btn').addEventListener('click', () => {
   try {
     // allow pasting either valid JSON or a JS object literal with unquoted keys
     const jsonish = raw
-      .replace(/(\w+)\s*:/g, '"$1":')
-      .replace(/'/g, '"');
+      .replace(/(^|[{,])(\s*)([A-Za-z_]\w*)\s*:/g, '$1$2"$3":')
+      .replace(/,(\s*[}\]])/g, '$1');
     parsed = JSON.parse(jsonish.startsWith('{') ? jsonish : `{${jsonish}}`);
   } catch (e) {
     errEl.textContent = 'فرمت وارد شده قابل خواندن نیست. لطفاً دقیقاً همون چیزی که Firebase نشون داده رو بچسبون.';
