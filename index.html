@@ -10,6 +10,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
     --paper: #F7F4EC;
@@ -210,6 +212,19 @@
   #editor-toolbar button.i { font-style: italic; }
   #editor-toolbar button.u { text-decoration: underline; }
   #editor-toolbar .sep { width: 1px; height: 18px; background: var(--paper-line); margin: 0 4px; }
+  #font-select {
+    border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
+    color: var(--ink-soft); background: var(--panel); outline: none;
+  }
+  #highlight-group { display: flex; align-items: center; gap: 5px; }
+  .hl-swatch {
+    width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0;
+  }
+  .hl-swatch:hover { transform: scale(1.12); }
+  .hl-swatch.hl-none {
+    background: var(--panel); color: var(--ink-soft); font-size: 10px; display: flex;
+    align-items: center; justify-content: center;
+  }
   #title-input {
     border: none; outline: none; background: transparent; font-size: 24px; font-weight: 700;
     padding: 22px 24px 6px; color: var(--ink); font-family: inherit;
@@ -225,6 +240,36 @@
 
   #mobile-overlay {
     display: none; position: fixed; inset: 0; background: rgba(29,43,79,.3); z-index: 15;
+  }
+
+  /* ---------- Export buttons ---------- */
+  .export-btn {
+    display: flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--paper-line);
+    padding: 6px 10px; border-radius: 6px; font-size: 12.5px; color: var(--ink-soft);
+  }
+  .export-btn:hover { background: var(--paper-line); color: var(--ink); }
+  .export-btn svg { width: 14px; height: 14px; }
+  .export-btn:disabled { opacity: .5; }
+
+  /* ---------- Top-bar more menu ---------- */
+  #more-menu-wrap { position: relative; }
+  #more-menu-btn { background: none; border: none; color: var(--ink-soft); padding: 6px 8px; }
+  #more-menu-btn svg { width: 19px; height: 19px; }
+  #more-menu-dropdown {
+    display: none; position: absolute; top: 40px; inset-inline-end: 0; background: var(--panel);
+    border: 1px solid var(--paper-line); border-radius: 10px; box-shadow: var(--shadow);
+    min-width: 230px; z-index: 60; overflow: hidden;
+  }
+  #more-menu-dropdown.open { display: block; }
+  #more-menu-dropdown button {
+    display: block; width: 100%; text-align: start; background: none; border: none;
+    padding: 12px 16px; font-size: 13px; color: var(--ink);
+  }
+  #more-menu-dropdown button:hover { background: var(--paper); }
+  #more-menu-dropdown .divider { height: 1px; background: var(--paper-line); }
+  #backup-file-input { display: none; }
+  #backup-status {
+    font-size: 12px; color: var(--ink-soft); padding: 0 16px 10px; line-height: 1.7; display: none;
   }
 
   /* ---------- Responsive ---------- */
@@ -316,7 +361,19 @@
       <span>یادنو</span>
     </div>
     <div id="sync-status"><span class="dot"></span><span id="sync-status-text">همگام</span></div>
-    <button id="signout-btn">خروج</button>
+    <div id="more-menu-wrap">
+      <button id="more-menu-btn" title="گزینه‌های بیشتر">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
+      </button>
+      <div id="more-menu-dropdown">
+        <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
+        <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
+        <div id="backup-status"></div>
+        <div class="divider"></div>
+        <button id="signout-btn-menu" style="color:#A83E32;">خروج از حساب</button>
+      </div>
+    </div>
+    <input type="file" id="backup-file-input" accept="application/json">
   </div>
 
   <div id="main-grid">
@@ -354,7 +411,31 @@
           <button data-cmd="insertUnorderedList" title="فهرست">• فهرست</button>
           <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">۱. فهرست</button>
           <div class="sep"></div>
-          <button id="delete-note-btn" style="color:#A83E32; margin-inline-start:auto;">حذف یادداشت</button>
+          <select id="font-select" title="فونت">
+            <option value="Vazirmatn" selected>فونت پیش‌فرض</option>
+            <option value="Tahoma">Tahoma</option>
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="'Courier New'">Courier New</option>
+          </select>
+          <div class="sep"></div>
+          <div id="highlight-group" title="هایلات">
+            <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
+            <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
+            <button class="hl-swatch" data-color="#F8BBD0" style="background:#F8BBD0;"></button>
+            <button class="hl-swatch" data-color="#BBDEFB" style="background:#BBDEFB;"></button>
+            <button class="hl-swatch hl-none" data-color="transparent" title="حذف هایلات">✕</button>
+          </div>
+          <div class="sep" style="margin-inline-start:auto;"></div>
+          <button class="export-btn" id="export-docx-btn" title="خروجی Word">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Word
+          </button>
+          <button class="export-btn" id="export-pdf-btn" title="خروجی PDF">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PDF
+          </button>
+          <button id="delete-note-btn" style="color:#A83E32;">حذف یادداشت</button>
         </div>
         <input id="title-input" type="text" placeholder="عنوان یادداشت">
         <div id="body-editor" contenteditable="true" data-placeholder="بنویس..."></div>
@@ -372,7 +453,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, enableIndexedDbPersistence
+  query, orderBy, serverTimestamp, enableIndexedDbPersistence, getDocs
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const $ = (id) => document.getElementById(id);
@@ -534,7 +615,17 @@ function translateAuthError(code) {
   return map[code] || 'مشکلی پیش اومد. دوباره امتحان کن.';
 }
 
-$('signout-btn').addEventListener('click', () => signOut(auth));
+$('signout-btn-menu').addEventListener('click', () => { signOut(auth); closeMoreMenu(); });
+
+// ---------- More menu dropdown ----------
+function closeMoreMenu() { $('more-menu-dropdown').classList.remove('open'); }
+$('more-menu-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('more-menu-dropdown').classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#more-menu-wrap')) closeMoreMenu();
+});
 
 // ---------- Data: notebooks & notes ----------
 function userCol(...path) {
@@ -710,6 +801,230 @@ document.querySelectorAll('#editor-toolbar [data-cmd]').forEach((btn) => {
     $('body-editor').focus();
     scheduleSave();
   });
+});
+
+$('font-select').addEventListener('change', () => {
+  $('body-editor').focus();
+  document.execCommand('fontName', false, $('font-select').value);
+  scheduleSave();
+});
+
+document.querySelectorAll('.hl-swatch').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    $('body-editor').focus();
+    document.execCommand('hiliteColor', false, btn.dataset.color);
+    scheduleSave();
+  });
+});
+
+function safeFileName(str) {
+  return (str || 'یادداشت').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 60) || 'یادداشت';
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+// ---------- Export: Word (.docx) ----------
+// Hand-builds a minimal, valid .docx (Office Open XML zipped with JSZip),
+// converting the note's simple rich-text HTML (bold/italic/underline/lists)
+// into Word paragraphs. Renders right-to-left for Persian text.
+function xmlEscape(str) {
+  return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+function htmlToDocxParagraphs(html) {
+  const container = document.createElement('div');
+  container.innerHTML = html || '';
+  const paragraphs = [];
+
+function rgbToHex(rgbStr) {
+  const m = (rgbStr || '').match(/\d+/g);
+  if (!m || m.length < 3) return null;
+  return m.slice(0, 3).map((n) => (+n).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+function collectRuns(node, fmt, runs) {
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      if (child.textContent) runs.push({ text: child.textContent, ...fmt });
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const tag = child.tagName.toLowerCase();
+      const nextFmt = { ...fmt };
+      if (tag === 'b' || tag === 'strong') nextFmt.bold = true;
+      if (tag === 'i' || tag === 'em') nextFmt.italic = true;
+      if (tag === 'u') nextFmt.underline = true;
+      if (tag === 'font' && child.getAttribute('face')) nextFmt.font = child.getAttribute('face');
+      const bg = child.style && child.style.backgroundColor;
+      if (bg && bg !== 'transparent') { const hex = rgbToHex(bg); if (hex) nextFmt.highlight = hex; }
+      if (tag === 'br') { runs.push({ text: '\n', ...fmt }); return; }
+      collectRuns(child, nextFmt, runs);
+    }
+  });
+}
+
+  function pushParagraph(el, listType) {
+    const runs = [];
+    collectRuns(el, {}, runs);
+    if (!runs.length) runs.push({ text: '' });
+    paragraphs.push({ runs, listType: listType || null });
+  }
+
+  const blocks = container.children.length ? Array.from(container.children) : [container];
+  blocks.forEach((block) => {
+    const tag = block.tagName ? block.tagName.toLowerCase() : 'div';
+    if (tag === 'ul' || tag === 'ol') {
+      let n = 1;
+      Array.from(block.children).forEach((li) => {
+        pushParagraph(li, tag === 'ul' ? 'bullet' : String(n++) + '.');
+      });
+    } else if (tag === 'div' || tag === 'p') {
+      pushParagraph(block, null);
+    } else {
+      pushParagraph(container, null);
+    }
+  });
+  return paragraphs.length ? paragraphs : [{ runs: [{ text: '' }], listType: null }];
+}
+
+function buildDocxXml(title, bodyHtml) {
+  const paragraphs = htmlToDocxParagraphs(bodyHtml);
+  const RFONT = '<w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/>';
+
+  function runXml(run) {
+    const fontName = run.font ? xmlEscape(run.font).replace(/^'|'$/g, '') : 'Tahoma';
+    const props = [`<w:rFonts w:ascii="${fontName}" w:hAnsi="${fontName}" w:cs="${fontName}"/>`, '<w:rtl/>'];
+    if (run.bold) props.push('<w:b/>');
+    if (run.italic) props.push('<w:i/>');
+    if (run.underline) props.push('<w:u w:val="single"/>');
+    if (run.highlight) props.push(`<w:shd w:val="clear" w:fill="${run.highlight}"/>`);
+    const text = xmlEscape(run.text).replace(/\n/g, '</w:t></w:r><w:r><w:rPr>' + props.join('') + '</w:rPr><w:t xml:space="preserve">');
+    return `<w:r><w:rPr>${props.join('')}</w:rPr><w:t xml:space="preserve">${text}</w:t></w:r>`;
+  }
+
+  function paraXml(p) {
+    const prefix = p.listType ? (p.listType === 'bullet' ? '• ' : p.listType + ' ') : '';
+    const runs = prefix
+      ? [{ text: prefix, bold: true }, ...p.runs]
+      : p.runs;
+    return `<w:p><w:pPr><w:bidi/></w:pPr>${runs.map(runXml).join('')}</w:p>`;
+  }
+
+  const titlePara = `<w:p><w:pPr><w:bidi/></w:pPr><w:r><w:rPr>${RFONT}<w:rtl/><w:b/><w:sz w:val="32"/></w:rPr><w:t xml:space="preserve">${xmlEscape(title || 'بدون عنوان')}</w:t></w:r></w:p>`;
+  const bodyParas = paragraphs.map(paraXml).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>${titlePara}${bodyParas}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417"/></w:sectPr></w:body>
+</w:document>`;
+}
+
+async function exportNoteAsDocx(note) {
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`);
+  zip.folder('_rels').file('.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+  zip.folder('word').file('document.xml', buildDocxXml(note.title, note.body));
+  const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  downloadBlob(blob, safeFileName(note.title) + '.docx');
+}
+
+// ---------- Export: PDF ----------
+async function exportNoteAsPdf(note) {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'direction:rtl; font-family:Vazirmatn,sans-serif; padding:30px; background:#fff; color:#1D2B4F;';
+  wrapper.innerHTML = `<h1 style="font-size:22px;margin:0 0 16px;">${escapeHtml(note.title || 'بدون عنوان')}</h1>
+    <div style="font-size:14px;line-height:2;">${note.body || ''}</div>`;
+  document.body.appendChild(wrapper);
+  try {
+    await html2pdf().set({
+      margin: 10,
+      filename: safeFileName(note.title) + '.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(wrapper).save();
+  } finally {
+    wrapper.remove();
+  }
+}
+
+$('export-docx-btn').addEventListener('click', () => {
+  if (!activeNoteId) return;
+  const note = notes.find((n) => n.id === activeNoteId) || { title: $('title-input').value, body: $('body-editor').innerHTML };
+  exportNoteAsDocx(note);
+});
+
+$('export-pdf-btn').addEventListener('click', () => {
+  if (!activeNoteId) return;
+  const note = notes.find((n) => n.id === activeNoteId) || { title: $('title-input').value, body: $('body-editor').innerHTML };
+  exportNoteAsPdf(note);
+});
+
+// ---------- Full backup: export & import ----------
+function setBackupStatus(msg) {
+  const el = $('backup-status');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+$('backup-export-btn').addEventListener('click', async () => {
+  setBackupStatus('در حال آماده‌سازی پشتیبان...');
+  try {
+    const nbSnap = await getDocs(userCol('notebooks'));
+    const backup = { exportedAt: new Date().toISOString(), notebooks: [] };
+    for (const nbDoc of nbSnap.docs) {
+      const notesSnap = await getDocs(userCol('notebooks', nbDoc.id, 'notes'));
+      backup.notebooks.push({
+        name: nbDoc.data().name,
+        notes: notesSnap.docs.map((d) => ({ title: d.data().title || '', body: d.data().body || '' }))
+      });
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    downloadBlob(blob, `یادنو-پشتیبان-${new Date().toISOString().slice(0, 10)}.json`);
+    setBackupStatus('دانلود شد.');
+  } catch (e) {
+    setBackupStatus('خطا در تهیه‌ی پشتیبان.');
+  }
+  setTimeout(() => setBackupStatus(''), 3000);
+});
+
+$('backup-import-btn').addEventListener('click', () => $('backup-file-input').click());
+
+$('backup-file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setBackupStatus('در حال بازیابی...');
+  try {
+    const text = await file.text();
+    const backup = JSON.parse(text);
+    if (!Array.isArray(backup.notebooks)) throw new Error('invalid');
+    for (const nb of backup.notebooks) {
+      const nbRef = await addDoc(userCol('notebooks'), { name: nb.name || 'بدون‌نام', createdAt: serverTimestamp() });
+      for (const n of (nb.notes || [])) {
+        await addDoc(userCol('notebooks', nbRef.id, 'notes'), {
+          title: n.title || '', body: n.body || '',
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+        });
+      }
+    }
+    setBackupStatus('بازیابی با موفقیت انجام شد.');
+  } catch (err) {
+    setBackupStatus('فایل پشتیبان قابل خواندن نیست.');
+  }
+  e.target.value = '';
+  setTimeout(() => setBackupStatus(''), 4000);
 });
 
 // ---------- Mobile panes ----------
