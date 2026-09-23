@@ -816,6 +816,13 @@ function initFirebase(config) {
   }
 }
 
+window.addEventListener('error', (event) => {
+  console.error('Yadno runtime error:', event.error || event.message);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Yadno unhandled promise rejection:', event.reason);
+});
+
 function boot() {
   const saved = getSavedConfig();
   if (saved) {
@@ -1034,9 +1041,12 @@ function listenToSections(notebookId) {
   if (unsubSectionGroups) unsubSectionGroups();
   if (unsubNotes) { unsubNotes(); unsubNotes = null; }
   const gq = query(userCol('notebooks', notebookId, 'sectionGroups'), orderBy('position', 'asc'));
-  unsubSectionGroups = onSnapshot(gq, async (gsnap) => {
-    sectionGroups = gsnap.docs.map(d => ({id:d.id, ...d.data()})).filter(g => !g.deletedAt);
-    // بدون orderBy برای سازگاری با بخش‌های قدیمی که position ندارند.
+  const gq = query(userCol('notebooks', notebookId, 'sectionGroups'));
+  unsubSectionGroups = onSnapshot(gq, (gsnap) => {
+    sectionGroups = gsnap.docs.map(d => ({id:d.id, ...d.data()}))
+      .filter(g => !g.deletedAt)
+      .sort((a,b) => (a.position ?? 0) - (b.position ?? 0));
+
     const q = query(userCol('notebooks', notebookId, 'sections'));
     if (unsubSections) unsubSections();
     unsubSections = onSnapshot(q, async (snap) => {
@@ -1051,9 +1061,14 @@ function listenToSections(notebookId) {
       renderSections();
       if (activeSectionId) listenToNotes(notebookId, activeSectionId);
       else { notes=[]; renderNotes(); }
-    }, () => setSyncStatus('offline'));
-  }, (err) => { console.error('Yadno sections listener error:', err); setSyncStatus('offline'); });
-  }, (err) => { console.error('Yadno sectionGroups listener error:', err); setSyncStatus('offline'); });
+    }, (err) => {
+      console.error('Yadno sections listener error:', err);
+      setSyncStatus('offline');
+    });
+  }, (err) => {
+    console.error('Yadno sectionGroups listener error:', err);
+    setSyncStatus('offline');
+  });
 }
 function listenToNotes(notebookId, sectionId) {
   if (unsubNotes) unsubNotes();
