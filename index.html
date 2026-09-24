@@ -56,19 +56,16 @@
     box-shadow: var(--shadow); padding: 32px 28px; border: 1px solid var(--paper-line);
   }
   .auth-card h1 { font-size: 20px; margin: 0 0 6px; color: var(--ink); font-weight: 700; }
-  .auth-card .sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 24px; line-height: 1.7; }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
   .field input {
     width: 100%; padding: 11px 13px; border: 1px solid var(--paper-line); border-radius: 8px;
     font-size: 14px; background: var(--paper); color: var(--ink); outline: none;
-    transition: border-color .15s;
   }
   .field input:focus { border-color: var(--gold); }
   .btn-primary {
     width: 100%; padding: 12px; background: var(--ink); color: #fff; border: none;
     border-radius: 8px; font-size: 14px; font-weight: 600; margin-top: 6px;
-    transition: background .15s;
   }
   .btn-primary:hover { background: #14203D; }
   .auth-error {
@@ -89,8 +86,6 @@
   }
   .config-card h1 { font-size: 18px; margin: 0 0 10px; font-weight: 700; }
   .config-card p { font-size: 13px; color: var(--ink-soft); line-height: 1.9; margin: 0 0 12px; }
-  .config-card ol { font-size: 13px; color: var(--ink-soft); line-height: 2; padding-inline-start: 20px; margin: 0 0 16px; }
-  .config-card ol a { color: var(--gold); }
   .config-card textarea {
     width: 100%; min-height: 130px; padding: 12px; border: 1px solid var(--paper-line);
     border-radius: 8px; font-size: 12.5px; font-family: monospace; direction: ltr; text-align: left;
@@ -106,16 +101,11 @@
     border-bottom: 1px solid var(--paper-line); background: var(--panel); z-index: 20;
   }
   #topbar .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
-  #topbar .logo .brand-mark { width: 28px; height: 28px; border-radius: 7px; }
-  #topbar .logo .brand-mark svg { width: 15px; height: 15px; }
   #sync-status {
     display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft);
     margin-inline-start: auto;
   }
-  #sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); transition: background .2s; }
-  #sync-status.offline .dot { background: #B8862E; }
-  #sync-status.saving .dot { background: var(--gold); animation: pulse 1s infinite; }
-  @keyframes pulse { 50% { opacity: .3; } }
+  #sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); }
   #menu-toggle { display: none; background: none; border: none; padding: 6px; color: var(--ink); }
   #menu-toggle svg { width: 22px; height: 22px; }
 
@@ -124,14 +114,9 @@
     display: grid; grid-template-columns: var(--nb-w) 6px var(--sec-w) 6px var(--notes-w) 6px minmax(0,1fr); height: 100%; overflow: hidden;
   }
   .pane-resizer { cursor: col-resize; background: transparent; position: relative; z-index: 5; touch-action: none; }
-  .pane-resizer::after { content: ''; position: absolute; top: 10%; bottom: 10%; left: 2px; right: 2px; border-radius: 4px; background: transparent; transition: .15s; }
-  .pane-resizer:hover::after, .pane-resizer.dragging::after { background: #d9c7a0; }
   .pane.collapsed { padding: 0 !important; overflow: hidden !important; }
   .pane.collapsed > *:not(.pane-header) { display: none !important; }
-  .pane.collapsed .pane-header { background: transparent; border-bottom-color: transparent; }
   .pane.collapsed .pane-header > span { display: none; }
-  .pane.collapsed .pane-header .header-actions { margin-inline-start: auto; }
-  .pane-collapse { font-size: 15px; line-height: 1; width: 28px; height: 28px; }
   .pane-header .header-actions { display: flex; align-items: center; gap: 2px; }
 
   .pane { overflow-y: auto; }
@@ -147,7 +132,6 @@
     display: flex; align-items: center; justify-content: center;
   }
   .icon-btn:hover { background: var(--paper-line); color: var(--ink); }
-  .icon-btn svg { width: 16px; height: 16px; }
 
   .notebook-item {
     display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px;
@@ -155,10 +139,6 @@
   }
   .notebook-item:hover { background: var(--paper-line); }
   .notebook-item.active { background: var(--ink); color: #fff; font-weight: 600; }
-  .notebook-item .dot-icon { width: 8px; height: 8px; border-radius: 2px; background: var(--gold); flex-shrink: 0; }
-  .notebook-item .del-btn { margin-inline-start: auto; opacity: 0; }
-  .notebook-item:hover .del-btn { opacity: 1; }
-  .notebook-item.active .del-btn { color: #fff; }
 
   .note-item {
     padding: 10px 11px; border-radius: 8px; cursor: pointer; margin-bottom: 3px;
@@ -167,71 +147,45 @@
   .note-item:hover { background: #F1EEE3; }
   .note-item.active { background: var(--panel); border-color: var(--paper-line); box-shadow: var(--shadow); }
   .note-item .n-title { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .n-preview { font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .n-time { font-size: 10.5px; color: #A6A290; margin-top: 4px; }
-  .empty-hint { font-size: 12.5px; color: #A6A290; padding: 16px 10px; line-height: 1.8; text-align: center; }
 
   #editor-pane { display: flex; flex-direction: column; background: var(--paper); overflow: hidden; }
   #editor-empty {
     flex: 1; display: flex; align-items: center; justify-content: center; color: #A6A290;
     font-size: 14px; flex-direction: column; gap: 10px;
   }
-  #editor-empty svg { width: 40px; height: 40px; opacity: .5; }
   #editor-content { display: none; flex-direction: column; height: 100%; }
   #editor-toolbar {
     display: flex; gap: 4px; padding: 8px 20px; border-bottom: 1px solid var(--paper-line);
     background: var(--panel); align-items: center; flex-wrap: wrap;
   }
-  #editor-toolbar button {
-    background: none; border: none; padding: 7px 9px; border-radius: 6px; font-size: 13px; color: var(--ink-soft);
-  }
+  #editor-toolbar button { background: none; border: none; padding: 7px 9px; border-radius: 6px; font-size: 13px; color: var(--ink-soft); }
   #editor-toolbar button:hover { background: var(--paper-line); color: var(--ink); }
-  #editor-toolbar .sep { width: 1px; height: 18px; background: var(--paper-line); margin: 0 4px; }
-  #font-select {
-    border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
-    color: var(--ink-soft); background: var(--panel); outline: none;
-  }
-  #highlight-group { display: flex; align-items: center; gap: 5px; }
-  .hl-swatch { width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0; }
   #title-input {
     border: none; outline: none; background: transparent; font-size: 24px; font-weight: 700;
     padding: 22px 24px 6px; color: var(--ink); font-family: inherit;
   }
   #body-editor { flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: 15px; line-height: 2; outline: none; }
 
-  :root{--accent:#B8862E;--accent-soft:#F3E8CC;--panel:#FBFAF7;--shadow:0 10px 35px rgba(43,35,22,.08)}
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--paper); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.22); padding: 18px; width: min(720px, 100%); }
+
+  :root{--accent:#B8862E;--accent-soft:#F3E8CC;--panel:#FBFAF7}
   body{background:linear-gradient(135deg,#f7f3ea 0%,#f1eee6 48%,#f8f7f3 100%)}
-  #topbar{height:58px;background:rgba(42,35,24,.97);box-shadow:0 4px 20px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
-  .logo{font-size:18px;letter-spacing:.2px}.logo .brand-mark{box-shadow:0 4px 14px rgba(184,134,46,.22)}
-  #sync-status{border:1px solid rgba(255,255,255,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.05)}
-  #main-grid{gap:1px;background:#d9d2c5}
-  .pane{background:rgba(251,250,247,.96);box-shadow:inset -1px 0 rgba(0,0,0,.025)}
-  .pane-header{height:54px;background:linear-gradient(#fffefa,#f7f4ed);border-bottom:1px solid #e5ded1;position:sticky;top:0;z-index:2}
-  .notebook-item,.note-item{margin:4px 7px;border:1px solid transparent;border-radius:11px;transition:.16s ease;}
-  .notebook-item:hover,.note-item:hover{background:#f4f0e8;border-color:#e4dccd;transform:translateY(-1px)}
-  .notebook-item.active,.note-item.active{background:linear-gradient(90deg,#f2e6ca,#fbf8ef);border-color:#dcc58e;box-shadow:0 3px 12px rgba(184,134,46,.08)}
-
-  #focus-mode-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f7f4ec;border-radius:8px;padding:7px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
-  #global-search-wrap{position:relative;flex:1;max-width:420px;margin-inline:14px}
-  .mobile-search-btn{display:none;border:0;background:transparent;color:#f7f4ec;font-size:23px;padding:6px 8px}
-  #global-search-input{width:100%;height:36px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:0 40px 0 14px;outline:none}
-  #global-search-icon{position:absolute;right:13px;top:9px;color:#d8c69e;font-size:16px}
-
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
-  .modal-overlay.open{display:flex}.modal-box{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.22);padding:18px;width:min(720px,100%)}
-  .btn-secondary{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer}
+  #topbar{height:58px;background:rgba(42,35,24,.97);box-shadow:0 4px 20px rgba(0,0,0,.14)}
+  .logo{font-size:18px;color:#fff}
+  #sync-status{border:1px solid rgba(255,255,255,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.05);color:#fff}
 
   @media (max-width: 860px) {
-    .pane-resizer{display:none}
+    .pane-resizer { display: none; }
     #menu-toggle { display: flex; }
     #main-grid { grid-template-columns: 100%; position: relative; }
     #notebooks-pane, #sections-pane, #notes-pane {
       position: fixed; top: 49px; bottom: 0; width: 240px; z-index: 20;
-      transform: translateX(105%); transition: transform .2s ease;
+      transform: translateX(105%); transition: transform .2s ease; background: #fff;
     }
     html[dir="rtl"] #notebooks-pane, html[dir="rtl"] #sections-pane, html[dir="rtl"] #notes-pane { right: 0; transform: translateX(105%); }
     #notebooks-pane.open, #sections-pane.open, #notes-pane.open { transform: translateX(0); }
-    #mobile-overlay.show { display: block; }
   }
 </style>
 </head>
@@ -247,8 +201,8 @@
 <div id="config-screen">
   <div class="config-card">
     <h1>اتصال به Firebase</h1>
-    <p>برای اینکه یادداشت‌ها بین گوشی و کامپیوترت همگام بشن، این اپ به یک پروژه‌ی رایگان Firebase وصل می‌شه.</p>
-    <textarea id="config-input" placeholder='{ "apiKey": "...", "projectId": "..." }'></textarea>
+    <p>کد تنظیمات Firebase خود را وارد کنید:</p>
+    <textarea id="config-input"></textarea>
     <div class="auth-error" id="config-error"></div>
     <button class="btn-primary" id="config-save-btn">ذخیره و ادامه</button>
   </div>
@@ -268,22 +222,16 @@
 <div id="app">
   <div id="topbar">
     <button id="menu-toggle" aria-label="منو">☰</button>
-    <button id="mobile-search-btn" class="mobile-search-btn">⌕</button>
     <div class="logo"><span>یادنو</span></div>
     <div id="sync-status"><span class="dot"></span><span id="sync-status-text">همگام</span></div>
-    <button id="focus-mode-btn"><span>⛶</span> تمرکز</button>
-    <div id="global-search-wrap"><span id="global-search-icon">⌕</span><input id="global-search-input" placeholder="جست‌وجو در همه دفترها…"></div>
-    <div id="more-menu-wrap">
-      <button id="more-menu-btn">⋮</button>
-      <div id="more-menu-dropdown" style="display:none; position:absolute; left:0; top:40px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:6px; z-index:60; min-width:200px;">
-        <button id="backup-export-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">دانلود پشتیبان (JSON)</button>
-        <button id="backup-import-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">بازیابی پشتیبان</button>
-        <button id="onenote-import-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">📥 وارد کردن از OneNote</button>
-        <button id="open-trash-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer; color:var(--danger);">🗑️ سطل زباله</button>
+    <div id="more-menu-wrap" style="position:relative; margin-inline-start:auto;">
+      <button id="more-menu-btn" style="background:none; border:none; font-size:18px; color:#fff; cursor:pointer;">⋮</button>
+      <div id="more-menu-dropdown" style="display:none; position:absolute; left:0; top:30px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:6px; z-index:50; min-width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+        <button id="onenote-import-btn" style="background:none; border:none; padding:8px; cursor:pointer; width:100%; text-align:right;">📥 وارد کردن از OneNote</button>
+        <button id="open-trash-btn" style="background:none; border:none; padding:8px; cursor:pointer; width:100%; text-align:right; color:var(--danger);">🗑️ سطل زباله</button>
       </div>
     </div>
-    <input type="file" id="backup-file-input" accept="application/json" style="display:none">
-    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.mht,.mhtml,.one,.onetoc2,.onepkg" multiple style="display:none">
+    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.mht,.mhtml" multiple style="display:none">
   </div>
 
   <div id="main-grid">
@@ -330,417 +278,345 @@
           <button data-cmd="bold">B</button>
           <button data-cmd="italic">I</button>
           <button data-cmd="underline">U</button>
-          <select id="font-select">
-            <option value="Vazirmatn">پیش‌فرض</option>
-            <option value="Tahoma">Tahoma</option>
-            <option value="Arial">Arial</option>
-          </select>
-          <button id="checklist-btn">☑ چک‌لیست</button>
-          <button id="image-btn">🖼 عکس</button>
-          <button id="attachment-btn">📎 پیوست</button>
-          <button id="share-note-btn">اشتراک</button>
-          <button id="delete-note-btn" style="color:var(--danger);">حذف</button>
+          <button id="delete-note-btn" style="color:var(--danger); margin-inline-start:auto;">حذف یادداشت</button>
         </div>
         <input id="title-input" type="text" placeholder="عنوان یادداشت">
-        <div id="attachments-box" style="display:none; padding:8px; border-bottom:1px solid #ddd;"><div id="attachments-list"></div></div>
         <div id="body-editor" contenteditable="true"></div>
       </div>
     </div>
   </div>
-  <div id="mobile-overlay"></div>
-  <input type="file" id="image-file-input" accept="image/*" style="display:none">
-  <input type="file" id="attachment-file-input" multiple style="display:none">
+  <div id="mobile-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:15;"></div>
 </div>
 
-<div class="modal-overlay" id="search-modal"><div class="modal-box search-box">
-  <div class="search-head"><h2 style="margin:0">جست‌وجوی یادنو</h2><button class="btn-secondary" id="close-search-btn">بستن</button></div>
-  <div id="search-results"></div>
-</div></div>
-
-<div class="modal-overlay" id="trash-modal"><div class="modal-box">
-  <h3>🗑️ سطل زباله</h3>
-  <div id="trash-list"></div>
-  <button class="btn-secondary" id="close-trash-btn" style="margin-top:10px;">بستن</button>
-</div></div>
+<div id="trash-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>🗑️ سطل زباله</h3>
+    <div id="trash-list"></div>
+    <button class="btn-primary" id="close-trash-btn" style="margin-top:10px;">بستن</button>
+  </div>
+</div>
 
 <div id="onenote-modal" class="modal-overlay">
   <div class="modal-box">
     <h3>وارد کردن از OneNote</h3>
-    <p>فایل‌های HTML یا MHT خروجی وان‌نوت را انتخاب کنید. اگر فایل شامل چند صفحه باشد، اپلیکیشن آن‌ها را به‌صورت خودکار به یادداشت‌های مجزا تبدیل می‌کند.</p>
+    <p>فایل‌های HTML یا MHT خروجی وان‌نوت را انتخاب کنید تا به صورت خودکار به یادداشت‌های مجزا تبدیل شوند.</p>
     <div id="onenote-import-status"></div>
-    <div id="onenote-preview" style="display:none; max-height:200px; overflow:auto;"></div>
+    <div id="onenote-preview" style="display:none; max-height:200px; overflow:auto; margin-top:10px; border:1px solid #ddd; padding:8px; border-radius:6px;"></div>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
-      <button class="btn-secondary" id="onenote-cancel-btn">انصراف</button>
+      <button class="btn-primary" id="onenote-cancel-btn" style="background:#888;">انصراف</button>
       <button class="btn-primary" id="onenote-choose-btn" style="width:auto; padding:8px 16px;">انتخاب فایل</button>
       <button class="btn-primary" id="onenote-import-confirm-btn" style="display:none; width:auto; padding:8px 16px;">وارد کردن</button>
     </div>
   </div>
 </div>
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1D2B4F">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-  :root {
-    --paper: #F7F4EC;
-    --paper-line: #E7E1D2;
-    --ink: #1D2B4F;
-    --ink-soft: #45537A;
-    --gold: #B8862E;
-    --sage: #5B7B5B;
-    --danger: #A83E32;
-    --panel: #FFFFFF;
-    --radius: 10px;
-    --shadow: 0 1px 2px rgba(29,43,79,0.06), 0 4px 16px rgba(29,43,79,0.06);
-  }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    font-family: 'Vazirmatn', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    overscroll-behavior: none;
-  }
-  button, input, textarea { font-family: inherit; }
-  button { cursor: pointer; }
 
-  #loading-screen {
-    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: var(--paper); flex-direction: column; gap: 14px; z-index: 999;
-  }
-  .brand-mark {
-    width: 52px; height: 52px; border-radius: 12px; background: var(--ink);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .brand-mark svg { width: 26px; height: 26px; }
-  #loading-screen p { color: var(--ink-soft); font-size: 14px; }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  #auth-screen {
-    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-    background: var(--paper); z-index: 900; padding: 24px;
-  }
-  .auth-card {
-    width: 100%; max-width: 360px; background: var(--panel); border-radius: 14px;
-    box-shadow: var(--shadow); padding: 32px 28px; border: 1px solid var(--paper-line);
-  }
-  .auth-card h1 { font-size: 20px; margin: 0 0 6px; color: var(--ink); font-weight: 700; }
-  .auth-card .sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 24px; line-height: 1.7; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
-  .field input {
-    width: 100%; padding: 11px 13px; border: 1px solid var(--paper-line); border-radius: 8px;
-    font-size: 14px; background: var(--paper); color: var(--ink); outline: none;
-    transition: border-color .15s;
-  }
-  .field input:focus { border-color: var(--gold); }
-  .btn-primary {
-    width: 100%; padding: 12px; background: var(--ink); color: #fff; border: none;
-    border-radius: 8px; font-size: 14px; font-weight: 600; margin-top: 6px;
-    transition: background .15s;
-  }
-  .btn-primary:hover { background: #14203D; }
-  .auth-error {
-    background: #FBEAE7; color: var(--danger); font-size: 12.5px; padding: 9px 12px;
-    border-radius: 7px; margin-bottom: 14px; display: none; line-height: 1.6;
-  }
-  .auth-footer-link { text-align: center; margin-top: 18px; font-size: 12px; }
-  .auth-footer-link button { background: none; border: none; color: var(--ink-soft); font-size: 12px; text-decoration: underline; padding: 0; }
+const $ = (id) => document.getElementById(id);
+const CONFIG_KEY = 'yadno_firebase_config';
 
-  #config-screen {
-    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-    background: var(--paper); z-index: 950; padding: 20px; overflow-y: auto;
-  }
-  .config-card {
-    width: 100%; max-width: 440px; background: var(--panel); border-radius: 14px;
-    box-shadow: var(--shadow); padding: 30px 26px; border: 1px solid var(--paper-line);
-    margin: 20px 0;
-  }
-  .config-card h1 { font-size: 18px; margin: 0 0 10px; font-weight: 700; }
-  .config-card p { font-size: 13px; color: var(--ink-soft); line-height: 1.9; margin: 0 0 12px; }
-  .config-card ol { font-size: 13px; color: var(--ink-soft); line-height: 2; padding-inline-start: 20px; margin: 0 0 16px; }
-  .config-card ol a { color: var(--gold); }
-  .config-card textarea {
-    width: 100%; min-height: 130px; padding: 12px; border: 1px solid var(--paper-line);
-    border-radius: 8px; font-size: 12.5px; font-family: monospace; direction: ltr; text-align: left;
-    background: var(--paper); color: var(--ink); resize: vertical; margin-bottom: 12px;
-  }
+function getSavedConfig() {
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY)); } catch(e) { return null; }
+}
 
-  #app {
-    display: none; height: 100vh; height: 100dvh; grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr; overflow: hidden;
-  }
-  #topbar {
-    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-    border-bottom: 1px solid var(--paper-line); background: var(--panel); z-index: 20;
-  }
-  #topbar .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
-  #topbar .logo .brand-mark { width: 28px; height: 28px; border-radius: 7px; }
-  #topbar .logo .brand-mark svg { width: 15px; height: 15px; }
-  #sync-status {
-    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft);
-    margin-inline-start: auto;
-  }
-  #sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); transition: background .2s; }
-  #sync-status.offline .dot { background: #B8862E; }
-  #sync-status.saving .dot { background: var(--gold); animation: pulse 1s infinite; }
-  @keyframes pulse { 50% { opacity: .3; } }
-  #menu-toggle { display: none; background: none; border: none; padding: 6px; color: var(--ink); }
-  #menu-toggle svg { width: 22px; height: 22px; }
+let firebaseApp, auth, db, currentUser = null;
+let notebooks = [], sections = [], notes = [];
+let activeNotebookId = null, activeSectionId = null, activeNoteId = null;
+let unsubNotebooks = null, unsubSections = null, unsubNotes = null, saveTimer = null;
 
-  #main-grid {
-    --nb-w: 190px; --sec-w: 190px; --notes-w: 260px;
-    display: grid; grid-template-columns: var(--nb-w) 6px var(--sec-w) 6px var(--notes-w) 6px minmax(0,1fr); height: 100%; overflow: hidden;
-  }
-  .pane-resizer { cursor: col-resize; background: transparent; position: relative; z-index: 5; touch-action: none; }
-  .pane-resizer::after { content: ''; position: absolute; top: 10%; bottom: 10%; left: 2px; right: 2px; border-radius: 4px; background: transparent; transition: .15s; }
-  .pane-resizer:hover::after, .pane-resizer.dragging::after { background: #d9c7a0; }
-  .pane.collapsed { padding: 0 !important; overflow: hidden !important; }
-  .pane.collapsed > *:not(.pane-header) { display: none !important; }
-  .pane.collapsed .pane-header { background: transparent; border-bottom-color: transparent; }
-  .pane.collapsed .pane-header > span { display: none; }
-  .pane.collapsed .pane-header .header-actions { margin-inline-start: auto; }
-  .pane-collapse { font-size: 15px; line-height: 1; width: 28px; height: 28px; }
-  .pane-header .header-actions { display: flex; align-items: center; gap: 2px; }
+function showScreen(name) {
+  $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';$('config-screen').style.display = name === 'config' ? 'flex' : 'none';
+  $('auth-screen').style.display = name === 'auth' ? 'flex' : 'none';$('app').style.display = name === 'app' ? 'grid' : 'none';
+}
 
-  .pane { overflow-y: auto; }
-  #notebooks-pane { border-inline-start: 1px solid var(--paper-line); background: var(--panel); padding: 14px 10px; }
-  #sections-pane { border-inline-start: 1px solid var(--paper-line); background: #F7F5EE; padding: 12px 10px; }
-  #notes-pane { border-inline-start: 1px solid var(--paper-line); background: #FBFAF6; padding: 12px 10px; }
-  .pane-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 4px 6px 10px; font-size: 12px; color: var(--ink-soft); font-weight: 600;
-  }
-  .icon-btn {
-    background: none; border: none; color: var(--ink-soft); padding: 4px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .icon-btn:hover { background: var(--paper-line); color: var(--ink); }
-  .icon-btn svg { width: 16px; height: 16px; }
+function initFirebase(config) {
+  try {
+    firebaseApp = initializeApp(config);
+    auth = getAuth(firebaseApp);
+    db = getFirestore(firebaseApp);
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) { showScreen('app'); startListening(); }
+      else { showScreen('auth'); }
+    });
+    return true;
+  } catch(e) { return false; }
+}
 
-  .notebook-item {
-    display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px;
-    font-size: 13.5px; cursor: pointer; margin-bottom: 2px; color: var(--ink-soft); position: relative;
-  }
-  .notebook-item:hover { background: var(--paper-line); }
-  .notebook-item.active { background: var(--ink); color: #fff; font-weight: 600; }
-  .notebook-item .dot-icon { width: 8px; height: 8px; border-radius: 2px; background: var(--gold); flex-shrink: 0; }
-  .notebook-item .del-btn { margin-inline-start: auto; opacity: 0; }
-  .notebook-item:hover .del-btn { opacity: 1; }
-  .notebook-item.active .del-btn { color: #fff; }
+const saved = getSavedConfig();
+if (saved) initFirebase(saved); else showScreen('config');
 
-  .note-item {
-    padding: 10px 11px; border-radius: 8px; cursor: pointer; margin-bottom: 3px;
-    border: 1px solid transparent; position: relative;
-  }
-  .note-item:hover { background: #F1EEE3; }
-  .note-item.active { background: var(--panel); border-color: var(--paper-line); box-shadow: var(--shadow); }
-  .note-item .n-title { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .n-preview { font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .n-time { font-size: 10.5px; color: #A6A290; margin-top: 4px; }
-  .empty-hint { font-size: 12.5px; color: #A6A290; padding: 16px 10px; line-height: 1.8; text-align: center; }
+$('config-save-btn').addEventListener('click', () => {
+  try {
+    const config = JSON.parse($('config-input').value);
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    initFirebase(config);
+  } catch(e) { $('config-error').textContent = 'فرمت JSON اشتباه است.'; $('config-error').style.display = 'block'; }
+});
 
-  #editor-pane { display: flex; flex-direction: column; background: var(--paper); overflow: hidden; }
-  #editor-empty {
-    flex: 1; display: flex; align-items: center; justify-content: center; color: #A6A290;
-    font-size: 14px; flex-direction: column; gap: 10px;
-  }
-  #editor-empty svg { width: 40px; height: 40px; opacity: .5; }
-  #editor-content { display: none; flex-direction: column; height: 100%; }
-  #editor-toolbar {
-    display: flex; gap: 4px; padding: 8px 20px; border-bottom: 1px solid var(--paper-line);
-    background: var(--panel); align-items: center; flex-wrap: wrap;
-  }
-  #editor-toolbar button {
-    background: none; border: none; padding: 7px 9px; border-radius: 6px; font-size: 13px; color: var(--ink-soft);
-  }
-  #editor-toolbar button:hover { background: var(--paper-line); color: var(--ink); }
-  #editor-toolbar .sep { width: 1px; height: 18px; background: var(--paper-line); margin: 0 4px; }
-  #font-select {
-    border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
-    color: var(--ink-soft); background: var(--panel); outline: none;
-  }
-  #highlight-group { display: flex; align-items: center; gap: 5px; }
-  .hl-swatch { width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0; }
-  #title-input {
-    border: none; outline: none; background: transparent; font-size: 24px; font-weight: 700;
-    padding: 22px 24px 6px; color: var(--ink); font-family: inherit;
-  }
-  #body-editor { flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: 15px; line-height: 2; outline: none; }
+$('reset-config-btn').addEventListener('click', () => {
+  localStorage.removeItem(CONFIG_KEY);
+  location.reload();
+});
 
-  :root{--accent:#B8862E;--accent-soft:#F3E8CC;--panel:#FBFAF7;--shadow:0 10px 35px rgba(43,35,22,.08)}
-  body{background:linear-gradient(135deg,#f7f3ea 0%,#f1eee6 48%,#f8f7f3 100%)}
-  #topbar{height:58px;background:rgba(42,35,24,.97);box-shadow:0 4px 20px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
-  .logo{font-size:18px;letter-spacing:.2px}.logo .brand-mark{box-shadow:0 4px 14px rgba(184,134,46,.22)}
-  #sync-status{border:1px solid rgba(255,255,255,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.05)}
-  #main-grid{gap:1px;background:#d9d2c5}
-  .pane{background:rgba(251,250,247,.96);box-shadow:inset -1px 0 rgba(0,0,0,.025)}
-  .pane-header{height:54px;background:linear-gradient(#fffefa,#f7f4ed);border-bottom:1px solid #e5ded1;position:sticky;top:0;z-index:2}
-  .notebook-item,.note-item{margin:4px 7px;border:1px solid transparent;border-radius:11px;transition:.16s ease;}
-  .notebook-item:hover,.note-item:hover{background:#f4f0e8;border-color:#e4dccd;transform:translateY(-1px)}
-  .notebook-item.active,.note-item.active{background:linear-gradient(90deg,#f2e6ca,#fbf8ef);border-color:#dcc58e;box-shadow:0 3px 12px rgba(184,134,46,.08)}
+$('auth-submit-btn').addEventListener('click', async () => {
+  try {
+    await signInWithEmailAndPassword(auth, $('auth-email').value, $('auth-password').value);
+  } catch(e) {
+    try { await createUserWithEmailAndPassword(auth, $('auth-email').value, $('auth-password').value); } catch(err) { alert(err.message); }
+  }
+});
 
-  #focus-mode-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f7f4ec;border-radius:8px;padding:7px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
-  #global-search-wrap{position:relative;flex:1;max-width:420px;margin-inline:14px}
-  .mobile-search-btn{display:none;border:0;background:transparent;color:#f7f4ec;font-size:23px;padding:6px 8px}
-  #global-search-input{width:100%;height:36px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:0 40px 0 14px;outline:none}
-  #global-search-icon{position:absolute;right:13px;top:9px;color:#d8c69e;font-size:16px}
+// مدیریت پنل‌ها
+const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':260 };
+const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
 
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
-  .modal-overlay.open{display:flex}.modal-box{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.22);padding:18px;width:min(720px,100%)}
-  .btn-secondary{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer}
-
-  @media (max-width: 860px) {
-    .pane-resizer{display:none}
-    #menu-toggle { display: flex; }
-    #main-grid { grid-template-columns: 100%; position: relative; }
-    #notebooks-pane, #sections-pane, #notes-pane {
-      position: fixed; top: 49px; bottom: 0; width: 240px; z-index: 20;
-      transform: translateX(105%); transition: transform .2s ease;
+function applyPaneState(){
+  const grid=$('main-grid'); if(!grid) return;
+  const mobile=window.innerWidth<=860;
+  Object.keys(paneDefaults).forEach(id=>{
+    const pane=$(id); if(!pane) return;
+    const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
+    pane.classList.toggle('collapsed',collapsed);
+    const btn=pane.querySelector('.pane-collapse');
+    if(btn){ btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'باز کردن':'جمع کردن'; }
+    if(collapsed) grid.style.setProperty(paneCss[id],'0px');
+    else {
+      const saved=parseInt(localStorage.getItem('yadno-pane-width-'+id)||paneDefaults[id],10);
+      grid.style.setProperty(paneCss[id],Math.max(140,Math.min(420,saved))+'px');
     }
-    html[dir="rtl"] #notebooks-pane, html[dir="rtl"] #sections-pane, html[dir="rtl"] #notes-pane { right: 0; transform: translateX(105%); }
-    #notebooks-pane.open, #sections-pane.open, #notes-pane.open { transform: translateX(0); }
-    #mobile-overlay.show { display: block; }
+  });
+}
+
+function togglePane(id){
+  const pane=$(id); if(!pane) return;
+  if(window.innerWidth<=860){
+    openMobilePane(id === 'notebooks-pane' ? 'notebooks' : id === 'sections-pane' ? 'sections' : 'notes');
+    return;
   }
-</style>
-</head>
-<body>
+  const isCollapsed = pane.classList.contains('collapsed');
+  pane.classList.toggle('collapsed', !isCollapsed);
+  localStorage.setItem('yadno-pane-collapsed-' + id, !isCollapsed ? '1' : '0');
+  applyPaneState();
+}
 
-<div id="loading-screen">
-  <div class="brand-mark">
-    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" stroke="#F7F4EC" stroke-width="1.6"/><path d="M8 10h8M8 14h5" stroke="#B8862E" stroke-width="1.6" stroke-linecap="round"/></svg>
-  </div>
-  <p>در حال بارگذاری یادنو...</p>
-</div>
+document.querySelectorAll('.pane-collapse').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePane(btn.dataset.pane);
+  });
+});
 
-<div id="config-screen">
-  <div class="config-card">
-    <h1>اتصال به Firebase</h1>
-    <p>برای اینکه یادداشت‌ها بین گوشی و کامپیوترت همگام بشن، این اپ به یک پروژه‌ی رایگان Firebase وصل می‌شه.</p>
-    <textarea id="config-input" placeholder='{ "apiKey": "...", "projectId": "..." }'></textarea>
-    <div class="auth-error" id="config-error"></div>
-    <button class="btn-primary" id="config-save-btn">ذخیره و ادامه</button>
-  </div>
-</div>
+applyPaneState();
 
-<div id="auth-screen">
-  <div class="auth-card">
-    <h1 id="auth-title">ورود به یادنو</h1>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="field"><label>ایمیل</label><input type="email" id="auth-email"></div>
-    <div class="field"><label>رمز عبور</label><input type="password" id="auth-password"></div>
-    <button class="btn-primary" id="auth-submit-btn">ورود</button>
-    <div class="auth-footer-link"><button id="reset-config-btn">تغییر تنظیمات Firebase</button></div>
-  </div>
-</div>
+function startListening() {
+  unsubNotebooks = onSnapshot(query(collection(db, 'users', currentUser.uid, 'notebooks')), (snap) => {
+    notebooks = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(n => !n.deletedAt);
+    if (!activeNotebookId && notebooks.length) activeNotebookId = notebooks[0].id;
+    renderNotebooks();
+    if (activeNotebookId) listenToSections(activeNotebookId);
+  });
+}
 
-<div id="app">
-  <div id="topbar">
-    <button id="menu-toggle" aria-label="منو">☰</button>
-    <button id="mobile-search-btn" class="mobile-search-btn">⌕</button>
-    <div class="logo"><span>یادنو</span></div>
-    <div id="sync-status"><span class="dot"></span><span id="sync-status-text">همگام</span></div>
-    <button id="focus-mode-btn"><span>⛶</span> تمرکز</button>
-    <div id="global-search-wrap"><span id="global-search-icon">⌕</span><input id="global-search-input" placeholder="جست‌وجو در همه دفترها…"></div>
-    <div id="more-menu-wrap">
-      <button id="more-menu-btn">⋮</button>
-      <div id="more-menu-dropdown" style="display:none; position:absolute; left:0; top:40px; background:#fff; border:1px solid #ccc; border-radius:8px; padding:6px; z-index:60; min-width:200px;">
-        <button id="backup-export-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">دانلود پشتیبان (JSON)</button>
-        <button id="backup-import-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">بازیابی پشتیبان</button>
-        <button id="onenote-import-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer;">📥 وارد کردن از OneNote</button>
-        <button id="open-trash-btn" style="background:none; border:none; padding:8px; width:100%; text-align:right; cursor:pointer; color:var(--danger);">🗑️ سطل زباله</button>
-      </div>
-    </div>
-    <input type="file" id="backup-file-input" accept="application/json" style="display:none">
-    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.mht,.mhtml,.one,.onetoc2,.onepkg" multiple style="display:none">
-  </div>
+function listenToSections(nbId) {
+  if (unsubSections) unsubSections();
+  unsubSections = onSnapshot(query(collection(db, 'users', currentUser.uid, 'notebooks', nbId, 'sections')), async (snap) => {
+    sections = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(s => !s.deletedAt);
+    if (!sections.length) {
+      const ref = await addDoc(collection(db, 'users', currentUser.uid, 'notebooks', nbId, 'sections'), { name: 'عمومی', createdAt: serverTimestamp() });
+      activeSectionId = ref.id;
+    } else if (!activeSectionId || !sections.some(s => s.id === activeSectionId)) {
+      activeSectionId = sections[0].id;
+    }
+    renderSections();
+    if (activeSectionId) listenToNotes(nbId, activeSectionId);
+  });
+}
 
-  <div id="main-grid">
-    <div id="notebooks-pane" class="pane">
-      <div class="pane-header">
-        <span>دفترها</span>
-        <div class="header-actions">
-          <button class="icon-btn pane-collapse" data-pane="notebooks-pane">‹</button>
-          <button class="icon-btn" id="add-notebook-btn">＋</button>
-        </div>
-      </div>
-      <div id="notebooks-list"></div>
-    </div>
-    <div class="pane-resizer" data-before="notebooks-pane" data-css="--nb-w"></div>
+function listenToNotes(nbId, secId) {
+  if (unsubNotes) unsubNotes();
+  unsubNotes = onSnapshot(query(collection(db, 'users', currentUser.uid, 'notebooks', nbId, 'notes')), (snap) => {
+    notes = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(n => !n.deletedAt && n.sectionId === secId);
+    renderNotes();
+  });
+}
 
-    <div id="sections-pane" class="pane">
-      <div class="pane-header">
-        <span id="sections-pane-title">بخش‌ها</span>
-        <div class="header-actions">
-          <button class="icon-btn pane-collapse" data-pane="sections-pane">‹</button>
-          <button class="icon-btn" id="add-section-btn">＋</button>
-        </div>
-      </div>
-      <div id="sections-list"></div>
-    </div>
-    <div class="pane-resizer" data-before="sections-pane" data-css="--sec-w"></div>
+function renderNotebooks() {
+  const list = $('notebooks-list');
+  list.innerHTML = notebooks.map(nb => `<div class="notebook-item ${nb.id === activeNotebookId ? 'active' : ''}" onclick="window.selectNb('${nb.id}')">${escapeHtml(nb.name)}</div>`).join('');
+}
+window.selectNb = (id) => { activeNotebookId = id; activeSectionId = null; activeNoteId = null; renderNotebooks(); listenToSections(id); openMobilePane('sections'); };
 
-    <div id="notes-pane" class="pane">
-      <div class="pane-header">
-        <span id="notes-pane-title">یادداشت‌ها</span>
-        <div class="header-actions">
-          <button class="icon-btn pane-collapse" data-pane="notes-pane">‹</button>
-          <button class="icon-btn" id="add-note-btn">＋</button>
-        </div>
-      </div>
-      <div id="notes-list"></div>
-    </div>
-    <div class="pane-resizer" data-before="notes-pane" data-css="--notes-w"></div>
+function renderSections() {
+  const list = $('sections-list');
+  list.innerHTML = sections.map(sec => `<div class="notebook-item ${sec.id === activeSectionId ? 'active' : ''}" onclick="window.selectSec('${sec.id}')">${escapeHtml(sec.name)}</div>`).join('');
+}
+window.selectSec = (id) => { activeSectionId = id; activeNoteId = null; renderSections(); listenToNotes(activeNotebookId, id); openMobilePane('notes'); };
 
-    <div id="editor-pane">
-      <div id="editor-empty"><span>یک یادداشت را انتخاب کنید</span></div>
-      <div id="editor-content">
-        <div id="editor-toolbar">
-          <button data-cmd="bold">B</button>
-          <button data-cmd="italic">I</button>
-          <button data-cmd="underline">U</button>
-          <select id="font-select">
-            <option value="Vazirmatn">پیش‌فرض</option>
-            <option value="Tahoma">Tahoma</option>
-            <option value="Arial">Arial</option>
-          </select>
-          <button id="checklist-btn">☑ چک‌لیست</button>
-          <button id="image-btn">🖼 عکس</button>
-          <button id="attachment-btn">📎 پیوست</button>
-          <button id="share-note-btn">اشتراک</button>
-          <button id="delete-note-btn" style="color:var(--danger);">حذف</button>
-        </div>
-        <input id="title-input" type="text" placeholder="عنوان یادداشت">
-        <div id="attachments-box" style="display:none; padding:8px; border-bottom:1px solid #ddd;"><div id="attachments-list"></div></div>
-        <div id="body-editor" contenteditable="true"></div>
-      </div>
-    </div>
-  </div>
-  <div id="mobile-overlay"></div>
-  <input type="file" id="image-file-input" accept="image/*" style="display:none">
-  <input type="file" id="attachment-file-input" multiple style="display:none">
-</div>
+function renderNotes() {
+  const list = $('notes-list');
+  list.innerHTML = notes.map(n => `<div class="note-item ${n.id === activeNoteId ? 'active' : ''}" onclick="window.selectNote('${n.id}')"><div class="n-title">${escapeHtml(n.title || 'بدون عنوان')}</div></div>`).join('');
+}
+window.selectNote = (id) => {
+  activeNoteId = id;
+  renderNotes();
+  const note = notes.find(n => n.id === id);
+  if (note) {
+    $('editor-empty').style.display = 'none';$('editor-content').style.display = 'flex';
+    $('title-input').value = note.title \vert{}\vert{} '';$('body-editor').innerHTML = note.body || '';
+    openMobilePane(null);
+  }
+};
 
-<div class="modal-overlay" id="search-modal"><div class="modal-box search-box">
-  <div class="search-head"><h2 style="margin:0">جست‌وجوی یادنو</h2><button class="btn-secondary" id="close-search-btn">بستن</button></div>
-  <div id="search-results"></div>
-</div></div>
+$('add-notebook-btn').addEventListener('click', async () => {
+  const name = prompt('نام دفتر جدید:');
+  if (name) await addDoc(collection(db, 'users', currentUser.uid, 'notebooks'), { name, createdAt: serverTimestamp() });
+});
 
-<div class="modal-overlay" id="trash-modal"><div class="modal-box">
-  <h3>🗑️ سطل زباله</h3>
-  <div id="trash-list"></div>
-  <button class="btn-secondary" id="close-trash-btn" style="margin-top:10px;">بستن</button>
-</div></div>
+$('add-section-btn').addEventListener('click', async () => {
+  if (!activeNotebookId) return alert('ابتدا یک دفتر انتخاب کنید.');
+  const name = prompt('نام بخش جدید:');
+  if (name) await addDoc(collection(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'sections'), { name, createdAt: serverTimestamp() });
+});
 
-<div id="onenote-modal" class="modal-overlay">
-  <div class="modal-box">
-    <h3>وارد کردن 
+$('add-note-btn').addEventListener('click', async () => {
+  if (!activeNotebookId || !activeSectionId) return alert('ابتدا بخش و دفتر را انتخاب کنید.');
+  const ref = await addDoc(collection(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes'), {
+    title: 'یادداشت جدید', body: '', sectionId: activeSectionId, createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+  });
+  window.selectNote(ref.id);
+});
+
+// ذخیره خودکار
+function scheduleSave() {
+  if (!activeNotebookId || !activeNoteId) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId), {
+      title: $('title-input').value,
+      body: $('body-editor').innerHTML,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }, 600);
+}
+$('title-input').addEventListener('input', scheduleSave);$('body-editor').addEventListener('input', scheduleSave);
+
+$('more-menu-btn').addEventListener('click', () => {
+  const dropdown = $('more-menu-dropdown');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+// سطل زباله
+$('open-trash-btn').addEventListener('click', async () => {$('more-menu-dropdown').style.display = 'none';
+  const trashList = $('trash-list');
+  trashList.innerHTML = 'در حال بارگذاری...';
+  $('trash-modal').classList.add('open');
+  const snap = await getDocs(collection(db, 'users', currentUser.uid, 'notebooks'));
+  let html = '';
+  snap.forEach(d => {
+    if (d.data().deletedAt) {
+      html += `<div>دفتر: ${escapeHtml(d.data().name)}</div>`;
+    }
+  });
+  trashList.innerHTML = html || 'سطل زباله خالی است.';
+});
+$('close-trash-btn').addEventListener('click', () =>$('trash-modal').classList.remove('open'));
+
+// تفکیک صفحات وان‌نوت
+function splitOneNoteHtmlDocument(doc) {
+  const body = doc.body || doc.documentElement;
+  if (!body) return null;
+  const hrs = body.querySelectorAll('hr');
+  const h1s = body.querySelectorAll('h1');
+  if (!hrs.length || h1s.length < 2) return null;
+  const segments = []; let current = [];
+  const flush = () => { if (current.some(n => (n.textContent || '').trim())) segments.push(current); current = []; };
+  [...body.childNodes].forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'HR') { flush(); }
+    else current.push(node);
+  });
+  flush();
+  return segments.length >= 2 ? segments : null;
+}
+
+async function parseOneNoteHtml(html, name) {
+  const parser = new DOMParser();
+  const docx = parser.parseFromString(html, 'text/html');
+  const segments = splitOneNoteHtmlDocument(docx);
+  
+  if (segments) {
+    return segments.map((nodes, i) => {
+      const wrap = document.createElement('div');
+      nodes.forEach(n => wrap.appendChild(n.cloneNode(true)));
+      let titleEl = wrap.querySelector('h1, h2, h3');
+      let title = (titleEl?.textContent || '').trim();
+      if (title) titleEl.remove();
+      if (!title) title = `صفحه ${i + 1}`;
+      return { title, body: wrap.innerHTML };
+    });
+  }
+  
+  const titleEl = docx.querySelector('title, h1, h2');
+  let title = (titleEl?.textContent || name || 'یادداشت وارد شده').trim();
+  return [{ title, body: docx.body ? docx.body.innerHTML : html }];
+}
+
+$('onenote-import-btn').addEventListener('click', () => { $('more-menu-dropdown').style.display = 'none';$('onenote-modal').classList.add('open'); });
+$('onenote-cancel-btn').addEventListener('click', () =>$('onenote-modal').classList.remove('open'));
+$('onenote-choose-btn').addEventListener('click', () =>$('onenote-file-input').click());
+
+$('onenote-file-input').addEventListener('change', async e => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  $('onenote-import-status').textContent = 'در حال پردازش فایل‌ها...';
+  try {
+    let allPages = [];
+    for (const file of files) {
+      const text = await file.text();
+      const pages = await parseOneNoteHtml(text, file.name.replace(/\.[^/.]+$/, ""));
+      allPages.push(...pages);
+    }
+    window.importedOneNotePages = allPages;
+    $('onenote-preview').innerHTML = `<b>تعداد یادداشت‌های استخراج‌شده:</b> ${allPages.length} صفحه<br><ul>${allPages.slice(0, 10).map(p => `<li>${escapeHtml(p.title)}</li>`).join('')}</ul>`;
+    $('onenote-preview').style.display = 'block';
+    $('onenote-import-confirm-btn').style.display = 'inline-block';$('onenote-import-status').textContent = 'آماده برای ورود اطلاعات.';
+  } catch(err) {
+    $('onenote-import-status').textContent = 'خطا در خواندن فایل.';
+  }
+  e.target.value = '';
+});
+
+$('onenote-import-confirm-btn').addEventListener('click', async () => {
+  if (!window.importedOneNotePages || !activeNotebookId) return;
+  $('onenote-import-status').textContent = 'در حال ذخیره یادداشت‌ها...';
+  const secRef = activeSectionId ? activeSectionId : (sections[0]?.id);
+  
+  for (const page of window.importedOneNotePages) {
+    await addDoc(collection(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes'), {
+      title: page.title,
+      body: page.body,
+      sectionId: secRef,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  }
+  $('onenote-modal').classList.remove('open');$('onenote-import-status').textContent = '';
+});
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function openMobilePane(which) {
+  $('notebooks-pane').classList.toggle('open', which === 'notebooks');$('sections-pane').classList.toggle('open', which === 'sections');
+  $('notes-pane').classList.toggle('open', which === 'notes');$('mobile-overlay').classList.toggle('show', !!which);
+}
+$('menu-toggle').addEventListener('click', () => openMobilePane('notebooks'));$('mobile-overlay').addEventListener('click', () => openMobilePane(null));
+</script>
+</body>
+</html>
