@@ -2018,34 +2018,62 @@ async function sanitizeImportedHtml(root){
 function splitOneNoteHtmlDocument(doc){
   const body=doc.body||doc.documentElement;
   if(!body) return null;
+
+  // ── الگوی OneNote 15 (خروجی «Single File Web Page» از OneNote 2013/2016):
+  // هر صفحه داخل یک <div style="direction:rtl;border-width:100%"> قرار می‌گیرد
+  // و تیتر صفحه اولین <p> با font-size:20pt است؛ بلاک تاریخ/ساعت هم با رنگ
+  // خاکستری (color:#767676) مشخص است. این فایل‌ها نه <hr> دارند نه <h1>.
+  const markers=[...body.children].filter(el=>
+    el.tagName==='DIV' && /border-width\s*:\s*100%/.test(el.getAttribute('style')||''));
+  if(markers.length>=2){
+    const all=[...body.childNodes];
+    const segments=[];
+    for(let i=0;i<markers.length;i++){
+      const from=all.indexOf(markers[i]);
+      const to=(i+1<markers.length)?all.indexOf(markers[i+1]):all.length;
+      const seg=all.slice(from,to);
+      // حذف پاراگراف‌های خالیِ جداکننده بین صفحه‌ها (از ته هر قطعه)
+      while(seg.length && !((seg[seg.length-1].textContent||'').replace(/\u00a0/g,' ').trim())) seg.pop();
+      if(seg.length) segments.push(seg);
+    }
+    if(segments.length>=2) return {segments,mode:'onenote15'};
+  }
+
+  // ── الگوی عمومی‌تر (بعضی خروجی‌ها): صفحه‌ها با <hr> جدا شده‌اند و هر
+  // صفحه با <h1> شروع می‌شود
   const hrs=body.querySelectorAll('hr');
   const h1s=body.querySelectorAll('h1');
-  // فقط وقتی چندصفحه‌ای را قطعه‌قطعه کن که نشانه‌های قابل‌اعتماد دارد:
-  // حداقل یک <hr> و حداقل دو <h1> (یعنی بیش از یک تیتر صفحه)
-  if(!hrs.length||h1s.length<2) return null;
-  const segments=[]; let current=[];
-  const flush=()=>{ if(current.some(n=>(n.textContent||'').trim())) segments.push(current); current=[]; };
-  [...body.childNodes].forEach(node=>{
-    if(node.nodeType===Node.ELEMENT_NODE&&node.tagName==='HR'){ flush(); }
-    else current.push(node);
-  });
-  flush();
-  if(segments.length<2) return null;
-  return segments;
+  if(hrs.length&&h1s.length>=2){
+    const segments=[]; let current=[];
+    const flush=()=>{ if(current.some(n=>(n.textContent||'').trim())) segments.push(current); current=[]; };
+    [...body.childNodes].forEach(node=>{
+      if(node.nodeType===Node.ELEMENT_NODE&&node.tagName==='HR'){ flush(); }
+      else current.push(node);
+    });
+    flush();
+    if(segments.length>=2) return {segments,mode:'hr'};
+  }
+  return null;
 }
 
 async function parseOneNoteHtml(html,name,groupName=''){
   const { html: decodedHtml } = parseMhtml(html);
   const parser=new DOMParser(),docx=parser.parseFromString(decodedHtml,'text/html');
-  const segments=splitOneNoteHtmlDocument(docx);
-  if(segments){
+  const split=splitOneNoteHtmlDocument(docx);
+  if(split){
     // خروجی چندصفحه‌ای: هر قطعه یک یادداشت جدا می‌شود
-    return segments.map((nodes,i)=>{
+    return split.segments.map((nodes,i)=>{
       const wrap=document.createElement('div');
       nodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
       sanitizeImportedHtml(wrap);
-      let titleEl=wrap.querySelector('h1,h2,h3');
-      let title=(titleEl?.textContent||'').trim().replace(/\s+/g,' ');
+      let titleEl=null;
+      if(split.mode==='onenote15'){
+        // تیتر صفحه = اولین <p> با font-size:20pt
+        titleEl=[...wrap.querySelectorAll('p')].find(p=>/font-size\s*:\s*20/.test(p.getAttribute('style')||''));
+      }else{
+        titleEl=wrap.querySelector('h1,h2,h3');
+      }
+      let title=(titleEl?.textContent||'').replace(/\s+/g,' ').trim();
       if(title) titleEl.remove();
       if(!title) title=`صفحهٔ ${i+1}`;
       if(title.length>160) title=title.slice(0,160);
