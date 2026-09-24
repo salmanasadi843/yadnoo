@@ -151,7 +151,10 @@
   .pane-resizer::after{content:'';position:absolute;top:10%;bottom:10%;left:2px;right:2px;border-radius:4px;background:transparent;transition:.15s}
   .pane-resizer:hover::after,.pane-resizer.dragging::after{background:#d9c7a0}
   .pane.collapsed{padding:0!important;overflow:hidden!important}
-  .pane.collapsed > *{display:none!important}
+  .pane.collapsed > *:not(.pane-header){display:none!important}
+  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent}
+  .pane.collapsed .pane-header > span{display:none}
+  .pane.collapsed .pane-header .header-actions{margin-inline-start:auto}
   .pane-collapse{font-size:15px;line-height:1;width:28px;height:28px}
   .pane-header .header-actions{display:flex;align-items:center;gap:2px}
   #notebooks-pane.collapsed,#sections-pane.collapsed,#notes-pane.collapsed{min-width:0}
@@ -356,11 +359,13 @@
   #app.focus-mode #focus-mode-btn .focus-enter{display:none}
   #app.focus-mode #focus-mode-btn .focus-exit{display:inline}
   #app.focus-mode #main-grid{grid-template-columns:0 0 0 0 0 0 minmax(0,1fr);background:transparent}
-  #app.focus-mode #notebooks-pane,#app.focus-mode #sections-pane,#app.focus-mode #notes-pane{display:none!important}
-  #app.focus-mode .pane-resizer{display:none!important}
+  @media (min-width:861px){
+    #app.focus-mode #notebooks-pane,#app.focus-mode #sections-pane,#app.focus-mode #notes-pane{display:none!important}
+    #app.focus-mode .pane-resizer{display:none!important}
+  }
   #app.focus-mode #editor-pane{grid-column:1 / -1}
   #app.focus-mode #editor-content{max-width:1100px}
-  @media(max-width:860px){#focus-mode-btn{padding:7px 8px}#focus-mode-btn .focus-label{display:none}}
+  @media(max-width:860px){#focus-mode-btn{padding:7px 8px}#focus-mode-btn .focus-label{display:none}#app.focus-mode #main-grid{grid-template-columns:100%}}
 
 
   #attachments-box{margin:12px 0 16px;border:1px solid #e8e0d3;border-radius:12px;background:rgba(255,255,255,.55);padding:10px 12px}
@@ -498,37 +503,6 @@
 }
 @media (min-width:601px){#phone-bottom-nav{display:none!important}}
 
-/* ---------- v21: mobile focus mode keeps navigation available ---------- */
-@media (max-width:600px){
-  /* Focus mode still gives the editor the whole screen, but drawers remain usable.
-     They stay closed until the user opens them from the bottom navigation/menu. */
-  #app.focus-mode #notebooks-pane,
-  #app.focus-mode #sections-pane,
-  #app.focus-mode #notes-pane{
-    display:block!important;
-  }
-  #app.focus-mode #phone-bottom-nav{
-    display:flex!important;
-    z-index:120!important;
-  }
-  #app.focus-mode #mobile-overlay{
-    z-index:115!important;
-  }
-  #app.focus-mode #notebooks-pane,
-  #app.focus-mode #sections-pane,
-  #app.focus-mode #notes-pane{
-    z-index:121!important;
-  }
-}
-
-
-
-/* v23: persistent desktop controls for collapsed navigation */
-#desktop-pane-rail{display:flex;position:fixed;inset-inline-start:8px;top:76px;z-index:65;gap:5px;flex-direction:column;pointer-events:none}
-#desktop-pane-rail button{pointer-events:auto;display:none;border:1px solid #d7c7a4;background:#fff9eb;color:#41331d;border-radius:10px;padding:9px 10px;font-size:13px;font-weight:600;font-family:inherit;box-shadow:0 3px 12px #0002;cursor:pointer}
-#desktop-pane-rail button.visible{display:block}
-@media(max-width:860px){#desktop-pane-rail{display:none!important}}
-
 </style>
 </head>
 <body>
@@ -628,11 +602,6 @@
     <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.onepkg,.mht,.mhtml,.one,.onetoc2" multiple style="display:none">
   </div>
 
-  <div id="desktop-pane-rail" aria-label="باز کردن پنل‌های بسته">
-    <button type="button" data-reopen="notebooks-pane">📚 باز کردن دفترها</button>
-    <button type="button" data-reopen="sections-pane">▤ باز کردن بخش‌ها</button>
-    <button type="button" data-reopen="notes-pane">📝 باز کردن یادداشت‌ها</button>
-  </div>
   <div id="main-grid">
     <div id="notebooks-pane" class="pane">
       <div class="pane-header">
@@ -760,9 +729,9 @@
       <button class="icon-btn" id="close-onenote-btn" title="بستن">✕</button>
     </div>
     <div style="line-height:1.9;font-size:13px;color:var(--muted);margin-bottom:12px;">
-      می‌توانی فایل‌های <b>.one</b>، <b>.onetoc2</b> و <b>.onepkg</b> را مستقیماً وارد کنی. ساختار یادنو در مقصد به‌صورت <b>دفتر → بخش → صفحه</b> ساخته می‌شود. HTML و ZIP صفحات HTML هم پشتیبانی می‌شوند.
+      فایل‌های باینری <b>.one</b>، <b>.onetoc2</b> و <b>.onepkg</b> قابل پردازش مستقیم نیستن (فرمت اختصاصی مایکروسافته و کتابخانه‌ی واقعی مرورگری برای بازش نداره). به‌جاش، توی OneNote از منوی <b>File → Export</b> صفحه یا بخش رو به‌صورت <b>HTML</b> یا <b>Single File Web Page (.mht)</b> خروجی بگیر و همون فایل (یا یه ZIP از چندتاشون) رو اینجا وارد کن — این مسیر کامل و قابل‌اعتماده.</br></br>💡 اگه کل یک بخش (با چند صفحه) رو به‌صورت «Single File Web Page (.mht)» یا HTML خروجی بگیری، همه‌ی صفحه‌ها توی یک فایل واحد میاد؛ اپ موقع ورود با تیتر هر صفحه اون‌ها رو خودکار به چند یادداشت جدا تبدیل می‌کنه.</br></br>اگه چند فایل جدا (هرکدوم مال یه دفتر متفاوت) رو با هم انتخاب کنی، هرکدوم به‌عنوان یه <b>دفتر جدا</b> ساخته می‌شه، نه اینکه همه با هم قاطی بشن. اگه از داخل یه پوشه (یا ZIP با ساختار پوشه‌ای) وارد کنی، پوشه‌ی سطح اول = دفتر، زیرپوشه‌ها = گروه بخش.
     </div>
-    <div style="font-size:12px;color:var(--muted);line-height:1.8">فایل‌های HTML/MHTML با رمزگشایی فارسی وارد می‌شوند. بخش‌هایی که موتور OneNote نتواند تبدیل کند، به‌جای ذخیره متن خراب، در پیش‌نمایش به‌عنوان خطا مشخص می‌شوند.</div>
+    <div style="line-height:1.9;font-size:12px;color:#A83E32;margin-bottom:12px;">اگه فایل .one/.onepkg/.onetoc2 رو مستقیم انتخاب کنی، اپ به‌جای شکست خاموش، همین پیام رو بهت نشون می‌ده.</div>
     <div id="onenote-import-status" style="margin:10px 0;"></div>
     <div id="onenote-preview" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:10px;display:none;"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
@@ -773,34 +742,6 @@
   </div>
 </div>
 
-<script>
-// Startup guard runs independently of Firebase module imports.
-(function(){
-  let started=false;
-  function status(message){
-    const screen=document.getElementById('loading-screen');
-    if(!screen || getComputedStyle(screen).display==='none')return;
-    let panel=document.getElementById('startup-recovery');
-    if(!panel){
-      panel=document.createElement('div');panel.id='startup-recovery';
-      panel.style.cssText='max-width:430px;width:calc(100% - 36px);padding:20px;background:white;border:1px solid #e1d8c7;border-radius:14px;box-shadow:0 5px 22px #0001;text-align:center;line-height:2;z-index:1001';
-      const title=document.createElement('strong');title.textContent='مشکل در راه‌اندازی یادنو';panel.appendChild(title);
-      const detail=document.createElement('p');detail.id='startup-detail';panel.appendChild(detail);
-      const retry=document.createElement('button');retry.textContent='بارگذاری مجدد';retry.style.cssText='padding:10px 16px;margin:5px;border-radius:8px';retry.onclick=()=>location.reload();panel.appendChild(retry);
-      const clean=document.createElement('button');clean.textContent='رفع مشکل نسخه ذخیره‌شده و بارگذاری';clean.style.cssText='padding:10px 16px;margin:5px;border-radius:8px';
-      clean.onclick=async()=>{clean.disabled=true;clean.textContent='در حال پاکسازی...';try{if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}if('caches'in window){const keys=await caches.keys();await Promise.all(keys.filter(k=>/yadno/i.test(k)).map(k=>caches.delete(k)));}}catch(e){}location.href=location.pathname+'?refresh='+Date.now();};panel.appendChild(clean);
-      const help=document.createElement('small');help.textContent='این کار یادداشت‌های ذخیره‌شده در Firebase و تنظیمات ورود را حذف نمی‌کند.';help.style.display='block';panel.appendChild(help);
-      screen.appendChild(panel);
-    }
-    document.getElementById('startup-detail').textContent=message;
-  }
-  window.__yadnoStarted=()=>{started=true;};
-  window.__yadnoStartupError=(e)=>status(e?.message||String(e));
-  window.addEventListener('error',e=>{if(!started)status('خطای اجرا: '+(e.message||'بارگذاری یکی از فایل‌ها ناموفق بود.'));});
-  window.addEventListener('unhandledrejection',e=>{if(!started)status('خطای راه‌اندازی: '+(e.reason?.message||e.reason||'نامشخص'));});
-  setTimeout(()=>{if(!started)status('برنامه راه‌اندازی نشد. ممکن است فایل‌های Firebase بارگذاری نشده باشند یا نسخه قدیمی در حافظه مرورگر باقی مانده باشد.');},8000);
-})();
-</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
@@ -818,8 +759,7 @@ const $ = (id) => document.getElementById(id);
 // ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Do not install an old service worker that could serve a stale broken index.html.
-    navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister()))).catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 
@@ -853,7 +793,6 @@ let activeTags = [];
 let searchTimer = null;
 
 function showScreen(name) {
-  if(name!=='loading') window.__yadnoStarted?.();
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
   $('config-screen').style.display = name === 'config' ? 'flex' : 'none';
   $('auth-screen').style.display = name === 'auth' ? 'flex' : 'none';
@@ -879,8 +818,6 @@ function initFirebase(config) {
     });
     return true;
   } catch (e) {
-    console.error('Yadno Firebase init error:', e);
-    window.__yadnoStartupError?.(e);
     return false;
   }
 }
@@ -1025,14 +962,16 @@ const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':2
 const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
 function applyPaneState(){
   const grid=$('main-grid'); if(!grid) return;
+  // در موبایل، ستون‌ها به‌صورت کشویی باز می‌شن؛ حالت «جمع شده» دسکتاپ
+  // نباید روی کشوهای موبایل اعمال بشه وگرنه محتوای کشو مخفی می‌مونه و
+  // کاربر نمی‌تونه دفترها/بخش‌ها/یادداشت‌ها رو باز کنه.
+  const mobile=window.innerWidth<=860;
   Object.keys(paneDefaults).forEach(id=>{
     const pane=$(id); if(!pane) return;
-    const collapsed=localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
+    const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
     if(btn){ btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'باز کردن':'جمع کردن'; }
-    const reopen=document.querySelector('[data-reopen="'+id+'"]');
-    if(reopen) reopen.classList.toggle('visible',collapsed);
     if(collapsed) grid.style.setProperty(paneCss[id],'0px');
     else {
       const saved=parseInt(localStorage.getItem('yadno-pane-width-'+id)||paneDefaults[id],10);
@@ -1042,12 +981,21 @@ function applyPaneState(){
 }
 function togglePane(id){
   const pane=$(id); if(!pane) return;
+  // در موبایل ستون‌ها به‌صورت کشویی باز می‌شن؛ جمع‌کردن دسکتاپ نباید روی کشو اثر بگذارد
+  if(window.innerWidth<=860){ openMobilePane(null); return; }
   const collapsed=!pane.classList.contains('collapsed');
   localStorage.setItem('yadno-pane-collapsed-'+id,collapsed?'1':'0');
   applyPaneState();
 }
+
+// اگر روی هدر یک ستونِ جمع‌شده کلیک شد (غیر از دکمه‌ها)، همان ستون باز شود
+Object.keys(paneCss).forEach(id=>{
+  const pane=$(id); if(!pane) return;
+  pane.querySelector('.pane-header')?.addEventListener('click',(e)=>{
+    if(pane.classList.contains('collapsed') && !e.target.closest('button')) togglePane(id);
+  });
+});
 document.querySelectorAll('.pane-collapse').forEach(btn=>btn.addEventListener('click',()=>togglePane(btn.dataset.pane)));
-document.querySelectorAll('[data-reopen]').forEach(btn=>btn.addEventListener('click',()=>togglePane(btn.dataset.reopen)));
 
 document.querySelectorAll('.pane-resizer').forEach(handle=>{
   handle.addEventListener('pointerdown',e=>{
@@ -1064,6 +1012,11 @@ document.querySelectorAll('.pane-resizer').forEach(handle=>{
   });
 });
 applyPaneState();
+let paneResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(paneResizeTimer);
+  paneResizeTimer=setTimeout(applyPaneState,120);
+});
 applyFocusMode(localStorage.getItem(FOCUS_KEY)==='1');
 
 // ---------- Data: notebooks & notes ----------
@@ -1112,7 +1065,7 @@ function listenToSections(notebookId) {
   if (unsubSections) unsubSections();
   if (unsubSectionGroups) unsubSectionGroups();
   if (unsubNotes) { unsubNotes(); unsubNotes = null; }
-  const gq = query(userCol('notebooks', notebookId, 'sectionGroups'));
+  const gq = query(userCol('notebooks', notebookId, 'sectionGroups'), orderBy('position', 'asc'));
   unsubSectionGroups = onSnapshot(gq, (gsnap) => {
     sectionGroups = gsnap.docs.map(d => ({id:d.id, ...d.data()}))
       .filter(g => !g.deletedAt)
@@ -1921,234 +1874,188 @@ $('close-onenote-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-cancel-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-choose-btn').addEventListener('click',()=>oneNoteInput.click());
 
-// OneNote's .one/.onetoc2 files use the documented revision-store format.
-// The browser importer therefore separates two responsibilities:
-//   1) package/structure discovery (ZIP/.onepkg paths, sections, groups), and
-//   2) content conversion (browser OneNote engine -> Markdown/HTML).
-// This keeps the UI/data model ready for a future WASM parser without pretending
-// that extracting readable strings is a complete binary parser.
-async function loadOneNoteEngine(){
-  if(!oneNoteEnginePromise){
-    oneNoteEnginePromise=import('https://esm.sh/@mdgate/onenote@0.6.25').then(m=>m).catch(err=>{oneNoteEnginePromise=null;throw err;});
-  }
-  return oneNoteEnginePromise;
-}
-function markdownToSafeHtml(md){
-  let text=String(md||'').replace(/\r\n?/g,'\n');
-  const blocks=[];
-  text.split(/\n{2,}/).forEach(block=>{
-    block=block.trim(); if(!block) return;
-    let h=block.match(/^(#{1,6})\s+(.+)$/);
-    if(h){blocks.push(`<h${h[1].length}>${inlineMd(h[2])}</h${h[1].length}>`);return;}
-    if(/^[-*]\s+/m.test(block)){const items=block.split('\n').filter(Boolean).map(x=>x.replace(/^[-*]\s+/,'')).map(x=>`<li>${inlineMd(x)}</li>`).join('');blocks.push(`<ul>${items}</ul>`);return;}
-    if(/^\d+[.)]\s+/m.test(block)){const items=block.split('\n').filter(Boolean).map(x=>x.replace(/^\d+[.)]\s+/,'')).map(x=>`<li>${inlineMd(x)}</li>`).join('');blocks.push(`<ol>${items}</ol>`);return;}
-    blocks.push(`<p>${inlineMd(block).replace(/\n/g,'<br>')}</p>`);
-  });
-  return blocks.join('');
-}
-function inlineMd(s){
-  let x=escapeHtml(String(s));
-  x=x.replace(/!\[([^\]]*)\]\((https?:[^)]+)\)/g,'<img alt="$1" src="$2" style="max-width:100%">');
-  x=x.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
-  x=x.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/__([^_]+)__/g,'<strong>$1</strong>');
-  x=x.replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/_([^_]+)_/g,'<em>$1</em>');
-  x=x.replace(/`([^`]+)`/g,'<code>$1</code>');
-  return x;
+// NOTE ON .one / .onepkg / .onetoc2 FILES:
+// These use Microsoft's proprietary binary "revision store" format
+// (MS-ONESTORE). There is no real, working browser library that parses
+// this format — an earlier version of this importer pointed at a
+// package ("@mdgate/onenote") that does not actually exist on npm, so
+// importing raw .one/.onepkg/.onetoc2 files always silently failed.
+// Rather than pretend to support them, we now fail fast with a clear
+// message and point people at the one format that reliably works:
+// HTML/MHT exported directly from OneNote (File → Export → "Page as
+// Single File Web Page" or a folder of pages), which the importer below
+// parses for real via the browser's own HTML parser.
+async function importNativeOne(file, meta = {}) {
+  throw new Error('فایل‌های .one / .onepkg / .onetoc2 مستقیماً پشتیبانی نمی‌شن (فرمت باینری اختصاصی مایکروسافته). توی OneNote، روی صفحه یا بخش راست‌کلیک کن → Export → گزینه‌ی "Single File Web Page (*.mht)" یا HTML رو انتخاب کن، و همون فایل رو اینجا وارد کن.');
 }
 function pathInfo(path,fallback='عمومی'){
   const clean=String(path||'').replace(/\\/g,'/').split('/').filter(Boolean);
   const file=clean.pop()||fallback;
   const section=(file.replace(/\.(one|onetoc2|onepkg|html?|mht|mhtml)$/i,'').trim()||fallback);
-  const groups=clean.filter(x=>!/^\.?_?rels?$/i.test(x));
-  return {file,section,groupName:groups.join(' / ')};
-}
-function splitMarkdownPages(md,fileName){
-  const raw=String(md||'').replace(/\r\n?/g,'\n').trim();
-  if(!raw) return [];
-  const chunks=raw.split(/\f|\n\s*---\s*PAGE\s*---\s*\n/gi).map(x=>x.trim()).filter(Boolean);
-  const base=pathInfo(fileName).section;
-  return chunks.map((chunk,i)=>{
-    const m=chunk.match(/^#{1,6}\s+(.+)$/m);
-    const title=(m?m[1]:i===0?base:`${base} — صفحه ${i+1}`).trim();
-    return {title,body:markdownToSafeHtml(chunk),position:i};
-  });
-}
-function structuredResultToPages(result,fileName,meta={}){
-  const out=[];
-  const pushPage=(x,i=0)=>{
-    if(!x) return;
-    if(typeof x==='string'){out.push({title:`${meta.sectionName||pathInfo(fileName).section} — صفحه ${i+1}`,body:markdownToSafeHtml(x),...meta,position:i});return;}
-    const title=x.title||x.name||x.pageTitle||`${meta.sectionName||pathInfo(fileName).section} — صفحه ${i+1}`;
-    const body=x.html||x.body||x.content||x.markdown||'';
-    if(body) out.push({title:String(title),body:typeof body==='string' && /<\w[\s\S]*>/i.test(body)?body:markdownToSafeHtml(body),...meta,position:x.position??i});
-  };
-  if(Array.isArray(result?.pages)) result.pages.forEach(pushPage);
-  else if(Array.isArray(result?.sections)) result.sections.forEach(sec=>{
-    const secName=sec.name||sec.title||meta.sectionName;
-    const pages=sec.pages||sec.notes||[];
-    if(Array.isArray(pages)) pages.forEach((x,i)=>pushPage({...x,sectionName:secName},i));
-  });
-  else if(Array.isArray(result?.notebook?.sections)) result.notebook.sections.forEach(sec=>{
-    (sec.pages||[]).forEach((x,i)=>pushPage({...x,sectionName:sec.name||meta.sectionName},i));
-  });
-  if(out.length) return out.map(x=>({...meta,...x,sectionName:x.sectionName||meta.sectionName}));
-  const md=typeof result==='string'?result:result?.markdown||result?.content||'';
-  return splitMarkdownPages(md,fileName).map(x=>({...meta,...x}));
-}
-async function importNativeOne(file,meta={}){
-  const engine=await loadOneNoteEngine();
-  const bytes=new Uint8Array(await file.arrayBuffer());
-  const fn=engine.toMarkdown||engine.convert||engine.default?.toMarkdown||engine.default;
-  if(typeof fn!=='function') throw new Error('تابع تبدیل موتور OneNote پیدا نشد.');
-  let result;
-  try{result=await fn(bytes,{path:file.name});}catch(err){if(/1048[0-9]{3}|body.*(?:long|byte|size)/i.test(String(err?.message||err)))throw new Error('موتور تبدیل OneNote حجم این فایل را نمی‌پذیرد؛ این بخش وارد نشد. فایل را از OneNote به HTML یا MHTML صادر کنید.');result=await fn(bytes);}
-  const pages=structuredResultToPages(result,file.name,meta);
-  if(!pages.length) throw new Error('محتوای قابل انتقال از فایل OneNote پیدا نشد.');
-  return pages;
-}
-// Decode OneNote/Outlook HTML exports: MIME, Quoted-Printable and charset.
-const importUtf8=new TextEncoder();
-function importBytes(text){return importUtf8.encode(text).length;}
-function qpDecodeBytes(text){
-  const raw=String(text).replace(/=\r?\n/g,'');
-  const bytes=[];
-  for(let i=0;i<raw.length;i++){
-    if(raw[i]==='='&&/^[0-9a-f]{2}$/i.test(raw.slice(i+1,i+3))){bytes.push(parseInt(raw.slice(i+1,i+3),16));i+=2;}
-    else {const cp=raw.codePointAt(i);if(cp>65535)i++;bytes.push(...importUtf8.encode(String.fromCodePoint(cp)));}
-  }
-  return new Uint8Array(bytes);
-}
-function decodeCharset(bytes,charset='utf-8'){
-  try{return new TextDecoder(charset,{fatal:false}).decode(bytes);}catch(_){return new TextDecoder('utf-8').decode(bytes);}
-}
-function decodeImportText(raw,forceQP=false,charset='utf-8'){
-  // Avoid decoding normal HTML containing an isolated literal =XX.
-  const matches=String(raw).match(/=[0-9a-f]{2}/gi)||[];
-  const likelyQP=matches.length>=4 && (matches.length>=10 || /(?:=D8|=D9|=DB|=C[23]|=E[0-9A-F])(?:=[0-9A-F]{2})/i.test(raw));
-  return forceQP||likelyQP?decodeCharset(qpDecodeBytes(raw),charset):raw;
-}
-function mimeHeader(headers,name){
-  const m=headers.match(new RegExp('(?:^|\\n)'+name+':\\s*([^\\n]*(?:\\n[ \\t]+[^\\n]*)*)','i'));
-  return m?m[1].replace(/\n[ \t]+/g,' ').trim():'';
-}
-function decodeMimePart(headers,content){
-  const ct=mimeHeader(headers,'Content-Type');
-  const charset=ct.match(/charset\s*=\s*["']?([^;\s"']+)/i)?.[1]||'utf-8';
-  const encoding=mimeHeader(headers,'Content-Transfer-Encoding').toLowerCase();
-  if(encoding.includes('quoted-printable'))return decodeImportText(content,true,charset);
-  if(encoding.includes('base64')){
-    try{const binary=atob(content.replace(/\s/g,''));return decodeCharset(Uint8Array.from(binary,c=>c.charCodeAt(0)),charset);}catch(_){return '';}
-  }
-  return decodeImportText(content,false,charset);
-}
-function decodeMhtml(raw){
-  const input=String(raw).replace(/\r\n/g,'\n');
-  const headerEnd=input.indexOf('\n\n');
-  if(headerEnd<0)return decodeImportText(input);
-  const header=input.slice(0,headerEnd);
-  const boundary=mimeHeader(header,'Content-Type').match(/boundary\s*=\s*(?:"([^"]+)"|([^;\s]+))/i);
-  if(!boundary)return decodeMimePart(header,input.slice(headerEnd+2));
-  const token='--'+(boundary[1]||boundary[2]);
-  const parts=input.split(token).slice(1);
-  const candidates=[];
-  for(const part of parts){
-    if(part.startsWith('--'))break;
-    const trimmed=part.replace(/^\n/,'');const sep=trimmed.indexOf('\n\n');if(sep<0)continue;
-    const h=trimmed.slice(0,sep),body=trimmed.slice(sep+2).replace(/\n$/,'');
-    const ct=mimeHeader(h,'Content-Type');
-    if(/text\/(html|xhtml)/i.test(ct))candidates.push(decodeMimePart(h,body));
-  }
-  if(!candidates.length)throw new Error('بخش HTML در فایل MHTML پیدا نشد.');
-  return candidates.join('\n');
-}
-function decodeHtmlImport(raw,filename){
-  return /\.mhtml?$/i.test(filename)?decodeMhtml(raw):decodeImportText(raw);
-}
-function splitOversizePage(page){
-  const limit=650000;
-  if(importBytes(page.body||'')<=limit)return [page];
-  const doc=new DOMParser().parseFromString(page.body||'','text/html');
-  const blocks=[...doc.body.childNodes];
-  const chunks=[];let current='';
-  const flush=()=>{if(current){chunks.push(current);current='';}};
-  for(const node of blocks){
-    const html=node.nodeType===3?escapeHtml(node.textContent):node.outerHTML||'';
-    if(importBytes(html)>limit){
-      flush();
-      // Oversized single block: preserve readable text rather than saving an invalid Firestore field.
-      const text=node.textContent||'';let piece='';
-      for(const ch of text){if(importBytes(piece+ch)>limit-1000){chunks.push('<p>'+escapeHtml(piece)+'</p>');piece='';}piece+=ch;}
-      if(piece)chunks.push('<p>'+escapeHtml(piece)+'</p>');
-    }else{if(importBytes(current+html)>limit)flush();current+=html;}
-  }
-  flush();
-  return chunks.map((body,i)=>({...page,title:`${page.title} — بخش ${i+1} از ${chunks.length}`,body,position:(page.position||0)+i/1000}));
+  const meaningful=clean.filter(x=>!/^\.?_?rels?$/i.test(x));
+  const notebookHint=meaningful.length?meaningful[0]:null;
+  const groups=meaningful.slice(1);
+  return {file,section,groupName:groups.join(' / '),notebookHint};
 }
 async function importZipContainer(file){
   const zip=await JSZip.loadAsync(await file.arrayBuffer());
   const all=Object.values(zip.files).filter(x=>!x.dir);
   const oneEntries=all.filter(x=>/\.(one|onetoc2)$/i.test(x.name));
   const htmlEntries=all.filter(x=>/\.(html?|xhtml|mht|mhtml)$/i.test(x.name));
+  const zipBaseName=file.name.replace(/\.(zip|onepkg)$/i,'');
   const pages=[];
   if(oneEntries.length){
     for(const entry of oneEntries){
       if(/\.onetoc2$/i.test(entry.name)) continue;
       const info=pathInfo(entry.name);
+      const notebookName=info.notebookHint||zipBaseName;
       const blob=await entry.async('blob');
       const f=new File([blob],info.file,{type:'application/octet-stream'});
-      try{pages.push(...await importNativeOne(f,{sectionName:info.section,groupName:info.groupName,sourcePath:entry.name}));}
-      catch(e){ pages.push({title:info.section,body:'',sectionName:info.section,groupName:info.groupName,sourcePath:entry.name,importError:true,errorMessage:String(e.message||e)}); }
+      try{pages.push(...(await importNativeOne(f,{sectionName:info.section,groupName:info.groupName,sourcePath:entry.name})).map(pg=>({...pg,notebookName})));}
+      catch(e){ pages.push({title:info.section,body:`<p><b>خطا در تبدیل این بخش:</b> ${escapeHtml(e.message||String(e))}</p>`,sectionName:info.section,groupName:info.groupName,sourcePath:entry.name,notebookName,importError:true}); }
     }
   }else{
     for(const entry of htmlEntries.slice(0,500)){
       const info=pathInfo(entry.name);
-      const raw=await entry.async('text');
-      const parsed=await parseOneNoteHtml(decodeHtmlImport(raw,info.file),info.file,info.groupName);
-      pages.push(...parsed.map(p=>({...p,sectionName:info.section,groupName:info.groupName,sourcePath:entry.name})));
+      const notebookName=info.notebookHint||zipBaseName;
+      const html=await entry.async('text');
+      const parsedPages=await parseOneNoteHtml(html,info.file,info.groupName);
+      parsedPages.forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:entry.name,notebookName}));
     }
   }
   if(!pages.length) throw new Error('داخل بسته، فایل OneNote یا صفحه HTML پیدا نشد.');
   return pages;
 }
-// Split only when the export actually contains recognizable page boundaries.
-// A normal single-page HTML with several headings must stay one note.
-function htmlPageCandidates(html,name,groupName=''){
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  const root=doc.body;
-  if(!root)return [];
-  root.querySelectorAll('script,style,meta,link,noscript,iframe,object,embed,form').forEach(x=>x.remove());
-  root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{
-    if(/^on/i.test(a.name)||(/^(href|src|xlink:href)$/i.test(a.name)&&/^\s*(javascript|vbscript):/i.test(a.value))el.removeAttribute(a.name);
-  });});
-  const defaultTitle=(doc.querySelector('title')?.textContent||name||'یادداشت').trim();
-  const getTitle=(node,i)=>{
-    const heading=node.querySelector?.('h1,h2,[class*=title],[id*=title]');
-    return (heading?.textContent||node.getAttribute?.('data-page-title')||defaultTitle+(i?' — صفحه '+(i+1):'')).trim().replace(/\s+/g,' ').slice(0,160);
-  };
-  const make=(node,i)=>({title:getTitle(node,i)||'بدون عنوان',body:node.innerHTML||'',groupName,position:i});
-  // OneNote exports sometimes wrap every page in a named container.
-  const explicit=[...root.querySelectorAll('[data-page-id],[data-page-title],[data-onenote-page],section.one-note-page,article.one-note-page')]
-    .filter(el=>!el.parentElement?.closest('[data-page-id],[data-page-title],[data-onenote-page],section.one-note-page,article.one-note-page'));
-  if(explicit.length>1)return explicit.map(make);
-  // A concatenated HTML export may use page-break-before/page-break-after.
-  const top=[...root.children];
-  const isBreak=el=> /page-break-(?:before|after)\s*:\s*(?:always|page)|break-before\s*:\s*page/i.test(el.getAttribute('style')||'') || /^(?:page-break|onenote-page-break)$/i.test(el.className||'');
-  if(top.some(isBreak)){
-    const pages=[];let bucket=document.createElement('div');
-    const flush=()=>{if(bucket.textContent.trim()||bucket.querySelector('img,table')){pages.push(bucket);bucket=document.createElement('div');}};
-    for(const node of top){
-      const style=node.getAttribute('style')||'';
-      if(/page-break-before\s*:\s*(?:always|page)|break-before\s*:\s*page/i.test(style))flush();
-      if(/^(?:page-break|onenote-page-break)$/i.test(node.className||'')){flush();continue;}
-      bucket.appendChild(node.cloneNode(true));
-      if(/page-break-after\s*:\s*(?:always|page)/i.test(style))flush();
+// ---------- MHTML (.mht) decoding ----------
+// OneNote's "Single File Web Page" export is a MIME multipart message.
+// Text parts are almost always quoted-printable encoded (so every non-ASCII
+// byte of Persian text shows up as literal "=D8=B9" sequences if left
+// undecoded), and embedded images are separate base64/quoted-printable
+// parts referenced by Content-Location or Content-ID. This decodes both
+// properly before the HTML ever reaches the DOM parser.
+function qpToBytes(str) {
+  const s = str.replace(/=\r\n/g, '').replace(/=\n/g, '');
+  const bytes = [];
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '=' && /^[0-9A-Fa-f]{2}$/.test(s.substr(i + 1, 2))) {
+      bytes.push(parseInt(s.substr(i + 1, 2), 16));
+      i += 2;
+    } else {
+      bytes.push(s.charCodeAt(i) & 0xFF);
     }
-    flush();if(pages.length>1)return pages.map(make);
   }
-  return [make(root,0)];
+  return bytes;
 }
+function decodeQuotedPrintable(str) {
+  return new TextDecoder('utf-8').decode(new Uint8Array(qpToBytes(str)));
+}
+function bytesToBinaryString(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return s;
+}
+function parseMhtml(raw) {
+  const boundaryMatch = raw.match(/boundary="?([^"\r\n;]+)"?/i);
+  if (!boundaryMatch) {
+    const cteOnly = raw.match(/Content-Transfer-Encoding:\s*quoted-printable/i);
+    if (cteOnly) {
+      const headerEnd = raw.search(/\r?\n\r?\n/);
+      return { html: decodeQuotedPrintable(headerEnd >= 0 ? raw.slice(headerEnd) : raw), resources: {} };
+    }
+    return { html: raw, resources: {} };
+  }
+  const boundary = boundaryMatch[1];
+  const escaped = boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = raw.split(new RegExp('--' + escaped + '(?:--)?'));
+  let htmlPart = null;
+  const resources = {};
+  parts.forEach((part) => {
+    if (!part || !part.trim()) return;
+    const headerEnd = part.search(/\r?\n\r?\n/);
+    if (headerEnd < 0) return;
+    const headerText = part.slice(0, headerEnd);
+    const body = part.slice(headerEnd).replace(/^\r?\n/, '');
+    const typeMatch = headerText.match(/Content-Type:\s*([^\r\n;]+)/i);
+    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n;]+)/i);
+    const locMatch = headerText.match(/Content-Location:\s*([^\r\n]+)/i);
+    const cidMatch = headerText.match(/Content-ID:\s*<([^>]+)>/i);
+    const type = (typeMatch ? typeMatch[1] : '').trim().toLowerCase();
+    const cte = (cteMatch ? cteMatch[1] : '').trim().toLowerCase();
+    const location = (locMatch ? locMatch[1] : '').trim();
+    const cid = cidMatch ? cidMatch[1].trim() : '';
+    if (type.startsWith('text/html')) {
+      let decoded;
+      if (cte === 'quoted-printable') decoded = decodeQuotedPrintable(body);
+      else if (cte === 'base64') decoded = new TextDecoder('utf-8').decode(Uint8Array.from(atob(body.replace(/\s+/g, '')), (c) => c.charCodeAt(0)));
+      else decoded = body;
+      if (!htmlPart) htmlPart = decoded;
+    } else if (type.startsWith('image/')) {
+      let dataUri = null;
+      if (cte === 'base64') dataUri = `data:${type};base64,${body.replace(/\s+/g, '')}`;
+      else if (cte === 'quoted-printable') dataUri = `data:${type};base64,${btoa(bytesToBinaryString(qpToBytes(body)))}`;
+      if (dataUri) {
+        if (location) resources[location] = dataUri;
+        if (cid) resources['cid:' + cid] = dataUri;
+      }
+    }
+  });
+  let html = htmlPart || raw;
+  Object.keys(resources).forEach((key) => { html = html.split(key).join(resources[key]); });
+  return { html, resources };
+}
+
+async function sanitizeImportedHtml(root){
+  root.querySelectorAll('script,style,meta,link,noscript').forEach(x=>x.remove());
+  root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
+}
+
+// تشخیص خروجی چندصفحه‌ای OneNote: وقتی کل یک بخش به‌صورت
+// "Single File Web Page (.mht)" خروجی گرفته می‌شود، همه‌ی صفحه‌ها در
+// یک سند HTML واحد می‌آیند؛ صفحه‌ها با <hr> از هم جدا شده‌اند و تیتر هر
+// صفحه یک <h1> است. این تابع آن سند را به قطعات صفحه‌به‌صفحه تقسیم می‌کند.
+function splitOneNoteHtmlDocument(doc){
+  const body=doc.body||doc.documentElement;
+  if(!body) return null;
+  const hrs=body.querySelectorAll('hr');
+  const h1s=body.querySelectorAll('h1');
+  // فقط وقتی چندصفحه‌ای را قطعه‌قطعه کن که نشانه‌های قابل‌اعتماد دارد:
+  // حداقل یک <hr> و حداقل دو <h1> (یعنی بیش از یک تیتر صفحه)
+  if(!hrs.length||h1s.length<2) return null;
+  const segments=[]; let current=[];
+  const flush=()=>{ if(current.some(n=>(n.textContent||'').trim())) segments.push(current); current=[]; };
+  [...body.childNodes].forEach(node=>{
+    if(node.nodeType===Node.ELEMENT_NODE&&node.tagName==='HR'){ flush(); }
+    else current.push(node);
+  });
+  flush();
+  if(segments.length<2) return null;
+  return segments;
+}
+
 async function parseOneNoteHtml(html,name,groupName=''){
-  return htmlPageCandidates(html,name,groupName);
+  const { html: decodedHtml } = parseMhtml(html);
+  const parser=new DOMParser(),docx=parser.parseFromString(decodedHtml,'text/html');
+  const segments=splitOneNoteHtmlDocument(docx);
+  if(segments){
+    // خروجی چندصفحه‌ای: هر قطعه یک یادداشت جدا می‌شود
+    return segments.map((nodes,i)=>{
+      const wrap=document.createElement('div');
+      nodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
+      sanitizeImportedHtml(wrap);
+      let titleEl=wrap.querySelector('h1,h2,h3');
+      let title=(titleEl?.textContent||'').trim().replace(/\s+/g,' ');
+      if(title) titleEl.remove();
+      if(!title) title=`صفحهٔ ${i+1}`;
+      if(title.length>160) title=title.slice(0,160);
+      return {title,body:wrap.innerHTML,groupName,position:i+1};
+    });
+  }
+  const titleEl=docx.querySelector('title,h1,h2')||docx.body?.querySelector('p');
+  let title=(titleEl?.textContent||name||'یادداشت').trim().replace(/\s+/g,' '); if(title.length>160) title=title.slice(0,160);
+  const body=docx.body?docx.body.cloneNode(true):docx.documentElement.cloneNode(true);
+  sanitizeImportedHtml(body);
+  return [{title:title||'یادداشت واردشده',body:body.innerHTML,groupName}];
 }
 
 oneNoteInput.addEventListener('change',async e=>{
@@ -2158,32 +2065,35 @@ oneNoteInput.addEventListener('change',async e=>{
     let pages=[];
     for(const file of files){
       const ext=file.name.toLowerCase().split('.').pop();
+      const relPath=file.webkitRelativePath||file.name;
+      const info=pathInfo(relPath);
+      // When files come from a real folder structure, the top folder is the
+      // notebook. When several loose files are picked directly (no folder
+      // structure), each file is its own notebook — that's the fix for
+      // "multiple notebooks were merging into one".
+      const standaloneNotebookName=info.notebookHint||file.name.replace(/\.(one|onetoc2|onepkg|zip|html?|mht|mhtml)$/i,'');
       if(ext==='onepkg'||ext==='zip') pages.push(...await importZipContainer(file));
       else if(ext==='one'){
-        const info=pathInfo(file.webkitRelativePath||file.name);
-        pages.push(...await importNativeOne(file,{sectionName:info.section,groupName:info.groupName,sourcePath:file.webkitRelativePath||file.name}));
+        pages.push(...(await importNativeOne(file,{sectionName:info.section,groupName:info.groupName,sourcePath:relPath})).map(pg=>({...pg,notebookName:standaloneNotebookName})));
       }else if(ext==='onetoc2'){
         // TOC is structural metadata; keep it as a manifest item rather than
         // pretending it is a page. Section files are imported separately.
-        const info=pathInfo(file.webkitRelativePath||file.name);
-        pages.push({title:info.section||file.name,body:'<p>فایل فهرست OneNote شناسایی شد؛ برای ورود محتوای صفحات، فایل‌های بخش‌های مربوط نیز لازم است.</p>',sectionName:info.section,groupName:info.groupName,sourcePath:file.name,manifestOnly:true});
+        pages.push({title:info.section||file.name,body:'<p>فایل فهرست OneNote شناسایی شد؛ برای ورود محتوای صفحات، فایل‌های بخش‌های مربوط نیز لازم است.</p>',sectionName:info.section,groupName:info.groupName,sourcePath:file.name,notebookName:standaloneNotebookName,manifestOnly:true});
       }else if(['html','htm','mht','mhtml'].includes(ext)){
-        const info=pathInfo(file.webkitRelativePath||file.name);
-        const parsed=await parseOneNoteHtml(decodeHtmlImport(await file.text(),info.file),info.file,info.groupName);
-        pages.push(...parsed.map(p=>({...p,sectionName:info.section,groupName:info.groupName,sourcePath:file.webkitRelativePath||file.name})));
+        (await parseOneNoteHtml(await file.text(),info.file,info.groupName)).forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:relPath,notebookName:standaloneNotebookName}));
       }else throw new Error(`نوع فایل پشتیبانی نمی‌شود: ${file.name}`);
     }
     pages=pages.filter(p=>p&&(p.title||p.body));
-    pages=pages.flatMap(p=>p.importError||p.manifestOnly?[p]:splitOversizePage(p));
     if(!pages.length)throw new Error('محتوای قابل انتقال پیدا نشد.');
     oneNoteImportData=pages;
-    oneNoteImportName=files.length===1?files[0].name.replace(/\.(one|onetoc2|onepkg|zip|html?|mht|mhtml)$/i,''):'دفتر OneNote واردشده';
+    const notebookNames=[...new Set(pages.map(p=>p.notebookName||'دفتر واردشده از OneNote'))];
     const groups=new Set(pages.map(p=>p.groupName).filter(Boolean));
     const sections=new Set(pages.map(p=>p.sectionName).filter(Boolean));
     const errors=pages.filter(p=>p.importError).length;
-    oneNotePreview.innerHTML=`<b>پیش‌نمایش ساختاری:</b><div style="margin-top:8px;line-height:2">دفتر: <b>${escapeHtml(oneNoteImportName)}</b><br>گروه‌ها: <b>${groups.size}</b> &nbsp; بخش‌ها: <b>${sections.size}</b> &nbsp; صفحات: <b>${pages.length}</b>${errors?`<br><span style="color:#A83E32">بخش‌های تبدیل‌نشده: ${errors} (وارد نمی‌شوند)</span>`:''}</div><ul>${pages.slice(0,30).map(p=>`<li><b>${escapeHtml(p.groupName||'بخش اصلی')}</b> / ${escapeHtml(p.sectionName||'عمومی')} / ${escapeHtml(p.title||'بدون عنوان')}${p.importError?' — '+escapeHtml(p.errorMessage||'خطای تبدیل'):''}</li>`).join('')}</ul>${pages.length>30?`<small>و ${pages.length-30} مورد دیگر...</small>`:''}`;
-    oneNotePreview.style.display='block'; $('onenote-import-confirm-btn').style.display=pages.some(p=>!p.importError&&!p.manifestOnly)?'inline-block':'none';
-    setOneNoteStatus(`${pages.length} صفحه/مورد برای ورود آماده است.`);
+    const perNotebookCount=nb=>pages.filter(p=>(p.notebookName||'دفتر واردشده از OneNote')===nb).length;
+    oneNotePreview.innerHTML=`<b>پیش‌نمایش ساختاری:</b><div style="margin-top:8px;line-height:2">دفترها: <b>${notebookNames.length}</b> &nbsp; گروه‌ها: <b>${groups.size}</b> &nbsp; بخش‌ها: <b>${sections.size}</b> &nbsp; صفحات: <b>${pages.length}</b>${errors?`<br><span style="color:#A83E32">موارد دارای خطا: ${errors}</span>`:''}</div><ul>${notebookNames.map(nb=>`<li>📕 <b>${escapeHtml(nb)}</b> — ${perNotebookCount(nb)} صفحه</li>`).join('')}</ul><ul>${pages.slice(0,30).map(p=>`<li><b>${escapeHtml(p.notebookName||'دفتر واردشده از OneNote')}</b> / ${escapeHtml(p.groupName||'بخش اصلی')} / ${escapeHtml(p.sectionName||'عمومی')} / ${escapeHtml(p.title||'بدون عنوان')}</li>`).join('')}</ul>${pages.length>30?`<small>و ${pages.length-30} مورد دیگر...</small>`:''}`;
+    oneNotePreview.style.display='block'; $('onenote-import-confirm-btn').style.display='inline-block';
+    setOneNoteStatus(`${pages.length} صفحه در ${notebookNames.length} دفتر برای ورود آماده است.`);
   }catch(err){
     oneNoteImportData=null; $('onenote-import-confirm-btn').style.display='none';
     setOneNoteStatus(err?.message||'فایل OneNote قابل خواندن نیست.',true);
@@ -2191,36 +2101,82 @@ oneNoteInput.addEventListener('change',async e=>{
   e.target.value='';
 });
 
+// Firestore caps a document at ~1MiB. OneNote pages with embedded images
+// can easily exceed that once images are inlined as base64. Rather than
+// letting one oversized page abort the whole import (losing everything
+// already written), we degrade gracefully: strip images first, then
+// truncate the text as a last resort, and say so on the note itself.
+const FIRESTORE_DOC_SAFE_BYTES = 900000; // leaves headroom for the other fields
+function byteSize(str) { return new Blob([str || '']).size; }
+async function addNoteWithSizeGuard(notebookId, sectionId, p) {
+  let title = p.title || 'بدون عنوان';
+  let body = p.body || '';
+  let note = '';
+  if (byteSize(body) > FIRESTORE_DOC_SAFE_BYTES) {
+    body = body.replace(/<img[^>]*>/gi, '');
+    note = '<p><i>(یک یا چند تصویر این صفحه به‌خاطر محدودیت حجم حذف شدند)</i></p>';
+  }
+  if (byteSize(body) > FIRESTORE_DOC_SAFE_BYTES) {
+    const plain = body.replace(/<[^>]+>/g, ' ');
+    let cut = plain;
+    while (byteSize(cut) > FIRESTORE_DOC_SAFE_BYTES - 500) cut = cut.slice(0, Math.floor(cut.length * 0.9));
+    body = `<p>${escapeHtml(cut)}…</p>`;
+    note = '<p><i>(این صفحه به‌خاطر حجم زیاد کوتاه شد؛ برای متن کامل، همون فایل رو دوباره export کن)</i></p>';
+  }
+  try {
+    await addDoc(userCol('notebooks', notebookId, 'notes'), {
+      title, body: body + note, sectionId,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, position: p.position ?? Date.now()
+    });
+  } catch (e) {
+    await addDoc(userCol('notebooks', notebookId, 'notes'), {
+      title, body: `<p><i>خطا در ذخیره‌ی این صفحه: ${escapeHtml(e?.message || String(e))}</i></p>`, sectionId,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, position: p.position ?? Date.now()
+    });
+  }
+}
+
 $('onenote-import-confirm-btn').addEventListener('click',async()=>{
-  if(!oneNoteImportData?.some(p=>!p.importError&&!p.manifestOnly)||!currentUser)return;
+  if(!oneNoteImportData?.length||!currentUser)return;
   try{
-    setOneNoteStatus('در حال ساخت دفتر، گروه‌ها، بخش‌ها و صفحات...');
-    const nbRef=await addDoc(userCol('notebooks'),{name:oneNoteImportName||'دفتر واردشده از OneNote',createdAt:serverTimestamp(),position:Date.now()});
-    const groupMap=new Map(),sectionMap=new Map(); let groupPos=0,sectionPos=0;
-    for(const p of oneNoteImportData){
-      if(p.importError||p.manifestOnly)continue;
-      const gname=(p.groupName||'').trim();
-      if(gname&&!groupMap.has(gname)){
-        const gref=await addDoc(userCol('notebooks',nbRef.id,'sectionGroups'),{name:gname,createdAt:serverTimestamp(),position:groupPos++});
-        groupMap.set(gname,gref.id);
+    setOneNoteStatus('در حال ساخت دفترها، گروه‌ها، بخش‌ها و صفحات...');
+    const byNotebook=new Map();
+    oneNoteImportData.forEach(p=>{
+      const nbName=(p.notebookName||'دفتر واردشده از OneNote').trim()||'دفتر واردشده از OneNote';
+      if(!byNotebook.has(nbName)) byNotebook.set(nbName,[]);
+      byNotebook.get(nbName).push(p);
+    });
+    let firstNbId=null,nbCount=0,nbPos=Date.now();
+    for(const [nbName,pagesForNb] of byNotebook){
+      const nbRef=await addDoc(userCol('notebooks'),{name:nbName,createdAt:serverTimestamp(),position:nbPos++});
+      if(!firstNbId) firstNbId=nbRef.id;
+      nbCount++;
+      const groupMap=new Map(),sectionMap=new Map(); let groupPos=0,sectionPos=0;
+      for(const p of pagesForNb){
+        const gname=(p.groupName||'').trim();
+        if(gname&&!groupMap.has(gname)){
+          const gref=await addDoc(userCol('notebooks',nbRef.id,'sectionGroups'),{name:gname,createdAt:serverTimestamp(),position:groupPos++});
+          groupMap.set(gname,gref.id);
+        }
+        const secName=(p.sectionName||'عمومی').trim()||'عمومی';
+        const skey=gname+'|'+secName;
+        if(!sectionMap.has(skey)){
+          const sref=await addDoc(userCol('notebooks',nbRef.id,'sections'),{name:secName,groupId:groupMap.get(gname)||null,createdAt:serverTimestamp(),position:sectionPos++});
+          sectionMap.set(skey,sref.id);
+        }
+        if(p.manifestOnly)continue;
+        const sectionId=sectionMap.get(skey);
+        await addNoteWithSizeGuard(nbRef.id, sectionId, p);
       }
-      const secName=(p.sectionName||'عمومی').trim()||'عمومی';
-      const skey=gname+'|'+secName;
-      if(!sectionMap.has(skey)){
-        const sref=await addDoc(userCol('notebooks',nbRef.id,'sections'),{name:secName,groupId:groupMap.get(gname)||null,createdAt:serverTimestamp(),position:sectionPos++});
-        sectionMap.set(skey,sref.id);
-      }
-      const sectionId=sectionMap.get(skey);
-      await addDoc(userCol('notebooks',nbRef.id,'notes'),{title:p.title||'بدون عنوان',body:p.body||'',sectionId,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),pinned:false,position:p.position??Date.now()});
     }
-    activeNotebookId=nbRef.id;activeSectionId=null;activeNoteId=null;
-    closeOneNoteModal();setOneNoteStatus('ورود OneNote با ساختار گروه/بخش/صفحه انجام شد.');listenToSections(nbRef.id);
+    activeNotebookId=firstNbId;activeSectionId=null;activeNoteId=null;
+    closeOneNoteModal();setOneNoteStatus(`ورود انجام شد: ${nbCount} دفتر ساخته شد.`);
+    if(firstNbId) listenToSections(firstNbId);
   }catch(e){setOneNoteStatus('ورود انجام نشد: '+(e?.message||e),true);}
 });
 
 // ---------- Mobile panes ----------
 function openMobilePane(which) {
-  document.querySelectorAll('[data-phone-pane]').forEach(b => b.classList.toggle('active', b.dataset.phonePane === which));
   $('notebooks-pane').classList.toggle('open', which === 'notebooks');
   $('sections-pane').classList.toggle('open', which === 'sections');
   $('notes-pane').classList.toggle('open', which === 'notes');
@@ -2254,7 +2210,7 @@ function escapeHtml(str) {
     if(pane){openMobilePane(pane);syncActive();return;}
     if(e.target.closest('[data-phone-new]')){if(activeSectionId&&typeof createNote==='function')createNote();else document.getElementById('add-note-btn')?.click();}
   });
-  const oldOpen=openMobilePane;
+  const oldOpen=window.openMobilePane;
   window.openMobilePane=function(which){
     oldOpen(which);
     syncActive();
