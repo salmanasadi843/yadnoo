@@ -968,6 +968,7 @@ function applyPaneState(){
   const mobile=window.innerWidth<=860;
   Object.keys(paneDefaults).forEach(id=>{
     const pane=$(id); if(!pane) return;
+    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id); // پاک‌سازی پرچم‌های قدیمی روی گوشی
     const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
