@@ -16,6 +16,7 @@
   :root {
     --paper: #F7F4EC;
     --paper-line: #E7E1D2;
+    --line: #E7E1D2;
     --ink: #1D2B4F;
     --ink-soft: #45537A;
     --gold: #B8862E;
@@ -464,7 +465,7 @@
   .pane-header{height:50px;min-height:50px;padding:4px 5px 7px;font-size:14px;position:sticky;top:0;z-index:4}
   .pane-header .header-actions{gap:4px}
   .pane-header .icon-btn{width:40px;height:40px;justify-content:center;font-size:18px}
-  .pane-collapse{display:flex!important}
+  .pane-collapse{display:none!important}
   #mobile-overlay{z-index:85!important;background:rgba(15,18,24,.42);backdrop-filter:blur(1px)}
   #mobile-overlay.show{display:block}
 
@@ -755,8 +756,9 @@ import {
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
-  getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, enableIndexedDbPersistence, getDocs, writeBatch
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
+  query, orderBy, serverTimestamp, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
@@ -765,7 +767,7 @@ const $ = (id) => document.getElementById(id);
 // ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(err => console.warn('Offline service worker:', err));
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 
@@ -797,9 +799,6 @@ let authMode = 'login'; // or 'signup'
 let draggedNoteId = null;
 let activeTags = [];
 let searchTimer = null;
-let offlinePersistenceReady = false;
-let pendingOfflineWrites = false;
-let lastSnapshotFromCache = false;
 
 function showScreen(name) {
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
@@ -812,9 +811,12 @@ function initFirebase(config) {
   try {
     firebaseApp = initializeApp(config);
     auth = getAuth(firebaseApp);
-    db = getFirestore(firebaseApp);
+    try {
+      db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+    } catch (e) {
+      db = getFirestore(firebaseApp); // fallback: e.g. unsupported browser/private mode — falls back to memory-only cache
+    }
     try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
-    enableIndexedDbPersistence(db).then(() => { offlinePersistenceReady = true; updateOfflineStatus(); }).catch(err => { console.warn('Firestore offline cache unavailable:', err); offlinePersistenceReady = false; updateOfflineStatus(); });
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
       if (user) {
@@ -1038,8 +1040,7 @@ function startListening() {
   // بدون orderBy: بعضی داده‌های قدیمی/واردشده ممکن است createdAt نداشته باشند.
   // orderBy در Firestore چنین اسنادی را از نتیجه حذف می‌کند و در موبایل ممکن است لیست کاملاً خالی دیده شود.
   const nbQuery = query(userCol('notebooks'));
-  unsubNotebooks = onSnapshot(nbQuery, { includeMetadataChanges: true }, (snap) => {
-    updateSnapshotMetadata(snap);
+  unsubNotebooks = onSnapshot(nbQuery, (snap) => {
     notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt)
       .sort((a,b) => {
@@ -1053,7 +1054,7 @@ function startListening() {
     renderNotebooks();
     if (activeNotebookId) listenToSections(activeNotebookId);
     else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }
-    updateOfflineStatus();
+    setSyncStatus('online');
   }, (err) => {
     console.error('Yadno notebooks listener error:', err);
     setSyncStatus('offline');
@@ -1109,13 +1110,12 @@ function listenToNotes(notebookId, sectionId) {
   if (unsubNotes) unsubNotes();
   // بدون orderBy تا یادداشت‌های قدیمی فاقد updatedAt هم نمایش داده شوند.
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
-  unsubNotes = onSnapshot(nQuery, { includeMetadataChanges: true }, (snap) => {
-    updateSnapshotMetadata(snap);
+  unsubNotes = onSnapshot(nQuery, (snap) => {
     notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      .filter(n => !n.deletedAt && (n.sectionId || sectionId) === sectionId);
+      .filter(n => !n.deletedAt && (n.sectionId ? n.sectionId === sectionId : sectionId === (sections[0]?.id || sectionId)));
     notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || ((b.updatedAt?.toDate ? b.updatedAt.toDate().getTime() : 0) - (a.updatedAt?.toDate ? a.updatedAt.toDate().getTime() : 0)));
     renderNotes();
-    updateOfflineStatus();
+    setSyncStatus('online');
   }, (err) => { console.error('Yadno notes listener error:', err); setSyncStatus('offline'); });
 }
 
@@ -1129,47 +1129,13 @@ function stopListening() {
 
 function setSyncStatus(state) {
   const el = $('sync-status');
-  if (!el) return;
   el.className = state;
   $('sync-status-text').textContent =
-    state === 'offline' ? 'آفلاین — تغییرات در صف' :
-    state === 'saving' ? 'در حال ذخیره' :
-    state === 'pending' ? 'در انتظار همگام‌سازی' : 'همگام';
-  el.title = state === 'offline' ? 'پس از اتصال دوباره، تغییرات ذخیره‌شده در حافظه محلی ارسال می‌شوند.' : '';
+    state === 'offline' ? 'آفلاین' : state === 'saving' ? 'در حال ذخیره' : 'همگام';
 }
-function updateSnapshotMetadata(snap) {
-  lastSnapshotFromCache = !!snap.metadata.fromCache;
-  pendingOfflineWrites = !!snap.metadata.hasPendingWrites;
-  updateOfflineStatus();
-}
-function updateOfflineStatus() {
-  if (!navigator.onLine) setSyncStatus('offline');
-  else if (pendingOfflineWrites) setSyncStatus('pending');
-  else if (lastSnapshotFromCache) setSyncStatus('pending');
-  else setSyncStatus('online');
-}
-window.addEventListener('online', updateOfflineStatus);
-window.addEventListener('offline', updateOfflineStatus);
+window.addEventListener('online', () => setSyncStatus('online'));
+window.addEventListener('offline', () => setSyncStatus('offline'));
 
-// A separate local draft protects editor text if a tab closes before Firestore queues a write.
-function draftKey(notebookId, noteId) {
-  return currentUser && notebookId && noteId ? `yadno_draft_${currentUser.uid}_${notebookId}_${noteId}` : null;
-}
-function readDraft(notebookId, noteId) {
-  const key = draftKey(notebookId, noteId);
-  if (!key) return null;
-  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
-}
-function saveLocalDraft(notebookId, noteId, data) {
-  const key = draftKey(notebookId, noteId);
-  if (!key) return;
-  try { localStorage.setItem(key, JSON.stringify({ ...data, savedAt: Date.now() })); }
-  catch (err) { console.warn('Local draft storage full/unavailable', err); }
-}
-function clearLocalDraft(notebookId, noteId) {
-  const key = draftKey(notebookId, noteId);
-  if (key) try { localStorage.removeItem(key); } catch {}
-}
 // ---------- Render: notebooks ----------
 function renderNotebooks() {
   const list = $('notebooks-list');
@@ -1303,7 +1269,6 @@ function renderNotes() {
       </div>`;
     el.addEventListener('click', (e) => {
       if (e.target.closest('.note-action')) return;
-      if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; if (activeNoteId && activeNoteId !== n.id) { const prev = readDraft(activeNotebookId, activeNoteId); if (prev) setDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId), { title: prev.title, body: prev.body, tags: prev.tags, updatedAt: serverTimestamp() }, {merge:true}).then(() => clearLocalDraft(activeNotebookId, activeNoteId)).catch(console.error); } }
       activeNoteId = n.id;
       renderNotes();
       openNoteInEditor(n);
@@ -1425,7 +1390,8 @@ async function openSearchResult(n){
   $('search-modal').classList.remove('open');
   renderNotebooks();
   listenToSections(n.notebookId);
-  setTimeout(()=>{openNoteInEditor(n);openMobilePane(null);},300);
+  openNoteInEditor(n);
+  openMobilePane(null);
 }
 async function loadSearchIndex(){
   const id=++searchRequestId;
@@ -1475,11 +1441,9 @@ function showEditorEmpty() {
 function openNoteInEditor(note) {
   $('editor-empty').style.display = 'none';
   $('editor-content').style.display = 'flex';
-  const draft = readDraft(activeNotebookId, note.id);
-  const useDraft = draft && (!note.updatedAt || draft.savedAt > (note.updatedAt.toMillis?.() || 0));
-  $('title-input').value = useDraft ? draft.title : (note.title || '');
-  $('body-editor').innerHTML = useDraft ? draft.body : (note.body || '');
-  activeTags = useDraft ? (draft.tags || []) : (Array.isArray(note.tags) ? [...note.tags] : []);
+  $('title-input').value = note.title || '';
+  $('body-editor').innerHTML = note.body || '';
+  activeTags = Array.isArray(note.tags) ? [...note.tags] : [];
   renderTagChips();
   renderAttachments(note.attachments || []);
 }
@@ -1552,23 +1516,23 @@ $('attachment-btn').addEventListener('click',()=>{ if(!activeNoteId){alert('او
 $('attachment-file-input').addEventListener('change',async e=>{ await uploadAttachments(e.target.files); e.target.value=''; });
 
 function scheduleSave() {
-  if (!activeNotebookId || !activeNoteId || !currentUser) return;
-  const notebookId = activeNotebookId, noteId = activeNoteId, uid = currentUser.uid;
-  const payload = { title: $('title-input').value, body: $('body-editor').innerHTML, tags: [...activeTags] };
-  saveLocalDraft(notebookId, noteId, payload);
-  setSyncStatus(navigator.onLine ? 'saving' : 'offline');
+  if (!activeNotebookId || !activeNoteId) return;
+  // مقادیر همین لحظه capture می‌شن؛ وگرنه اگر کاربر در ۶۰۰ms یادداشت رو عوض کنه،
+  // ذخیره روی یادداشت جدید می‌افته
+  const nbId=activeNotebookId, noteId=activeNoteId;
+  const title=$('title-input').value, body=$('body-editor').innerHTML, tags=[...activeTags];
+  setSyncStatus('saving');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    // Firestore accepts local writes while offline; the promise may resolve only after reconnecting.
-    setDoc(doc(db, 'users', uid, 'notebooks', notebookId, 'notes', noteId), {
-      ...payload, updatedAt: serverTimestamp()
-    }, { merge: true }).then(() => {
-      const latest = readDraft(notebookId, noteId);
-      if (latest && latest.title === payload.title && latest.body === payload.body &&
-          JSON.stringify(latest.tags) === JSON.stringify(payload.tags)) clearLocalDraft(notebookId, noteId);
-      updateOfflineStatus();
-    }).catch(err => { console.error('Note save failed:', err); setSyncStatus('offline'); });
-    updateOfflineStatus();
+  saveTimer = setTimeout(async () => {
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', nbId, 'notes', noteId), {
+        title, body, tags, updatedAt: serverTimestamp()
+      }, { merge: true });
+      setSyncStatus('online');
+    } catch (e) {
+      console.error('Yadno save failed:', e);
+      setSyncStatus('offline');
+    }
   }, 600);
 }
 
@@ -1676,8 +1640,8 @@ async function renderTrash() {
 
 $('delete-note-btn').addEventListener('click', async () => {
   if (!activeNoteId) return;
-  if (!confirm('این یادداشت حذف بشه؟')) return;
-  await deleteDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId));
+  if (!confirm('این یادداشت به سطل زباله منتقل بشه؟')) return;
+  await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId), { deletedAt: serverTimestamp() }, { merge: true });
   activeNoteId = null;
   showEditorEmpty();
 });
@@ -1773,7 +1737,7 @@ function collectRuns(node, fmt, runs) {
     } else if (tag === 'div' || tag === 'p') {
       pushParagraph(block, null);
     } else {
-      pushParagraph(container, null);
+      pushParagraph(block, null);
     }
   });
   return paragraphs.length ? paragraphs : [{ runs: [{ text: '' }], listType: null }];
@@ -1922,7 +1886,6 @@ const oneNoteModal = $('onenote-modal');
 const oneNoteStatus = $('onenote-import-status');
 const oneNotePreview = $('onenote-preview');
 const oneNoteInput = $('onenote-file-input');
-let oneNoteEnginePromise = null;
 
 function setOneNoteStatus(msg,error=false){
   oneNoteStatus.textContent = msg || '';
@@ -2069,7 +2032,7 @@ function parseMhtml(raw) {
   return { html, resources };
 }
 
-async function sanitizeImportedHtml(root){
+function sanitizeImportedHtml(root){
   root.querySelectorAll('script,style,meta,link,noscript').forEach(x=>x.remove());
   root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
 }
@@ -2300,14 +2263,12 @@ function escapeHtml(str) {
   nav.addEventListener('click',e=>{
     const pane=e.target.closest('[data-phone-pane]')?.dataset.phonePane;
     if(pane){openMobilePane(pane);syncActive();return;}
-    if(e.target.closest('[data-phone-new]')){if(activeSectionId&&typeof createNote==='function')createNote();else document.getElementById('add-note-btn')?.click();}
+    if(e.target.closest('[data-phone-new]')){document.getElementById('add-note-btn')?.click();}
   });
-  const oldOpen=window.openMobilePane;
-  window.openMobilePane=function(which){
-    oldOpen(which);
-    syncActive();
-    if(isPhone() && !which) nav.classList.remove('hidden'); else nav.classList.remove('hidden');
-  };
+  // openMobilePane یک تابع ماژول‌اسکوپه (روی window نیست)؛ wrapper باید همان
+  // binding ماژول را بپوشاند وگرنه نه خطا می‌دهد نه syncActive اجرا می‌شود
+  const _openMobilePaneOrig=openMobilePane;
+  openMobilePane=function(which){ _openMobilePaneOrig(which); syncActive(); };
   window.addEventListener('resize',syncActive);
   syncActive();
 })();
