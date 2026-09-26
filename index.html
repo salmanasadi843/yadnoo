@@ -513,6 +513,111 @@
   html[data-theme="dark"] #editor-pane{background:radial-gradient(circle at 50% 0%,#1c2330 0%,#171c26 52%,#12161f 100%)}
   html[data-theme="dark"] .notebook-item.active,html[data-theme="dark"] .note-item.active{background:linear-gradient(90deg,#3a3320,#1b212c);border-color:#5c4a25}
   html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c}
+
+/* ---------- Yadno visual refresh: desktop, phone and authentication ---------- */
+:root {
+  --paper:#f7f8fb;
+  --paper-line:#e4e9f1;
+  --ink:#243451;
+  --ink-soft:#65748b;
+  --gold:#a87a34;
+  --sage:#397e69;
+  --panel:#fff;
+  --radius:13px;
+  --shadow:0 2px 12px rgba(30,46,75,.055);
+}
+html,body{font-synthesis:none}
+button,input,textarea,select{font-family:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,[contenteditable]:focus-visible{
+  outline:2px solid #6a91d0;outline-offset:2px
+}
+#topbar{box-shadow:0 2px 12px rgba(25,40,70,.04)}
+#topbar .logo{letter-spacing:-.25px}
+#main-grid{background:#f7f8fb}
+#notebooks-pane{background:#f5f7fb}
+#sections-pane{background:#fbfcfe}
+#notes-pane{background:#fff}
+#editor-pane{background:#fff}
+.pane-header{font-size:13px;letter-spacing:0;padding-block:8px 13px}
+.notebook-item,.note-item{transition:background .16s,border-color .16s,box-shadow .16s}
+.notebook-item{border-radius:10px}
+.notebook-item.active{background:#e5ecfa;color:#263f75;box-shadow:inset 3px 0 #5278b5}
+.notebook-item.active .del-btn{color:#263f75}
+.note-item{border-radius:11px;border-bottom:1px solid #f1f3f7}
+.note-item.active{background:#edf3ff;border-color:#d9e4f6;box-shadow:none}
+.note-item .n-title{font-size:14px}
+.note-item .n-preview{line-height:1.8}
+#editor-toolbar{background:#fff;box-shadow:0 3px 10px rgba(20,38,68,.035)}
+#editor-toolbar button{border-radius:9px;transition:background .15s}
+#title-input{letter-spacing:-.5px}
+#body-editor{max-width:100%;overflow-wrap:anywhere}
+#body-editor img{max-width:100%;height:auto}
+.auth-card{max-width:410px;border:1px solid #e5eaf2;border-radius:22px;padding:34px 30px;box-shadow:0 20px 70px rgba(28,47,83,.10)}
+#auth-screen{background:radial-gradient(circle at 20% 15%,#e9f0ff 0,transparent 42%),linear-gradient(145deg,#f6f8fc,#f8f6f0)}
+.auth-card h1{font-size:23px}
+.auth-card .sub{line-height:2}
+.field input{background:#fbfcfe;border-color:#dce4ef;border-radius:11px;min-height:47px}
+.field input:focus{border-color:#6686b8;box-shadow:0 0 0 3px rgba(88,126,186,.12)}
+.btn-primary{border-radius:11px;min-height:46px}
+.forgot-password-row{display:flex;justify-content:flex-end;margin:-3px 0 12px}
+.forgot-password-row button{border:0;background:transparent;color:#375e9b;font-size:12.5px;padding:8px 0;cursor:pointer}
+.forgot-password-row button:disabled{opacity:.55;cursor:wait}
+.auth-success{display:none;margin:8px 0 13px;padding:11px 12px;background:#e9f7ef;border:1px solid #c9e9d4;color:#246b43;border-radius:10px;font-size:12.5px;line-height:1.9}
+@media(min-width:1100px){
+  #editor-content{max-width:100%;margin:0 auto;width:100%}
+  #title-input{padding-inline:clamp(24px,4vw,68px)}
+  #body-editor{padding-inline:clamp(24px,4vw,68px)}
+}
+@media(max-width:600px){
+  #auth-screen{padding:15px;align-items:center}
+  .auth-card{padding:27px 20px;border-radius:20px}
+  #notebooks-pane,#sections-pane,#notes-pane{box-shadow:0 15px 45px rgba(22,37,64,.17)}
+  #editor-toolbar{box-shadow:0 2px 10px rgba(22,37,64,.04)}
+  #title-input{font-size:clamp(23px,6vw,29px)}
+  #body-editor{font-size:17px;line-height:2.05}
+  .notebook-item.active{background:#e5ecfa;color:#263f75}
+}
+@media(prefers-reduced-motion:reduce){
+  .notebook-item,.note-item,.pane-resizer{transition:none!important}
+}
+
+
+/* Yadno v19: OneNote-inspired distraction-free reading on phones */
+#reading-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:6px 8px;background:var(--panel,#fff);border:1px solid var(--paper-line,#e4e9f1);border-radius:13px;flex:0 0 auto}
+.reading-control-main,#reading-options{display:flex;align-items:center;gap:5px}
+#reading-controls button{font-family:inherit;border:0;background:transparent;color:var(--ink,#243451);border-radius:9px;padding:9px 11px;min-height:42px;cursor:pointer;font-size:14px;font-weight:700}
+#reading-controls button:focus-visible{outline:2px solid #6a91d0}
+#reading-toggle[aria-pressed="true"]{background:#e5edfa;color:#264b84}
+#reading-options{background:var(--paper,#f7f8fb);border-radius:10px;padding:2px 4px}
+#reading-options button{font-size:22px;min-width:40px;padding:5px}
+#reading-size-label{font-size:13px;min-width:28px;text-align:center;font-weight:700}
+#editor-pane.read-mode #editor-toolbar,#editor-pane.read-mode #toolbar-toggle,#editor-pane.read-mode #tag-editor{display:none!important}
+#editor-pane.read-mode #title-input{pointer-events:none;border:0!important;box-shadow:none!important;cursor:default}
+#editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.12!important;letter-spacing:0;overflow-wrap:break-word;user-select:text;-webkit-user-select:text;cursor:text;border:0!important;box-shadow:none!important;background:transparent!important;min-height:0}
+#editor-pane.read-mode #body-editor p{margin:.35em 0 1em}
+#editor-pane.read-mode #body-editor h2,#editor-pane.read-mode #body-editor h3{line-height:1.65;margin:1.4em 0 .65em}
+#editor-pane.read-mode #body-editor img{display:block;margin:18px auto;max-width:100%;height:auto}
+#editor-pane.read-mode #editor-content{max-width:850px}
+#editor-pane.read-mode #reading-controls{position:sticky;top:0;z-index:12}
+#editor-pane.toolbar-collapsed #editor-toolbar{display:none!important}
+@media(max-width:600px){
+  #editor-content{padding:8px 12px 94px!important}
+  #reading-controls{margin:0 0 9px;padding:5px;gap:4px;box-shadow:0 2px 9px rgba(26,45,75,.05)}
+  #reading-controls button{padding:7px 9px;font-size:13px;min-height:43px}
+  #reading-options{gap:0}
+  #reading-options button{min-width:35px;font-size:21px;padding:5px}
+  #editor-pane.read-mode{background:var(--panel,#fff)!important}
+  #editor-pane.read-mode #editor-content{padding:8px 16px 96px!important}
+  #editor-pane.read-mode #title-input{font-size:clamp(24px,6vw,31px)!important;line-height:1.65;padding:16px 2px 9px!important;margin:0 0 7px}
+  #editor-pane.read-mode #body-editor{padding:12px 2px 100px!important;border-radius:0!important;font-size:var(--reader-font-size,19px)!important;line-height:2.18!important;min-height:calc(100dvh - 250px);overflow-y:auto}
+  #editor-pane.read-mode #attachments-box{margin:4px 0 12px}
+  #editor-pane:not(.read-mode) #editor-toolbar{position:sticky;top:0;max-height:120px;overflow-x:auto;overscroll-behavior-x:contain}
+  #editor-pane:not(.read-mode) #body-editor{font-size:18px;line-height:2.05}
+}
+@media(max-width:380px){#reading-controls button{font-size:12px;padding:6px}#reading-options button{min-width:31px}}
+html[data-theme="dark"] #reading-controls{background:#1b212c;border-color:#303747}
+html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;color:#e5efff}
+
 </style>
 </head>
 <body>
@@ -564,6 +669,10 @@
       <label>رمز عبور</label>
       <input type="password" id="auth-password" placeholder="حداقل ۶ کاراکتر" autocomplete="current-password">
     </div>
+    <div class="forgot-password-row" id="forgot-password-row">
+      <button type="button" id="forgot-password-btn">رمز عبور را فراموش کرده‌ام</button>
+    </div>
+    <div class="auth-success" id="auth-success" role="status" aria-live="polite"></div>
     <button class="btn-primary" id="auth-submit-btn">ورود</button>
     <div class="auth-switch">
       <span id="auth-switch-text">حساب نداری؟</span>
@@ -659,6 +768,17 @@
         <span>یک یادداشت رو انتخاب کن یا یکی تازه بساز</span>
       </div>
       <div id="editor-content">
+        <div id="reading-controls" aria-label="ابزار مطالعه و ویرایش">
+          <div class="reading-control-main">
+            <button type="button" id="reading-toggle" aria-pressed="false" title="تغییر بین مطالعه و ویرایش">📖 <span id="reading-toggle-label">مطالعه</span></button>
+            <button type="button" id="toolbar-toggle" aria-expanded="true" aria-controls="editor-toolbar" title="نمایش یا پنهان کردن ابزارهای ویرایش">✎ <span id="toolbar-toggle-label">ابزارها</span></button>
+          </div>
+          <div id="reading-options" aria-label="تنظیمات خواندن">
+            <button type="button" id="reading-smaller" aria-label="کوچک‌تر کردن نوشته">−</button>
+            <output id="reading-size-label" aria-live="polite">۱۸</output>
+            <button type="button" id="reading-larger" aria-label="بزرگ‌تر کردن نوشته">＋</button>
+          </div>
+        </div>
         <div id="editor-toolbar">
           <button class="b" data-cmd="bold" title="ضخیم">B</button>
           <button class="i" data-cmd="italic" title="مورب">I</button>
@@ -782,7 +902,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  onAuthStateChanged, signOut
+  onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
@@ -959,14 +1079,58 @@ function setAuthMode(mode) {
     $('auth-switch-link').textContent = 'وارد شو';
   }
   $('auth-error').style.display = 'none';
+  $('auth-success').style.display = 'none';
+  $('forgot-password-row').style.display = mode === 'login' ? 'flex' : 'none';
+  $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
 }
 $('auth-switch-link').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
+
+// Firebase sends the reset link. No password or reset token is stored in Yadno.
+$('forgot-password-btn').addEventListener('click', async () => {
+  const email = $('auth-email').value.trim();
+  const error = $('auth-error');
+  const success = $('auth-success');
+  error.style.display = 'none';
+  success.style.display = 'none';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    error.textContent = 'ابتدا ایمیل معتبر حساب خود را وارد کنید.';
+    error.style.display = 'block';
+    $('auth-email').focus();
+    return;
+  }
+  if (!navigator.onLine) {
+    error.textContent = 'برای ارسال ایمیل بازیابی، اتصال اینترنت لازم است.';
+    error.style.display = 'block';
+    return;
+  }
+  const button = $('forgot-password-btn');
+  button.disabled = true;
+  button.textContent = 'در حال ارسال…';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    success.textContent = 'اگر این ایمیل به حسابی در یادنو تعلق داشته باشد، لینک بازیابی ارسال می‌شود. پوشه هرزنامه را نیز بررسی کنید.';
+    success.style.display = 'block';
+  } catch (e) {
+    if (e.code === 'auth/user-not-found') {
+      success.textContent = 'اگر این ایمیل به حسابی در یادنو تعلق داشته باشد، لینک بازیابی ارسال می‌شود. پوشه هرزنامه را نیز بررسی کنید.';
+      success.style.display = 'block';
+    } else {
+      error.textContent = translateAuthError(e.code);
+      error.style.display = 'block';
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = 'رمز عبور را فراموش کرده‌ام';
+  }
+});
+
 
 $('auth-submit-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
   const password = $('auth-password').value;
   const errEl = $('auth-error');
   errEl.style.display = 'none';
+  $('auth-success').style.display = 'none';
   if (!email || !password) {
     errEl.textContent = 'ایمیل و رمز عبور رو وارد کن.';
     errEl.style.display = 'block';
@@ -994,6 +1158,9 @@ function translateAuthError(code) {
     'auth/invalid-credential': 'ایمیل یا رمز عبور اشتباهه.',
     'auth/email-already-in-use': 'این ایمیل قبلاً ثبت شده. وارد شو.',
     'auth/weak-password': 'رمز عبور باید حداقل ۶ کاراکتر باشه.',
+    'auth/network-request-failed': 'ارتباط با اینترنت برقرار نیست. دوباره تلاش کنید.',
+    'auth/too-many-requests': 'درخواست‌های زیادی ارسال شده است. کمی بعد دوباره تلاش کنید.',
+    'auth/operation-not-allowed': 'بازیابی رمز در تنظیمات Firebase فعال نیست.',
   };
   return map[code] || 'مشکلی پیش اومد. دوباره امتحان کن.';
 }
@@ -2352,6 +2519,55 @@ function escapeHtml(str) {
   };
   window.addEventListener('resize',syncActive);
   syncActive();
+})();
+
+
+// ---------- v19: reading mode and compact editing toolbar ----------
+(function setupReadingMode(){
+  const pane=$('editor-pane'), body=$('body-editor'), title=$('title-input');
+  const readButton=$('reading-toggle'), readLabel=$('reading-toggle-label');
+  const toolbarButton=$('toolbar-toggle'), toolbarLabel=$('toolbar-toggle-label');
+  const sizeLabel=$('reading-size-label');
+  const fontKey='yadno-reading-font-size';
+  const getSize=()=>{
+    try { return Math.min(28,Math.max(16,Number(localStorage.getItem(fontKey))||19)); }
+    catch(_) { return 19; }
+  };
+  let size=getSize();
+  const updateSize=()=>{
+    pane.style.setProperty('--reader-font-size',size+'px');
+    sizeLabel.textContent=String(size);
+    try { localStorage.setItem(fontKey,String(size)); } catch(_) {}
+  };
+  updateSize();
+  function setReading(on){
+    if(on && $('editor-content').style.display==='none')return;
+    // Ensure the current editor is blurred before disabling edits.
+    if(on && document.activeElement===body)body.blur();
+    if(on && document.activeElement===title)title.blur();
+    pane.classList.toggle('read-mode',on);
+    readButton.setAttribute('aria-pressed',String(on));
+    readLabel.textContent=on?'ویرایش':'مطالعه';
+    readButton.title=on?'بازگشت به ویرایش':'ورود به حالت مطالعه';
+    body.setAttribute('contenteditable',on?'false':'true');
+    title.readOnly=on;
+    if(!on){pane.classList.remove('toolbar-collapsed');toolbarButton.setAttribute('aria-expanded','true');toolbarLabel.textContent='ابزارها';}
+  }
+  readButton.addEventListener('click',()=>setReading(!pane.classList.contains('read-mode')));
+  toolbarButton.addEventListener('click',()=>{
+    const collapsed=pane.classList.toggle('toolbar-collapsed');
+    toolbarButton.setAttribute('aria-expanded',String(!collapsed));
+    toolbarLabel.textContent=collapsed?'نمایش ابزارها':'ابزارها';
+  });
+  $('reading-smaller').addEventListener('click',()=>{size=Math.max(16,size-1);updateSize();});
+  $('reading-larger').addEventListener('click',()=>{size=Math.min(28,size+1);updateSize();});
+  // On note changes, leave reading mode active and keep the editor non-editable.
+  const noteObserver=new MutationObserver(()=>{
+    if(pane.classList.contains('read-mode')){
+      body.setAttribute('contenteditable','false');title.readOnly=true;
+    }
+  });
+  noteObserver.observe(body,{attributes:true,attributeFilter:['contenteditable']});
 })();
 
 boot();
