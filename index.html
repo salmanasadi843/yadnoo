@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۲۲)</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1D2B4F">
+<meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,13 +144,30 @@
   }
 
   #main-grid {
-    display: grid; grid-template-columns: 220px 260px 1fr; height: 100%; overflow: hidden;
+    --nb-w: 190px; --sec-w: 190px; --notes-w: 260px;
+    display: grid; grid-template-columns: var(--nb-w) 6px var(--sec-w) 6px var(--notes-w) 6px minmax(0,1fr); height: 100%; overflow: hidden;
   }
+  .pane-resizer{cursor:col-resize;background:transparent;position:relative;z-index:5;touch-action:none}
+  .pane-resizer::after{content:'';position:absolute;top:10%;bottom:10%;left:2px;right:2px;border-radius:4px;background:transparent;transition:.15s}
+  .pane-resizer:hover::after,.pane-resizer.dragging::after{background:#d9c7a0}
+  .pane.collapsed{padding:0!important;overflow:hidden!important}
+  .pane.collapsed > *:not(.pane-header){display:none!important}
+  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent}
+  .pane.collapsed .pane-header > span{display:none}
+  .pane.collapsed .pane-header .header-actions{margin-inline-start:auto}
+  .pane-collapse{font-size:15px;line-height:1;width:28px;height:28px}
+  .pane-header .header-actions{display:flex;align-items:center;gap:2px}
+  #notebooks-pane.collapsed,#sections-pane.collapsed,#notes-pane.collapsed{min-width:0}
+  #main-grid.compact{grid-template-columns: var(--nb-w) 6px var(--sec-w) 6px var(--notes-w) 6px minmax(0,1fr)}
 
   .pane { overflow-y: auto; }
   #notebooks-pane {
     border-inline-start: 1px solid var(--paper-line); background: var(--panel);
     padding: 14px 10px;
+  }
+  #sections-pane {
+    border-inline-start: 1px solid var(--paper-line); background: #F7F5EE;
+    padding: 12px 10px;
   }
   #notes-pane {
     border-inline-start: 1px solid var(--paper-line); background: #FBFAF6;
@@ -294,20 +311,388 @@
   #body-editor .checklist input { margin-top:.65em; }
   .section-divider { border:0; border-top:2px solid var(--paper-line); margin:18px 0; }
 
+
+  /* ---------- v9 visual refresh ---------- */
+  :root{--accent:#B8862E;--accent-soft:#F3E8CC;--panel:#FBFAF7;--shadow:0 10px 35px rgba(43,35,22,.08)}
+  body{background:linear-gradient(135deg,#f7f3ea 0%,#f1eee6 48%,#f8f7f3 100%)}
+  #topbar{height:58px;background:rgba(42,35,24,.97);box-shadow:0 4px 20px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
+  .logo{font-size:18px;letter-spacing:.2px}.logo .brand-mark{box-shadow:0 4px 14px rgba(184,134,46,.22)}
+  #sync-status{border:1px solid rgba(255,255,255,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.05)}
+  #main-grid{gap:1px;background:#d9d2c5}
+  .pane{background:rgba(251,250,247,.96);box-shadow:inset -1px 0 rgba(0,0,0,.025)}
+  .pane-header{height:54px;background:linear-gradient(#fffefa,#f7f4ed);border-bottom:1px solid #e5ded1;position:sticky;top:0;z-index:2}
+  .notebook-item,.note-item{margin:4px 7px;border:1px solid transparent;border-radius:11px;transition:.16s ease;}
+  .notebook-item:hover,.note-item:hover{background:#f4f0e8;border-color:#e4dccd;transform:translateY(-1px)}
+  .notebook-item.active,.note-item.active{background:linear-gradient(90deg,#f2e6ca,#fbf8ef);border-color:#dcc58e;box-shadow:0 3px 12px rgba(184,134,46,.08)}
+  .note-item{padding:11px 10px}.note-item .n-title{font-weight:750}.note-item .n-preview{color:#77716a}
+  #editor-pane{background:radial-gradient(circle at 50% 0%,#fffefb 0%,#fbfaf7 52%,#f5f1e8 100%)}
+  #editor-content{max-width:1000px;width:100%;margin:auto;padding:24px 34px 70px}
+  #title-input{font-size:28px;font-weight:800;letter-spacing:-.3px;border-bottom:2px solid #e9e1d3;background:transparent;padding:10px 4px 14px}
+  #title-input:focus{border-bottom-color:#c9a65d}
+  #editor-toolbar{background:rgba(255,253,248,.92);border:1px solid #e5ded1;border-radius:14px;padding:7px;box-shadow:var(--shadow);position:sticky;top:10px;z-index:5;backdrop-filter:blur(12px)}
+  #editor-toolbar button,#editor-toolbar select{border-radius:8px}
+  #editor-toolbar button:hover{background:#f0e7d4;color:#5c461e}
+  #body-editor{background:rgba(255,255,255,.42);border:1px solid #eee8dd;border-radius:14px;padding:20px 22px;min-height:520px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+  #body-editor:focus{border-color:#d6bd82;box-shadow:0 0 0 3px rgba(184,134,46,.08)}
+  .tag-editor{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:10px 0 16px;padding:8px 2px}
+  .tag-chip{display:inline-flex;align-items:center;gap:5px;background:#eee5d1;border:1px solid #dfcfab;color:#654c20;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+  .tag-chip button{border:0;background:transparent;cursor:pointer;color:inherit;padding:0;font-size:13px}
+  #tag-input{border:1px dashed #d9cfbd;background:rgba(255,255,255,.65);border-radius:999px;padding:7px 12px;min-width:150px;outline:none}
+  #tag-input:focus{border-color:#bfa05f;box-shadow:0 0 0 3px rgba(184,134,46,.08)}
+  #global-search-wrap{position:relative;flex:1;max-width:420px;margin-inline:14px}
+  #search-modal-input-row{position:relative;margin-bottom:12px}
+  #search-modal-input{width:100%;height:44px;border:1px solid var(--line,#3a3a3a);background:var(--panel-2,rgba(0,0,0,.04));border-radius:999px;padding:0 42px 0 16px;font-size:15px;outline:none}
+  #search-modal-input:focus{border-color:#d4b46c}
+  #search-modal-input-icon{position:absolute;inset-inline-end:16px;top:50%;transform:translateY(-50%);opacity:.6;pointer-events:none}
+  @media(min-width:861px){#search-modal-input-row{display:none}}
+  .mobile-search-btn{display:none;border:0;background:transparent;color:#f7f4ec;font-size:23px;padding:6px 8px}
+  #global-search-input{width:100%;height:36px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:0 40px 0 14px;outline:none}
+  #global-search-input::placeholder{color:rgba(255,255,255,.58)}
+  #global-search-input:focus{border-color:#d4b46c;background:rgba(255,255,255,.12)}
+  #global-search-icon{position:absolute;right:13px;top:9px;color:#d8c69e;font-size:16px}
+  #search-modal .modal-box{width:min(850px,100%);max-height:85vh;overflow:auto}
+  .search-result{padding:12px;border:1px solid #e8e0d3;border-radius:12px;margin:7px 0;cursor:pointer;background:#fffdfa}
+  .search-result:hover{background:#f8f1df;border-color:#d9c18d}
+  .search-result-title{font-weight:800}.search-result-meta{font-size:12px;color:#81796f;margin-top:4px}.search-result-preview{font-size:13px;color:#5f5a53;margin-top:7px}
+  .tag-filter{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.tag-filter button{border:1px solid #dfd4c1;background:#faf7f0;border-radius:999px;padding:6px 10px;cursor:pointer}.tag-filter button.active{background:#ead8ad;border-color:#cda95b}
+  .search-box{width:min(900px,calc(100% - 24px));max-height:88vh;overflow:auto;padding:18px}.search-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}.search-count{font-size:12px;color:#857b6d;margin-top:3px}.search-filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}.search-filters select{min-width:0;border:1px solid #ddd3c2;background:#fffdf8;border-radius:9px;padding:9px 10px;color:var(--ink);font-family:inherit}.search-active-filter{min-height:4px}.search-result{padding:13px 14px;border:1px solid #e8e0d3;border-radius:12px;margin:7px 0;cursor:pointer;background:#fffdfa;transition:.15s}.search-result:hover{background:#f8f1df;border-color:#d9c18d;transform:translateY(-1px)}.search-result-title{font-weight:800;font-size:14px}.search-result-meta{font-size:12px;color:#81796f;margin-top:4px}.search-result-preview{font-size:13px;color:#5f5a53;margin-top:7px;line-height:1.8}.search-result mark{background:#f2d98f;color:inherit;border-radius:3px;padding:0 2px}.search-empty{padding:28px;text-align:center;color:#8b8174}.search-more{font-size:12px;color:#8b8174;text-align:center;padding:10px}.search-kbd{font-size:11px;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:2px 5px;color:#d8c69e;margin-inline-start:5px}.search-clear{border:0;background:transparent;color:#8b6a28;cursor:pointer;font-family:inherit;font-size:12px}.search-loading{padding:24px;text-align:center;color:#857b6d}@media(max-width:650px){.search-filters{grid-template-columns:1fr}.search-box{padding:14px}.search-result{padding:11px}}
+  @media(max-width:860px){#global-search-wrap{display:none}.mobile-search-btn{display:block}#editor-content{padding:16px 14px 50px}#title-input{font-size:23px}#body-editor{min-height:430px}}
+  /* ---------- Focus mode ---------- */
+  #focus-mode-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f7f4ec;border-radius:8px;padding:7px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+  #focus-mode-btn:hover{background:rgba(255,255,255,.14)}
+  #focus-mode-btn .focus-exit{display:none}
+  #app.focus-mode #focus-mode-btn .focus-enter{display:none}
+  #app.focus-mode #focus-mode-btn .focus-exit{display:inline}
+  #app.focus-mode #main-grid{grid-template-columns:0 0 0 0 0 0 minmax(0,1fr);background:transparent}
+  @media (min-width:861px){
+    #app.focus-mode #notebooks-pane,#app.focus-mode #sections-pane,#app.focus-mode #notes-pane{display:none!important}
+    #app.focus-mode .pane-resizer{display:none!important}
+  }
+  #app.focus-mode #editor-pane{grid-column:1 / -1}
+  #app.focus-mode #editor-content{max-width:1100px}
+  @media(max-width:860px){#focus-mode-btn{padding:7px 8px}#focus-mode-btn .focus-label{display:none}#app.focus-mode #main-grid{grid-template-columns:100%}}
+
+
+  #attachments-box{margin:12px 0 16px;border:1px solid #e8e0d3;border-radius:12px;background:rgba(255,255,255,.55);padding:10px 12px}
+  #attachments-header{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#6c6459}
+  #attachments-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .attachment-item{display:flex;align-items:center;gap:8px;max-width:100%;padding:7px 9px;border:1px solid #e4dccd;border-radius:10px;background:#fffdfa}
+  .attachment-name{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+  .attachment-item a{color:#5d4b29;text-decoration:none}
+  .attachment-open{border:0;background:transparent;color:#1D2B4F;font-family:inherit;font-weight:600;min-width:0;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px;text-align:right;cursor:pointer}
+  .attachment-download{border:1px solid #e4dccd;background:#f8f4ea;color:#1D2B4F;border-radius:8px;min-width:34px;height:34px;cursor:pointer}
+  .attachment-remove{border:0;background:transparent;color:#a83e32;padding:2px 5px;cursor:pointer}
+  .attach-progress{font-size:11px;color:#81796f}
+
   /* ---------- Responsive ---------- */
   @media (max-width: 860px) {
+    .pane-resizer{display:none}
     #menu-toggle { display: flex; }
     #main-grid { grid-template-columns: 100%; position: relative; }
-    #notebooks-pane, #notes-pane {
+    #notebooks-pane, #sections-pane, #notes-pane {
       position: fixed; top: 49px; bottom: 0; width: 240px; z-index: 20;
       transform: translateX(105%); transition: transform .2s ease;
     }
-    html[dir="rtl"] #notebooks-pane, html[dir="rtl"] #notes-pane { right: 0; transform: translateX(105%); }
-    #notebooks-pane.open, #notes-pane.open { transform: translateX(0); }
-    #notes-pane { z-index: 21; width: 260px; }
+    html[dir="rtl"] #notebooks-pane, html[dir="rtl"] #sections-pane, html[dir="rtl"] #notes-pane { right: 0; transform: translateX(105%); }
+    #notebooks-pane.open, #sections-pane.open, #notes-pane.open { transform: translateX(0); }
+    #sections-pane { z-index: 21; width: 220px; }
+    #notes-pane { z-index: 22; width: 260px; }
     #mobile-overlay.show { display: block; }
     #editor-pane { grid-column: 1; }
   }
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+  .modal-overlay.open{display:flex}.modal-box{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.22);padding:18px;width:min(720px,100%)}
+  .btn-secondary{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer}
+
+/* ---------- v16 mobile-first phone optimization ---------- */
+@media (max-width: 600px){
+  :root{--phone-bar:58px;--phone-drawer:72vw}
+  html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+  #app{height:100dvh;min-height:100dvh}
+  #topbar{height:var(--phone-bar);min-height:var(--phone-bar);padding:7px 8px;gap:6px;position:relative;z-index:80}
+  #menu-toggle{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:0 0 46px;color:#f7f4ec;background:rgba(255,255,255,.07);border-radius:11px}
+  #menu-toggle svg{width:24px;height:24px}
+  #topbar .logo{font-size:17px;gap:7px;min-width:0;white-space:nowrap}
+  #topbar .logo .brand-mark{width:32px;height:32px}
+  #topbar .logo span{display:inline}
+  #sync-status{margin-inline-start:auto;padding:6px 9px;font-size:11.5px;gap:5px;white-space:nowrap}
+  #sync-status .dot{width:7px;height:7px}
+  #focus-mode-btn{height:44px;min-width:44px;justify-content:center;padding:6px 9px}
+  #more-menu-btn{width:44px;height:44px;padding:8px}
+  .mobile-search-btn{display:flex!important;align-items:center;justify-content:center;width:44px;height:44px;font-size:25px}
+  #more-menu-dropdown{position:fixed;top:58px;inset-inline:8px auto;width:min(330px,calc(100vw - 16px));max-height:calc(100dvh - 70px);overflow:auto;border-radius:14px}
+  #more-menu-dropdown button{min-height:46px;padding:12px 14px}
+  #main-grid{height:calc(100dvh - var(--phone-bar));display:block;position:relative;overflow:hidden;background:var(--paper)}
+  #editor-pane{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+  #editor-content{height:100%;padding:10px 12px 84px;max-width:none}
+  #editor-empty{padding:24px;text-align:center}
+  #title-input{font-size:30px;padding:12px 5px 14px;line-height:1.5;min-height:58px;font-weight:800}
+  #editor-toolbar{position:sticky;top:0;z-index:8;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;white-space:nowrap;padding:9px 6px;border-radius:11px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #editor-toolbar::-webkit-scrollbar{display:none}
+  #editor-toolbar button,#editor-toolbar select{min-width:50px;min-height:48px;flex:0 0 auto;padding:9px 14px;font-size:16.5px;font-weight:600}
+  #editor-toolbar .sep{height:26px;flex:0 0 1px;margin:0 3px}
+  #highlight-group{flex:0 0 auto;gap:7px}
+  .hl-swatch{width:30px;height:30px;min-width:30px!important;min-height:30px!important}
+  #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:18px;line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #body-editor img{max-width:100%;height:auto}
+  #body-editor h2{font-size:23px}.body-editor h3{font-size:20px}
+  .tag-editor{margin:7px 0 10px;overflow-x:auto;flex-wrap:nowrap;padding:5px 1px;scrollbar-width:none}
+  .tag-editor::-webkit-scrollbar{display:none}
+  .tag-chip,#tag-input{min-height:40px;flex:0 0 auto;font-size:14px}
+  #tag-input{min-width:150px}
+  #attachments-box{margin:10px 0 14px;padding:11px;border-radius:12px;font-size:15px}
+  #attachments-list{max-height:130px;overflow:auto}
+  .attachment-item{min-height:48px;max-width:100%;font-size:14px}
+  .attachment-open{font-size:14px;max-width:48vw;min-height:40px}
+  .attachment-download{min-width:40px;height:40px}
+  .attachment-name{max-width:55vw}
+
+  /* mobile drawers */
+  #notebooks-pane,#sections-pane,#notes-pane{
+    position:fixed!important;top:var(--phone-bar)!important;bottom:0!important;right:auto!important;left:auto!important;
+    width:var(--phone-drawer)!important;max-width:360px!important;height:calc(100dvh - var(--phone-bar));
+    z-index:90!important;transform:translateX(110%)!important;padding:8px 8px 24px!important;
+    box-shadow:0 14px 45px rgba(0,0,0,.22);border:0;border-radius:0 16px 0 0;
+    transition:transform .22s ease!important;overflow-y:auto;-webkit-overflow-scrolling:touch
+  }
+  html[dir="rtl"] #notebooks-pane,html[dir="rtl"] #sections-pane,html[dir="rtl"] #notes-pane{right:0!important;left:auto!important;transform:translateX(110%)!important}
+  html[dir="rtl"] #notebooks-pane.open,html[dir="rtl"] #sections-pane.open,html[dir="rtl"] #notes-pane.open{transform:translateX(0)!important}
+  #notebooks-pane{z-index:91!important}.notebook-item,.note-item{min-height:54px;margin:5px 2px;padding:12px 11px;font-size:15px}
+  #sections-pane{z-index:92!important}.section-item{min-height:46px}
+  #notes-pane{z-index:93!important;width:72vw!important;max-width:320px!important}
+  .pane-header{height:50px;min-height:50px;padding:4px 5px 7px;font-size:14px;position:sticky;top:0;z-index:4}
+  .pane-header .header-actions{gap:4px}
+  .pane-header .icon-btn{width:40px;height:40px;justify-content:center;font-size:18px}
+  .pane-collapse{display:flex!important}
+  #mobile-overlay{z-index:85!important;background:rgba(15,18,24,.42);backdrop-filter:blur(1px)}
+  #mobile-overlay.show{display:block}
+
+  /* bottom navigation */
+  #phone-bottom-nav{position:fixed;display:flex;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));height:66px;z-index:70;background:rgba(42,35,24,.96);border:1px solid rgba(255,255,255,.1);border-radius:17px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:4px;backdrop-filter:blur(12px)}
+  #phone-bottom-nav button{flex:1;border:0;background:transparent;color:#e9e1d3;border-radius:13px;font-family:inherit;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0}
+  #phone-bottom-nav button span:first-child{font-size:22px;line-height:23px}
+  #phone-bottom-nav button.active{background:#ead8ad;color:#4d3b1e;font-weight:800}
+  #phone-bottom-nav .phone-new{font-size:22px}
+  #phone-bottom-nav.hidden{display:none}
+
+  /* modals and search on small screens */
+  .modal-overlay{padding:8px;align-items:flex-end}
+  .modal-box{width:100%;max-height:92dvh;border-radius:18px 18px 0 0;padding:14px}
+  #trash-modal{padding:8px;align-items:flex-end}
+  #trash-box{width:100%;max-height:88dvh;border-radius:18px 18px 0 0;padding:14px}
+  .search-box{width:100%;max-height:94dvh;border-radius:18px 18px 0 0;padding:13px}
+  .search-head{position:sticky;top:0;background:var(--panel);z-index:2;padding-bottom:8px}
+  .search-result{padding:12px 10px;margin:6px 0}
+  .search-result-title{font-size:14px}.search-result-preview{font-size:13px}
+}
+/* v17 mobile readability refinements */
+@media (max-width:600px){
+  #notes-pane .pane-header{font-size:16px;font-weight:800}
+  #notes-pane .n-title{font-size:16px;line-height:1.65;font-weight:800}
+  #notes-pane .n-preview{font-size:14px;line-height:1.8}
+  #notes-pane .n-time{font-size:12px}
+  #sections-pane .section-item,#notebooks-pane .notebook-item{font-size:15px}
+  #title-input::placeholder{font-size:30px}
+  #body-editor::before{font-size:18px}
+  #editor-toolbar{gap:7px;padding:9px 7px}
+  #editor-toolbar select{font-size:16.5px}
+  #phone-bottom-nav button{font-size:13px}
+}
+@media (max-width:380px){
+  #topbar .logo span{display:none}
+  #sync-status{display:none}
+  #focus-mode-btn{display:none}
+  #editor-content{padding-left:7px;padding-right:7px}
+  #body-editor{padding-left:11px;padding-right:11px}
+}
+@media (min-width:601px){#phone-bottom-nav{display:none!important}}
+
+  html[data-theme="dark"]{--paper:#12161F;--paper-line:#2A303C;--line:#2A303C;--ink:#ECEAE3;--ink-soft:#A7AEBD;--gold:#D9AE66;--sage:#7FAF7F;--danger:#E08776;--panel:#1B212C;--shadow:0 6px 24px rgba(0,0,0,.45);--accent:#D9AE66;--accent-soft:#3A3320}
+  html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+  html[data-theme="dark"] #editor-pane{background:radial-gradient(circle at 50% 0%,#1c2330 0%,#171c26 52%,#12161f 100%)}
+  html[data-theme="dark"] .notebook-item.active,html[data-theme="dark"] .note-item.active{background:linear-gradient(90deg,#3a3320,#1b212c);border-color:#5c4a25}
+  html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c}
+
+/* ---------- Yadno visual refresh: desktop, phone and authentication ---------- */
+:root {
+  --paper:#f7f8fb;
+  --paper-line:#e4e9f1;
+  --ink:#243451;
+  --ink-soft:#65748b;
+  --gold:#a87a34;
+  --sage:#397e69;
+  --panel:#fff;
+  --radius:13px;
+  --shadow:0 2px 12px rgba(30,46,75,.055);
+}
+html,body{font-synthesis:none}
+button,input,textarea,select{font-family:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,[contenteditable]:focus-visible{
+  outline:2px solid #6a91d0;outline-offset:2px
+}
+#topbar{box-shadow:0 2px 12px rgba(25,40,70,.04)}
+#topbar .logo{letter-spacing:-.25px}
+#main-grid{background:#f7f8fb}
+#notebooks-pane{background:#f5f7fb}
+#sections-pane{background:#fbfcfe}
+#notes-pane{background:#fff}
+#editor-pane{background:#fff}
+.pane-header{font-size:13px;letter-spacing:0;padding-block:8px 13px}
+.notebook-item,.note-item{transition:background .16s,border-color .16s,box-shadow .16s}
+.notebook-item{border-radius:10px}
+.notebook-item.active{background:#e5ecfa;color:#263f75;box-shadow:inset 3px 0 #5278b5}
+.notebook-item.active .del-btn{color:#263f75}
+.note-item{border-radius:11px;border-bottom:1px solid #f1f3f7}
+.note-item.active{background:#edf3ff;border-color:#d9e4f6;box-shadow:none}
+.note-item .n-title{font-size:14px}
+.note-item .n-preview{line-height:1.8}
+#editor-toolbar{background:#fff;box-shadow:0 3px 10px rgba(20,38,68,.035)}
+#editor-toolbar button{border-radius:9px;transition:background .15s}
+#title-input{letter-spacing:-.5px}
+#body-editor{max-width:100%;overflow-wrap:anywhere}
+#body-editor img{max-width:100%;height:auto}
+.auth-card{max-width:410px;border:1px solid #e5eaf2;border-radius:22px;padding:34px 30px;box-shadow:0 20px 70px rgba(28,47,83,.10)}
+#auth-screen{background:radial-gradient(circle at 20% 15%,#e9f0ff 0,transparent 42%),linear-gradient(145deg,#f6f8fc,#f8f6f0)}
+.auth-card h1{font-size:23px}
+.auth-card .sub{line-height:2}
+.field input{background:#fbfcfe;border-color:#dce4ef;border-radius:11px;min-height:47px}
+.field input:focus{border-color:#6686b8;box-shadow:0 0 0 3px rgba(88,126,186,.12)}
+.btn-primary{border-radius:11px;min-height:46px}
+.forgot-password-row{display:flex;justify-content:flex-end;margin:-3px 0 12px}
+.forgot-password-row button{border:0;background:transparent;color:#375e9b;font-size:12.5px;padding:8px 0;cursor:pointer}
+.forgot-password-row button:disabled{opacity:.55;cursor:wait}
+.auth-success{display:none;margin:8px 0 13px;padding:11px 12px;background:#e9f7ef;border:1px solid #c9e9d4;color:#246b43;border-radius:10px;font-size:12.5px;line-height:1.9}
+@media(min-width:1100px){
+  #editor-content{max-width:100%;margin:0 auto;width:100%}
+  #title-input{padding-inline:clamp(24px,4vw,68px)}
+  #body-editor{padding-inline:clamp(24px,4vw,68px)}
+}
+@media(max-width:600px){
+  #auth-screen{padding:15px;align-items:center}
+  .auth-card{padding:27px 20px;border-radius:20px}
+  #notebooks-pane,#sections-pane,#notes-pane{box-shadow:0 15px 45px rgba(22,37,64,.17)}
+  #editor-toolbar{box-shadow:0 2px 10px rgba(22,37,64,.04)}
+  #title-input{font-size:clamp(23px,6vw,29px)}
+  #body-editor{font-size:17px;line-height:2.05}
+  .notebook-item.active{background:#e5ecfa;color:#263f75}
+}
+@media(prefers-reduced-motion:reduce){
+  .notebook-item,.note-item,.pane-resizer{transition:none!important}
+}
+
+
+/* Yadno v19: OneNote-inspired distraction-free reading on phones */
+#reading-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:6px 8px;background:var(--panel,#fff);border:1px solid var(--paper-line,#e4e9f1);border-radius:13px;flex:0 0 auto}
+.reading-control-main,#reading-options{display:flex;align-items:center;gap:5px}
+#reading-controls button{font-family:inherit;border:0;background:transparent;color:var(--ink,#243451);border-radius:9px;padding:9px 11px;min-height:42px;cursor:pointer;font-size:14px;font-weight:700}
+#reading-controls button:focus-visible{outline:2px solid #6a91d0}
+#reading-toggle[aria-pressed="true"]{background:#e5edfa;color:#264b84}
+#reading-options{background:var(--paper,#f7f8fb);border-radius:10px;padding:2px 4px}
+#reading-options button{font-size:22px;min-width:40px;padding:5px}
+#reading-size-label{font-size:13px;min-width:28px;text-align:center;font-weight:700}
+#editor-pane.read-mode #editor-toolbar,#editor-pane.read-mode #toolbar-toggle,#editor-pane.read-mode #tag-editor{display:none!important}
+#editor-pane.read-mode #title-input{pointer-events:none;border:0!important;box-shadow:none!important;cursor:default}
+#editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.12!important;letter-spacing:0;overflow-wrap:break-word;user-select:text;-webkit-user-select:text;cursor:text;border:0!important;box-shadow:none!important;background:transparent!important;min-height:0}
+#editor-pane.read-mode #body-editor p{margin:.35em 0 1em}
+#editor-pane.read-mode #body-editor h2,#editor-pane.read-mode #body-editor h3{line-height:1.65;margin:1.4em 0 .65em}
+#editor-pane.read-mode #body-editor img{display:block;margin:18px auto;max-width:100%;height:auto}
+#editor-pane.read-mode #editor-content{max-width:850px}
+#editor-pane.read-mode #reading-controls{position:sticky;top:0;z-index:12}
+#editor-pane.toolbar-collapsed #editor-toolbar{display:none!important}
+@media(max-width:600px){
+  #editor-content{padding:8px 12px 94px!important}
+  #reading-controls{margin:0 0 9px;padding:5px;gap:4px;box-shadow:0 2px 9px rgba(26,45,75,.05)}
+  #reading-controls button{padding:7px 9px;font-size:13px;min-height:43px}
+  #reading-options{gap:0}
+  #reading-options button{min-width:35px;font-size:21px;padding:5px}
+  #editor-pane.read-mode{background:var(--panel,#fff)!important}
+  #editor-pane.read-mode #editor-content{padding:8px 16px 96px!important}
+  #editor-pane.read-mode #title-input{font-size:clamp(24px,6vw,31px)!important;line-height:1.65;padding:16px 2px 9px!important;margin:0 0 7px}
+  #editor-pane.read-mode #body-editor{padding:12px 2px 100px!important;border-radius:0!important;font-size:var(--reader-font-size,19px)!important;line-height:2.18!important;min-height:calc(100dvh - 250px);overflow-y:auto}
+  #editor-pane.read-mode #attachments-box{margin:4px 0 12px}
+  #editor-pane:not(.read-mode) #editor-toolbar{position:sticky;top:0;max-height:120px;overflow-x:auto;overscroll-behavior-x:contain}
+  #editor-pane:not(.read-mode) #body-editor{font-size:18px;line-height:2.05}
+}
+@media(max-width:380px){#reading-controls button{font-size:12px;padding:6px}#reading-options button{min-width:31px}}
+html[data-theme="dark"] #reading-controls{background:#1b212c;border-color:#303747}
+html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;color:#e5efff}
+
+
+/* Yadno v21: OneNote-inspired purple and per-notebook colors */
+:root{--onenote-purple:#7719aa;--onenote-dark:#55117c;--paper:#faf9fc;--paper-line:#eae5f0;--ink:#32263d;--ink-soft:#6c6076;--gold:#8a3cba;--sage:#4eae68;--active-book-color:#7719aa}
+#topbar{background:linear-gradient(105deg,#64118f,#8425ae)!important;color:#fff!important;border-bottom:0!important}
+#topbar button,#topbar .logo,#topbar #sync-status{color:#fff!important}
+#topbar .brand-mark{background:#fff2!important}
+#topbar .brand-mark svg path{stroke:#fff!important}
+#notebooks-pane{background:#fff!important}
+#sections-pane{background:#fdfbff!important}
+#notes-pane{background:#fff!important}
+#editor-pane{background:#fff!important}
+.notebook-item{border-radius:9px!important;margin:5px 7px!important;border:1px solid transparent!important;min-height:55px}
+#notebooks-list>.notebook-item{border-inline-start:5px solid var(--book-color,#7719aa)!important;background:linear-gradient(270deg,color-mix(in srgb,var(--book-color,#7719aa) 9%,white),#fff 82%)!important}
+#notebooks-list>.notebook-item.active{border-color:color-mix(in srgb,var(--book-color,#7719aa) 28%,white)!important;border-inline-start:5px solid var(--book-color,#7719aa)!important;color:#30203a!important;box-shadow:0 2px 12px #5d367010!important}
+#notebooks-list .dot-icon{width:16px!important;height:23px!important;border-radius:3px!important;background:var(--book-color,#7719aa)!important;box-shadow:inset -3px 0 #fff5}
+#sections-list .notebook-item.active{background:color-mix(in srgb,var(--active-book-color) 12%,white)!important;color:#30203a!important;border-inline-start:4px solid var(--active-book-color)!important}
+#sections-list .notebook-item .dot-icon{background:var(--active-book-color)!important}
+#notes-list .note-item.active{background:color-mix(in srgb,var(--active-book-color) 9%,white)!important;border-inline-start:3px solid var(--active-book-color)!important}
+.book-color-picker{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid #e9e2ee;border-radius:10px;background:#fff;cursor:pointer;margin-inline-start:auto;flex-shrink:0}
+.book-color-picker .swatch{width:17px;height:17px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d7d0de}
+#notebooks-list .del-btn{margin-inline-start:0!important}
+#phone-bottom-nav{background:#fff!important;border:1px solid #e9e0f0!important;box-shadow:0 4px 24px #3813481a!important}
+#phone-bottom-nav button{color:#73677c!important}
+#phone-bottom-nav button.active{background:#f3e6fa!important;color:#711b9c!important}
+#phone-bottom-nav .phone-new{color:#741ba4!important}
+#reading-controls{border-color:#ece3f1!important}
+#reading-toggle[aria-pressed="true"]{background:#f2e5fa!important;color:#741ba4!important}
+#editor-pane.read-mode #body-editor{max-width:760px;margin-inline:auto!important}
+@media(max-width:600px){
+ #topbar{min-height:56px!important}
+ #notebooks-pane,#sections-pane,#notes-pane{width:100vw!important;max-width:none!important;top:var(--phone-bar,56px)!important;bottom:74px!important;height:auto!important;box-shadow:none!important;border-radius:0!important;padding:10px 12px 22px!important}
+ #notebooks-pane .pane-header,#sections-pane .pane-header,#notes-pane .pane-header{font-size:18px!important;min-height:56px!important;background:inherit!important}
+ #mobile-overlay.show{background:transparent!important;backdrop-filter:none!important;pointer-events:none!important}
+ #phone-bottom-nav{left:0!important;right:0!important;bottom:0!important;border-radius:0!important;height:calc(65px + env(safe-area-inset-bottom))!important;padding-bottom:env(safe-area-inset-bottom)!important;z-index:110!important}
+ #phone-bottom-nav button{font-size:12px!important}
+ #notebooks-pane.open,#sections-pane.open,#notes-pane.open{z-index:100!important}
+ #editor-content{padding:16px 15px 90px!important}
+ #title-input{font-size:25px!important;line-height:1.55!important}
+ #body-editor{font-size:19px!important;line-height:2.1!important}
+ #editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.15!important}
+}
+
+
+/* v22: OneNote-style mobile editor and keyboard-aware formatting sheet */
+#mobile-format-head,#mobile-format-extra,#mobile-format-grip{display:none}
+@media(max-width:600px){
+ #editor-pane{background:#fff!important}
+ #editor-content{padding:8px 13px 100px!important;overflow-y:auto!important;overscroll-behavior:contain}
+ #reading-controls{background:#fff!important;border:0!important;border-bottom:1px solid #eee!important;border-radius:0!important;box-shadow:none!important;position:relative;z-index:3}
+ #title-input{font-size:29px!important;font-weight:750!important;text-align:right!important;padding:20px 4px 9px!important;border-bottom:2px solid var(--active-book-color,#7719aa)!important;border-radius:0!important}
+ #body-editor{font-size:19px!important;line-height:2.02!important;padding:18px 5px 105px!important;border:0!important;border-radius:0!important;overflow-wrap:anywhere;min-height:55vh!important}
+ #body-editor p{margin:.35em 0 .9em}
+ #editor-pane:not(.read-mode) #editor-toolbar{position:fixed!important;top:auto!important;bottom:var(--yadno-keyboard-bottom,0px)!important;left:0!important;right:0!important;width:100%!important;max-height:min(42vh,340px)!important;overflow-y:auto!important;overflow-x:hidden!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px!important;padding:12px 10px calc(12px + env(safe-area-inset-bottom))!important;margin:0!important;border:1px solid #eae6ee!important;border-radius:19px 19px 0 0!important;background:#fff!important;box-shadow:0 -7px 28px #23172d25!important;z-index:160!important;white-space:normal!important;transform:translateY(0);overscroll-behavior:contain}
+ #editor-pane.toolbar-collapsed #editor-toolbar{display:none!important}
+ #editor-pane:not(.read-mode) #editor-toolbar button{min-width:0!important;min-height:43px!important;padding:7px 2px!important;border:0!important;border-radius:8px!important;background:#f6f5f8!important;color:#27212e!important;font-size:18px!important}
+ #editor-pane:not(.read-mode) #editor-toolbar button:active{background:#e9d9f5!important;color:#741aa3!important}
+ #editor-toolbar .sep{display:none!important}
+ #mobile-format-head{display:flex!important;grid-column:1/-1;align-items:center;justify-content:space-between;min-height:35px;gap:12px;font-size:15px;font-weight:700;color:#32263d}
+ #mobile-format-head button{background:#fff!important;font-size:21px!important;width:43px!important}
+ #mobile-format-grip{display:block!important;grid-column:1/-1;justify-self:center;width:42px;height:5px;border-radius:10px;background:#b8b4bc;margin:-5px 0 2px}
+ #mobile-format-extra{display:flex!important;grid-column:1/-1;align-items:center;justify-content:space-between;gap:6px;padding:7px 0;border-bottom:1px solid #eee;font-size:13px}
+ #mobile-format-extra select{min-width:0!important;max-width:34%;padding:8px 4px!important;font-size:13px!important;background:#f6f5f8;border:0;border-radius:8px}
+ #mobile-format-extra button{flex:0 0 36px!important}
+ #mobile-format-extra output{min-width:23px;text-align:center;font-size:14px}
+ #editor-toolbar #font-select{grid-column:span 3;min-width:0;width:100%;font-size:13px!important}
+ #editor-toolbar #highlight-group{grid-column:span 3;display:flex;justify-content:space-around;gap:1px;min-width:0}
+ #editor-toolbar #highlight-group button{min-width:23px!important;min-height:34px!important;width:23px!important;height:34px!important;padding:0!important}
+ #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar{grid-column:span 2;font-size:12px!important}
+ #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2;font-size:12px!important}
+ #editor-pane.read-mode #editor-toolbar{display:none!important}
+ body.yadno-keyboard-open #phone-bottom-nav,body.yadno-format-open #phone-bottom-nav{display:none!important}
+ body.yadno-format-open #editor-content{padding-bottom:360px!important}
+ #editor-pane.read-mode #editor-content{padding-bottom:100px!important}
+}
+
 </style>
 </head>
 <body>
@@ -359,6 +744,10 @@
       <label>رمز عبور</label>
       <input type="password" id="auth-password" placeholder="حداقل ۶ کاراکتر" autocomplete="current-password">
     </div>
+    <div class="forgot-password-row" id="forgot-password-row">
+      <button type="button" id="forgot-password-btn">رمز عبور را فراموش کرده‌ام</button>
+    </div>
+    <div class="auth-success" id="auth-success" role="status" aria-live="polite"></div>
     <button class="btn-primary" id="auth-submit-btn">ورود</button>
     <div class="auth-switch">
       <span id="auth-switch-text">حساب نداری؟</span>
@@ -371,11 +760,13 @@
 </div>
 
 <!-- Main app -->
+<!-- v18: mobile-safe attachment opening/downloading -->
 <div id="app">
   <div id="topbar">
     <button id="menu-toggle" aria-label="منو">
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
+    <button id="mobile-search-btn" class="mobile-search-btn" title="جست‌وجو">⌕</button>
     <div class="logo">
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" stroke="#F7F4EC" stroke-width="1.6"/><path d="M8 10h8M8 14h5" stroke="#B8862E" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -383,6 +774,10 @@
       <span>یادنو</span>
     </div>
     <div id="sync-status"><span class="dot"></span><span id="sync-status-text">همگام</span></div>
+    <button id="focus-mode-btn" title="حالت تمرکز (Ctrl+Shift+F)" aria-pressed="false">
+      <span class="focus-enter">⛶</span><span class="focus-exit">↙</span><span class="focus-label">تمرکز</span>
+    </button>
+    <div id="global-search-wrap"><span id="global-search-icon">⌕</span><input id="global-search-input" placeholder="جست‌وجو در همه دفترها…" autocomplete="off"></div>
     <div id="more-menu-wrap">
       <button id="more-menu-btn" title="گزینه‌های بیشتر">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
@@ -390,6 +785,7 @@
       <div id="more-menu-dropdown">
         <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
+        <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
         <button id="open-trash-btn">🗑️ سطل زباله</button>
         <div id="backup-status"></div>
         <div class="divider"></div>
@@ -397,28 +793,49 @@
       </div>
     </div>
     <input type="file" id="backup-file-input" accept="application/json">
+    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.onepkg,.mht,.mhtml,.one,.onetoc2" multiple style="display:none">
   </div>
 
   <div id="main-grid">
     <div id="notebooks-pane" class="pane">
       <div class="pane-header">
         <span>دفترها</span>
+        <div class="header-actions">
+        <button class="icon-btn pane-collapse" data-pane="notebooks-pane" title="جمع کردن">‹</button>
         <button class="icon-btn" id="add-notebook-btn" title="دفتر جدید">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </button>
+        </button></div>
       </div>
       <div id="notebooks-list"></div>
     </div>
+    <div class="pane-resizer" data-before="notebooks-pane" data-css="--nb-w" title="تغییر اندازه دفترها"></div>
+
+    <div id="sections-pane" class="pane">
+      <div class="pane-header">
+        <span id="sections-pane-title">بخش‌ها</span>
+        <div class="header-actions">
+        <button class="icon-btn pane-collapse" data-pane="sections-pane" title="جمع کردن">‹</button>
+        <button class="icon-btn" id="add-section-group-btn" title="گروه بخش جدید">▣</button>
+        <button class="icon-btn" id="add-section-btn" title="بخش جدید">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button></div>
+      </div>
+      <div id="sections-list"></div>
+    </div>
+    <div class="pane-resizer" data-before="sections-pane" data-css="--sec-w" title="تغییر اندازه بخش‌ها"></div>
 
     <div id="notes-pane" class="pane">
       <div class="pane-header">
         <span id="notes-pane-title">یادداشت‌ها</span>
+        <div class="header-actions">
+        <button class="icon-btn pane-collapse" data-pane="notes-pane" title="جمع کردن">‹</button>
         <button class="icon-btn" id="add-note-btn" title="یادداشت جدید">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </button>
+        </button></div>
       </div>
       <div id="notes-list"></div>
     </div>
+    <div class="pane-resizer" data-before="notes-pane" data-css="--notes-w" title="تغییر اندازه یادداشت‌ها"></div>
 
     <div id="editor-pane">
       <div id="editor-empty">
@@ -426,6 +843,17 @@
         <span>یک یادداشت رو انتخاب کن یا یکی تازه بساز</span>
       </div>
       <div id="editor-content">
+        <div id="reading-controls" aria-label="ابزار مطالعه و ویرایش">
+          <div class="reading-control-main">
+            <button type="button" id="reading-toggle" aria-pressed="false" title="تغییر بین مطالعه و ویرایش">📖 <span id="reading-toggle-label">مطالعه</span></button>
+            <button type="button" id="toolbar-toggle" aria-expanded="true" aria-controls="editor-toolbar" title="نمایش یا پنهان کردن ابزارهای ویرایش">✎ <span id="toolbar-toggle-label">ابزارها</span></button>
+          </div>
+          <div id="reading-options" aria-label="تنظیمات خواندن">
+            <button type="button" id="reading-smaller" aria-label="کوچک‌تر کردن نوشته">−</button>
+            <output id="reading-size-label" aria-live="polite">۱۹</output>
+            <button type="button" id="reading-larger" aria-label="بزرگ‌تر کردن نوشته">＋</button>
+          </div>
+        </div>
         <div id="editor-toolbar">
           <button class="b" data-cmd="bold" title="ضخیم">B</button>
           <button class="i" data-cmd="italic" title="مورب">I</button>
@@ -453,7 +881,9 @@
           <button id="checklist-btn" title="چک‌لیست">☑ چک‌لیست</button>
           <button id="link-btn" title="درج لینک">🔗 لینک</button>
           <button id="image-btn" title="درج عکس">🖼 عکس</button>
+          <button id="attachment-btn" title="افزودن فایل پیوست">📎 پیوست</button>
           <button id="section-btn" title="بخش‌بندی">§ بخش</button>
+          <button id="add-section-group-toolbar" title="گروه بخش جدید">▣ گروه</button>
           <div class="sep" style="margin-inline-start:auto;"></div>
           <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">اشتراک</button>
           <button class="export-btn" id="export-docx-btn" title="خروجی Word">
@@ -467,13 +897,27 @@
           <button id="delete-note-btn" style="color:#A83E32;">حذف یادداشت</button>
         </div>
         <input id="title-input" type="text" placeholder="عنوان یادداشت">
+        <div id="attachments-box"><div id="attachments-header"><span>📎 فایل‌های پیوست</span><span id="attachments-status" class="attach-progress"></span></div><div id="attachments-list"></div></div>
+        <div id="tag-editor" class="tag-editor"><span style="font-size:12px;color:#81796f;font-weight:700">برچسب:</span><div id="tag-chips"></div><input id="tag-input" placeholder="مثلاً مهم، مطالعه + Enter"></div>
         <div id="body-editor" contenteditable="true" data-placeholder="بنویس..."></div>
       </div>
     </div>
   </div>
   <div id="mobile-overlay"></div>
   <input type="file" id="image-file-input" accept="image/*" style="display:none">
+  <input type="file" id="attachment-file-input" multiple style="display:none">
 </div>
+<div class="modal-overlay" id="search-modal"><div class="modal-box search-box">
+  <div class="search-head"><div><h2 style="margin:0">جست‌وجوی یادنو</h2><div id="search-count" class="search-count">در همه دفترها</div></div><button class="btn-secondary" id="close-search-btn">بستن</button></div>
+  <div id="search-modal-input-row"><span id="search-modal-input-icon">⌕</span><input id="search-modal-input" placeholder="جست‌وجو در همه دفترها…" autocomplete="off"></div>
+  <div class="search-filters">
+    <select id="search-notebook-filter"><option value="">همه دفترها</option></select>
+    <select id="search-tag-filter"><option value="">همه برچسب‌ها</option></select>
+    <select id="search-sort"><option value="relevance">مرتبط‌ترین</option><option value="updated">جدیدترین ویرایش</option><option value="title">بر اساس عنوان</option><option value="pinned">سنجاق‌شده‌ها اول</option></select>
+  </div>
+  <div id="search-active-filter" class="search-active-filter"></div>
+  <div id="search-results"><div class="empty-hint">عبارت جست‌وجو را وارد کن.</div></div>
+</div></div>
 <div id="trash-modal">
   <div id="trash-box">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
@@ -484,16 +928,63 @@
   </div>
 </div>
 
+<div id="onenote-modal" class="modal-overlay">
+  <div class="modal-box" style="max-width:720px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+      <strong>📥 وارد کردن از OneNote</strong>
+      <button class="icon-btn" id="close-onenote-btn" title="بستن">✕</button>
+    </div>
+    <div style="line-height:1.9;font-size:13px;color:var(--muted);margin-bottom:12px;">
+      فایل‌های باینری <b>.one</b>، <b>.onetoc2</b> و <b>.onepkg</b> قابل پردازش مستقیم نیستن (فرمت اختصاصی مایکروسافته و کتابخانه‌ی واقعی مرورگری برای بازش نداره). به‌جاش، توی OneNote از منوی <b>File → Export</b> صفحه یا بخش رو به‌صورت <b>HTML</b> یا <b>Single File Web Page (.mht)</b> خروجی بگیر و همون فایل (یا یه ZIP از چندتاشون) رو اینجا وارد کن — این مسیر کامل و قابل‌اعتماده.</br></br>💡 اگه کل یک بخش (با چند صفحه) رو به‌صورت «Single File Web Page (.mht)» یا HTML خروجی بگیری، همه‌ی صفحه‌ها توی یک فایل واحد میاد؛ اپ موقع ورود با تیتر هر صفحه اون‌ها رو خودکار به چند یادداشت جدا تبدیل می‌کنه.</br></br>اگه چند فایل جدا (هرکدوم مال یه دفتر متفاوت) رو با هم انتخاب کنی، هرکدوم به‌عنوان یه <b>دفتر جدا</b> ساخته می‌شه، نه اینکه همه با هم قاطی بشن. اگه از داخل یه پوشه (یا ZIP با ساختار پوشه‌ای) وارد کنی، پوشه‌ی سطح اول = دفتر، زیرپوشه‌ها = گروه بخش.
+    </div>
+    <div style="line-height:1.9;font-size:12px;color:#A83E32;margin-bottom:12px;">اگه فایل .one/.onepkg/.onetoc2 رو مستقیم انتخاب کنی، اپ به‌جای شکست خاموش، همین پیام رو بهت نشون می‌ده.</div>
+    <div id="onenote-import-status" style="margin:10px 0;"></div>
+    <div id="onenote-preview" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:10px;display:none;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <button class="btn-secondary" id="onenote-cancel-btn">انصراف</button>
+      <button class="btn-primary" id="onenote-choose-btn">انتخاب فایل</button>
+      <button class="btn-primary" id="onenote-import-confirm-btn" style="display:none;">وارد کردن</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// This guard also runs when an ES module fails to load before application code executes.
+(function(){
+  let started=false;
+  window.__yadnoStarted=()=>{started=true;};
+  function report(message){
+    if(started)return;
+    const screen=document.getElementById('loading-screen');
+    if(!screen || getComputedStyle(screen).display==='none')return;
+    let panel=document.getElementById('startup-recovery');
+    if(!panel){
+      panel=document.createElement('div');panel.id='startup-recovery';
+      panel.style.cssText='max-width:430px;width:calc(100% - 36px);padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;text-align:center;line-height:2';
+      const message=document.createElement('p');message.id='startup-detail';panel.appendChild(message);
+      const retry=document.createElement('button');retry.textContent='تلاش دوباره';retry.style.cssText='padding:10px 16px;border-radius:8px';retry.onclick=()=>location.reload();panel.appendChild(retry);
+      screen.appendChild(panel);
+    }
+    document.getElementById('startup-detail').textContent=message;
+  }
+  window.__yadnoStartupError=e=>report(e?.message||String(e));
+  window.addEventListener('error',e=>report('خطا در راه‌اندازی: '+(e.message||'یکی از فایل‌ها بارگذاری نشد.')));
+  window.addEventListener('unhandledrejection',e=>report('خطا در راه‌اندازی: '+(e.reason?.message||'نامشخص')));
+  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),12000);
+})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  onAuthStateChanged, signOut
+  onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
-  getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, enableIndexedDbPersistence, getDocs, writeBatch
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
+  query, orderBy, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -514,17 +1005,28 @@ function getSavedConfig() {
   } catch (e) { return null; }
 }
 
-let firebaseApp, auth, db;
+let firebaseApp, auth, db, storage;
 let currentUser = null;
 let notebooks = [];
+let sections = [];
+let sectionGroups = [];
 let notes = [];
 let activeNotebookId = null;
+let activeSectionId = null;
 let activeNoteId = null;
 let unsubNotebooks = null;
+let unsubSections = null;
+let unsubSectionGroups = null;
 let unsubNotes = null;
 let saveTimer = null;
 let authMode = 'login'; // or 'signup'
 let draggedNoteId = null;
+let activeTags = [];
+let searchTimer = null;
+let currentListenerNotebookId=null;
+let currentListenerSectionKey=null;
+let pendingWrites=false;
+let latestSnapshotFromCache=true;
 
 function showScreen(name) {
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
@@ -537,9 +1039,34 @@ function initFirebase(config) {
   try {
     firebaseApp = initializeApp(config);
     auth = getAuth(firebaseApp);
-    db = getFirestore(firebaseApp);
-    enableIndexedDbPersistence(db).catch(() => {});
+    try {
+      db = initializeFirestore(firebaseApp, {
+        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager()})
+      });
+    } catch (e) {
+      console.warn('Persistent Firestore cache unavailable:',e);
+      db = getFirestore(firebaseApp);
+    }
+    try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
+    let authResolved=false;
+    const authWatchdog=setTimeout(()=>{
+      if(authResolved)return;
+      if(auth.currentUser){
+        // Only Firebase's actual restored user is allowed to access its cached documents.
+        authResolved=true;
+        currentUser=auth.currentUser;
+        showScreen('app');startListening();
+      }else{
+        window.__yadnoStartupError?.(new Error(navigator.onLine
+          ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
+          : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+      }
+    },8000);
     onAuthStateChanged(auth, (user) => {
+      clearTimeout(authWatchdog);
+      authResolved=true;
+      // Avoid re-creating listeners when the watchdog already started this same user.
+      if(currentUser?.uid===user?.uid && user && unsubNotebooks)return;
       currentUser = user;
       if (user) {
         showScreen('app');
@@ -548,12 +1075,23 @@ function initFirebase(config) {
         stopListening();
         showScreen('auth');
       }
+    }, (error)=>{
+      clearTimeout(authWatchdog);
+      window.__yadnoStartupError?.(error);
     });
     return true;
   } catch (e) {
+    window.__yadnoStartupError?.(e);
     return false;
   }
 }
+
+window.addEventListener('error', (event) => {
+  console.error('Yadno runtime error:', event.error || event.message);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Yadno unhandled promise rejection:', event.reason);
+});
 
 function boot() {
   const saved = getSavedConfig();
@@ -616,14 +1154,58 @@ function setAuthMode(mode) {
     $('auth-switch-link').textContent = 'وارد شو';
   }
   $('auth-error').style.display = 'none';
+  $('auth-success').style.display = 'none';
+  $('forgot-password-row').style.display = mode === 'login' ? 'flex' : 'none';
+  $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
 }
 $('auth-switch-link').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
+
+// Firebase sends the reset link. No password or reset token is stored in Yadno.
+$('forgot-password-btn').addEventListener('click', async () => {
+  const email = $('auth-email').value.trim();
+  const error = $('auth-error');
+  const success = $('auth-success');
+  error.style.display = 'none';
+  success.style.display = 'none';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    error.textContent = 'ابتدا ایمیل معتبر حساب خود را وارد کنید.';
+    error.style.display = 'block';
+    $('auth-email').focus();
+    return;
+  }
+  if (!navigator.onLine) {
+    error.textContent = 'برای ارسال ایمیل بازیابی، اتصال اینترنت لازم است.';
+    error.style.display = 'block';
+    return;
+  }
+  const button = $('forgot-password-btn');
+  button.disabled = true;
+  button.textContent = 'در حال ارسال…';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    success.textContent = 'اگر این ایمیل به حسابی در یادنو تعلق داشته باشد، لینک بازیابی ارسال می‌شود. پوشه هرزنامه را نیز بررسی کنید.';
+    success.style.display = 'block';
+  } catch (e) {
+    if (e.code === 'auth/user-not-found') {
+      success.textContent = 'اگر این ایمیل به حسابی در یادنو تعلق داشته باشد، لینک بازیابی ارسال می‌شود. پوشه هرزنامه را نیز بررسی کنید.';
+      success.style.display = 'block';
+    } else {
+      error.textContent = translateAuthError(e.code);
+      error.style.display = 'block';
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = 'رمز عبور را فراموش کرده‌ام';
+  }
+});
+
 
 $('auth-submit-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
   const password = $('auth-password').value;
   const errEl = $('auth-error');
   errEl.style.display = 'none';
+  $('auth-success').style.display = 'none';
   if (!email || !password) {
     errEl.textContent = 'ایمیل و رمز عبور رو وارد کن.';
     errEl.style.display = 'block';
@@ -651,6 +1233,9 @@ function translateAuthError(code) {
     'auth/invalid-credential': 'ایمیل یا رمز عبور اشتباهه.',
     'auth/email-already-in-use': 'این ایمیل قبلاً ثبت شده. وارد شو.',
     'auth/weak-password': 'رمز عبور باید حداقل ۶ کاراکتر باشه.',
+    'auth/network-request-failed': 'ارتباط با اینترنت برقرار نیست. دوباره تلاش کنید.',
+    'auth/too-many-requests': 'درخواست‌های زیادی ارسال شده است. کمی بعد دوباره تلاش کنید.',
+    'auth/operation-not-allowed': 'بازیابی رمز در تنظیمات Firebase فعال نیست.',
   };
   return map[code] || 'مشکلی پیش اومد. دوباره امتحان کن.';
 }
@@ -666,6 +1251,85 @@ $('more-menu-btn').addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#more-menu-wrap')) closeMoreMenu();
 });
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('global-search-input')?.focus();}});
+
+// ---------- Resizable / collapsible navigation panes ----------
+const FOCUS_KEY = 'yadno-focus-mode';
+function applyFocusMode(on){
+  const app=$('app'); if(!app) return;
+  app.classList.toggle('focus-mode',!!on);
+  localStorage.setItem(FOCUS_KEY,on?'1':'0');
+  const b=$('focus-mode-btn');
+  if(b){ b.setAttribute('aria-pressed',on?'true':'false'); b.title=on?'خروج از حالت تمرکز (Esc یا Ctrl+Shift+F)':'حالت تمرکز (Ctrl+Shift+F)'; }
+}
+function toggleFocusMode(){ applyFocusMode(!$('app')?.classList.contains('focus-mode')); }
+$('focus-mode-btn')?.addEventListener('click',toggleFocusMode);
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='f'){ e.preventDefault(); toggleFocusMode(); }
+  else if(e.key==='Escape' && $('app')?.classList.contains('focus-mode')) applyFocusMode(false);
+});
+
+const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':260 };
+const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
+function applyPaneState(){
+  const grid=$('main-grid'); if(!grid) return;
+  // در موبایل، ستون‌ها به‌صورت کشویی باز می‌شن؛ حالت «جمع شده» دسکتاپ
+  // نباید روی کشوهای موبایل اعمال بشه وگرنه محتوای کشو مخفی می‌مونه و
+  // کاربر نمی‌تونه دفترها/بخش‌ها/یادداشت‌ها رو باز کنه.
+  const mobile=window.innerWidth<=860;
+  Object.keys(paneDefaults).forEach(id=>{
+    const pane=$(id); if(!pane) return;
+    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id); // پاک‌سازی پرچم‌های قدیمی روی گوشی
+    const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
+    pane.classList.toggle('collapsed',collapsed);
+    const btn=pane.querySelector('.pane-collapse');
+    if(btn){ btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'باز کردن':'جمع کردن'; }
+    if(collapsed) grid.style.setProperty(paneCss[id],'0px');
+    else {
+      const saved=parseInt(localStorage.getItem('yadno-pane-width-'+id)||paneDefaults[id],10);
+      grid.style.setProperty(paneCss[id],Math.max(140,Math.min(420,saved))+'px');
+    }
+  });
+}
+function togglePane(id){
+  const pane=$(id); if(!pane) return;
+  // در موبایل ستون‌ها به‌صورت کشویی باز می‌شن؛ جمع‌کردن دسکتاپ نباید روی کشو اثر بگذارد
+  if(window.innerWidth<=860){ openMobilePane(null); return; }
+  const collapsed=!pane.classList.contains('collapsed');
+  localStorage.setItem('yadno-pane-collapsed-'+id,collapsed?'1':'0');
+  applyPaneState();
+}
+
+// اگر روی هدر یک ستونِ جمع‌شده کلیک شد (غیر از دکمه‌ها)، همان ستون باز شود
+Object.keys(paneCss).forEach(id=>{
+  const pane=$(id); if(!pane) return;
+  pane.querySelector('.pane-header')?.addEventListener('click',(e)=>{
+    if(pane.classList.contains('collapsed') && !e.target.closest('button')) togglePane(id);
+  });
+});
+document.querySelectorAll('.pane-collapse').forEach(btn=>btn.addEventListener('click',()=>togglePane(btn.dataset.pane)));
+
+document.querySelectorAll('.pane-resizer').forEach(handle=>{
+  handle.addEventListener('pointerdown',e=>{
+    if(window.innerWidth<=860) return;
+    const id=handle.dataset.before, css=handle.dataset.css, grid=$('main-grid'), pane=$(id);
+    if(!pane || pane.classList.contains('collapsed')) return;
+    handle.classList.add('dragging'); handle.setPointerCapture?.(e.pointerId);
+    const startX=e.clientX, start=parseInt(getComputedStyle(grid).getPropertyValue(css))||paneDefaults[id];
+    const rtl=document.documentElement.dir==='rtl';
+    const move=ev=>{ const delta=(rtl?startX-ev.clientX:ev.clientX-startX); const w=Math.max(140,Math.min(420,start+delta)); grid.style.setProperty(css,w+'px'); localStorage.setItem('yadno-pane-width-'+id,String(w)); };
+    const up=()=>{ handle.classList.remove('dragging'); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up,{once:true});
+    e.preventDefault();
+  });
+});
+applyPaneState();
+let paneResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(paneResizeTimer);
+  paneResizeTimer=setTimeout(applyPaneState,120);
+});
+applyFocusMode(localStorage.getItem(FOCUS_KEY)==='1');
 
 // ---------- Data: notebooks & notes ----------
 function userCol(...path) {
@@ -673,41 +1337,140 @@ function userCol(...path) {
 }
 
 function startListening() {
-  const nbQuery = query(userCol('notebooks'), orderBy('createdAt', 'asc'));
+  // بدون orderBy: بعضی داده‌های قدیمی/واردشده ممکن است createdAt نداشته باشند.
+  // orderBy در Firestore چنین اسنادی را از نتیجه حذف می‌کند و در موبایل ممکن است لیست کاملاً خالی دیده شود.
+  const nbQuery = query(userCol('notebooks'));
   unsubNotebooks = onSnapshot(nbQuery, (snap) => {
-    notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter(n => !n.deletedAt);
-    if (!activeNotebookId && notebooks.length) activeNotebookId = notebooks[0].id;
+    notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .filter(n => !n.deletedAt)
+      .sort((a,b) => {
+        const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.position || 0);
+        const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.position || 0);
+        return ta - tb;
+      });
+    if (!activeNotebookId || !notebooks.some(n => n.id === activeNotebookId)) {
+      activeNotebookId = notebooks.length ? notebooks[0].id : null;
+    }
     renderNotebooks();
-    if (activeNotebookId) listenToNotes(activeNotebookId);
-    else { notes = []; renderNotes(); }
-  }, () => setSyncStatus('offline'));
+    if (activeNotebookId && currentListenerNotebookId!==activeNotebookId) listenToSections(activeNotebookId);
+    else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }
+    updateSnapshotStatus(snap);
+  }, (err) => {
+    console.error('Yadno notebooks listener error:', err);
+    setSyncStatus('offline');
+    const list = $('notebooks-list');
+    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">ارتباط با Firebase برقرار نیست یا دسترسی Firestore مشکل دارد.<br><small>تنظیمات Firebase و قوانین Firestore را بررسی کنید.</small></div>';
+  });
 }
 
-function listenToNotes(notebookId) {
+async function ensureDefaultSection(notebookId) {
+  // Never block offline navigation on a network read.
+  const sectionsRef=userCol('notebooks', notebookId, 'sections');
+  let snap;
+  if(navigator.onLine) snap=await getDocs(sectionsRef);
+  else { snap=await getDocsFromCache(sectionsRef); if(snap.empty) throw new Error('No cached sections'); }
+  const live = snap.docs.filter(d => !d.data().deletedAt);
+  if (live.length) return live.sort((a,b) => (a.data().position||0)-(b.data().position||0))[0].id;
+  const ref = await addDoc(userCol('notebooks', notebookId, 'sections'), {
+    name: 'عمومی', createdAt: serverTimestamp(), position: 1
+  });
+  return ref.id;
+}
+
+function listenToSections(notebookId) {
+  if(currentListenerNotebookId===notebookId && unsubSections && unsubSectionGroups)return;
+  currentListenerNotebookId=notebookId;
+  currentListenerSectionKey=null;
+  if(unsubSections)unsubSections();
+  if(unsubSectionGroups)unsubSectionGroups();
+  if(unsubNotes){unsubNotes();unsubNotes=null;}
+  const groupsQuery=query(userCol('notebooks',notebookId,'sectionGroups'));
+  unsubSectionGroups=onSnapshot(groupsQuery,{includeMetadataChanges:true},snap=>{
+    if(currentListenerNotebookId!==notebookId)return;
+    sectionGroups=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(g=>!g.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
+    renderSections();
+    updateSnapshotStatus(snap);
+  },err=>{console.error('Groups listener:',err);setSyncStatus('offline');});
+  const sectionsQuery=query(userCol('notebooks',notebookId,'sections'));
+  unsubSections=onSnapshot(sectionsQuery,{includeMetadataChanges:true},async snap=>{
+    if(currentListenerNotebookId!==notebookId)return;
+    sections=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
+    if(!sections.length){
+      // A cache miss does not mean the remote notebook has no sections.
+      // Never create a default section merely because the device is offline.
+      if(!snap.metadata.fromCache && navigator.onLine){
+        try{activeSectionId=await ensureDefaultSection(notebookId);}catch(e){console.warn(e);activeSectionId=null;}
+      }else{activeSectionId=null;}
+    }else if(!activeSectionId||!sections.some(s=>s.id===activeSectionId)){
+      activeSectionId=sections[0].id;
+    }
+    if(currentListenerNotebookId!==notebookId)return;
+    renderSections();
+    if(activeSectionId)listenToNotes(notebookId,activeSectionId);
+    else{notes=[];renderNotes();showEditorEmpty();}
+    updateSnapshotStatus(snap);
+  },err=>{console.error('Sections listener:',err);setSyncStatus('offline');});
+}
+function listenToNotes(notebookId, sectionId) {
+  const key=notebookId+'/'+sectionId;
+  if(currentListenerSectionKey===key && unsubNotes)return;
+  currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
-  const nQuery = query(userCol('notebooks', notebookId, 'notes'), orderBy('updatedAt', 'desc'));
-  unsubNotes = onSnapshot(nQuery, (snap) => {
-    notes = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter(n => !n.deletedAt);
-    notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || 0);
+  // بدون orderBy تا یادداشت‌های قدیمی فاقد updatedAt هم نمایش داده شوند.
+  const nQuery = query(userCol('notebooks', notebookId, 'notes'));
+  unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
+    notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .filter(n => !n.deletedAt && (n.sectionId || sectionId) === sectionId);
+    notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || ((b.updatedAt?.toDate ? b.updatedAt.toDate().getTime() : 0) - (a.updatedAt?.toDate ? a.updatedAt.toDate().getTime() : 0)));
     renderNotes();
-    setSyncStatus('online');
-  }, () => setSyncStatus('offline'));
+    updateSnapshotStatus(snap);
+  }, (err) => { console.error('Yadno notes listener error:', err); setSyncStatus('offline'); });
 }
 
 function stopListening() {
   if (unsubNotebooks) unsubNotebooks();
+  if (unsubSections) unsubSections();
+  if (unsubSectionGroups) unsubSectionGroups();
   if (unsubNotes) unsubNotes();
-  notebooks = []; notes = []; activeNotebookId = null; activeNoteId = null;
+  unsubNotebooks=unsubSections=unsubSectionGroups=unsubNotes=null;
+  currentListenerNotebookId=currentListenerSectionKey=null;
+  notebooks = []; sectionGroups = []; sections = []; notes = []; activeNotebookId = null; activeSectionId = null; activeNoteId = null;
 }
 
-function setSyncStatus(state) {
-  const el = $('sync-status');
-  el.className = state;
-  $('sync-status-text').textContent =
-    state === 'offline' ? 'آفلاین' : state === 'saving' ? 'در حال ذخیره' : 'همگام';
+function updateSnapshotStatus(snap){
+  latestSnapshotFromCache=!!snap.metadata.fromCache;
+  pendingWrites=!!snap.metadata.hasPendingWrites;
+  setSyncStatus(pendingWrites?'pending':(navigator.onLine&&!latestSnapshotFromCache?'online':'offline'));
 }
-window.addEventListener('online', () => setSyncStatus('online'));
-window.addEventListener('offline', () => setSyncStatus('offline'));
+function setSyncStatus(state) {
+  const el=$('sync-status');
+  el.className=state==='online'?'':(state==='saving'?'saving':'offline');
+  $('sync-status-text').textContent=state==='saving'?'در حال ذخیره':
+    state==='pending'?'در انتظار همگام‌سازی':state==='offline'?
+    (navigator.onLine?'اطلاعات محلی':'آفلاین · ذخیره محلی'):'همگام';
+}
+window.addEventListener('online',()=>setSyncStatus('pending'));
+window.addEventListener('offline',()=>setSyncStatus('offline'));
+
+// Notebook colors are presentation-only, saved on this device (no Firestore schema changes).
+const YADNO_BOOK_PALETTE=['#7719aa','#e32983','#43a832','#1685d5','#f39219','#18a9a5','#ed4747','#818996'];
+function yadnoBookColor(id){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem('yadno-notebook-colors')||'{}')}catch(_){saved={}}
+  if(saved[id]&&YADNO_BOOK_PALETTE.includes(saved[id]))return saved[id];
+  let hash=0;for(const ch of String(id||''))hash=(hash*31+ch.charCodeAt(0))>>>0;
+  return YADNO_BOOK_PALETTE[hash%YADNO_BOOK_PALETTE.length];
+}
+function yadnoCycleBookColor(id){
+  try{
+    const saved=JSON.parse(localStorage.getItem('yadno-notebook-colors')||'{}');
+    const current=yadnoBookColor(id);
+    saved[id]=YADNO_BOOK_PALETTE[(YADNO_BOOK_PALETTE.indexOf(current)+1)%YADNO_BOOK_PALETTE.length];
+    localStorage.setItem('yadno-notebook-colors',JSON.stringify(saved));
+  }catch(e){console.warn('Notebook color not saved',e)}
+}
 
 // ---------- Render: notebooks ----------
 function renderNotebooks() {
@@ -720,18 +1483,22 @@ function renderNotebooks() {
   notebooks.forEach((nb) => {
     const el = document.createElement('div');
     el.className = 'notebook-item' + (nb.id === activeNotebookId ? ' active' : '');
+    el.style.setProperty('--book-color', yadnoBookColor(nb.id));
     el.innerHTML = `<span class="dot-icon"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(nb.name)}</span>
+      <button class="book-color-picker" title="تغییر رنگ دفتر" aria-label="تغییر رنگ دفتر"><span class="swatch" style="background:${yadnoBookColor(nb.id)}"></span></button>
       <button class="icon-btn del-btn" title="حذف دفتر"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>`;
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.del-btn')) return;
+      if (e.target.closest('.del-btn, .book-color-picker')) return;
       activeNotebookId = nb.id;
+      activeSectionId = null;
       activeNoteId = null;
       renderNotebooks();
-      listenToNotes(nb.id);
+      listenToSections(nb.id);
       showEditorEmpty();
-      $('notes-pane-title').textContent = nb.name;
-      openMobilePane('notes');
+      $('notes-pane-title').textContent = 'یادداشت‌ها';
+      openMobilePane('sections');
     });
+    el.querySelector('.book-color-picker').addEventListener('click', e => { e.stopPropagation(); yadnoCycleBookColor(nb.id); renderNotebooks(); });
     el.querySelector('.del-btn').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm(`دفتر «${nb.name}» و همه‌ی یادداشت‌های داخلش حذف بشه؟`)) {
@@ -741,6 +1508,7 @@ function renderNotebooks() {
     });
     list.appendChild(el);
   });
+  document.documentElement.style.setProperty('--active-book-color', activeNotebookId ? yadnoBookColor(activeNotebookId) : '#7719aa');
   $('notes-pane-title').textContent = notebooks.find((n) => n.id === activeNotebookId)?.name || 'یادداشت‌ها';
 }
 
@@ -749,6 +1517,69 @@ $('add-notebook-btn').addEventListener('click', async () => {
   if (!name || !name.trim()) return;
   const ref = await addDoc(userCol('notebooks'), { name: name.trim(), createdAt: serverTimestamp(), position: Date.now() });
   activeNotebookId = ref.id;
+  activeSectionId = null;
+  await ensureDefaultSection(ref.id);
+  listenToSections(ref.id);
+});
+
+// ---------- Render: sections ----------
+function renderSections() {
+  const list = $('sections-list');
+  if (!activeNotebookId) { list.innerHTML = '<div class="empty-hint">یک دفتر انتخاب کن</div>'; return; }
+  if (!sections.length) { list.innerHTML = '<div class="empty-hint">در حال ساخت بخش...</div>'; return; }
+  list.innerHTML = '';
+  const groups = [{id:null,name:'بخش‌های اصلی',position:-1}, ...sectionGroups];
+  groups.forEach(group => {
+    const wrap = document.createElement('div');
+    const header = document.createElement('div');
+    header.className = 'notebook-item';
+    header.innerHTML = `<span class="dot-icon" style="border-radius:3px;background:var(--ink)"></span><b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escapeHtml(group.name)}</b>`;
+    wrap.appendChild(header);
+    const children = sections.filter(sec => (sec.groupId || null) === group.id);
+    children.forEach((sec) => {
+      const el = document.createElement('div');
+      el.className = 'notebook-item' + (sec.id === activeSectionId ? ' active' : '');
+      el.style.paddingInlineStart = '28px';
+      el.innerHTML = `<span class="dot-icon" style="border-radius:50%;background:var(--sage)"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escapeHtml(sec.name || 'بخش بدون نام')}</span>`;
+      el.addEventListener('click', () => {
+        activeSectionId = sec.id; activeNoteId = null; renderSections(); renderNotes(); showEditorEmpty();
+        $('notes-pane-title').textContent = sec.name || 'یادداشت‌ها';
+        listenToNotes(activeNotebookId, activeSectionId);
+        openMobilePane('notes');
+      });
+      wrap.appendChild(el);
+    });
+    if (children.length || group.id===null) list.appendChild(wrap);
+  });
+  $('sections-pane-title').textContent = `بخش‌ها (${sections.length})`;
+}
+
+async function addSectionGroup() {
+  if (!activeNotebookId) { alert('اول یک دفتر انتخاب کن.'); return; }
+  const name = prompt('نام گروه بخش جدید:');
+  if (!name || !name.trim()) return;
+  await addDoc(userCol('notebooks', activeNotebookId, 'sectionGroups'), {
+    name: name.trim(), createdAt: serverTimestamp(), position: Date.now()
+  });
+}
+$('add-section-group-btn').addEventListener('click', addSectionGroup);
+$('add-section-group-toolbar').addEventListener('click', addSectionGroup);
+
+$('add-section-btn').addEventListener('click', async () => {
+  if (!activeNotebookId) { alert('اول یک دفتر انتخاب کن.'); return; }
+  const name = prompt('نام بخش جدید:');
+  if (!name || !name.trim()) return;
+  let groupId = null;
+  if (sectionGroups.length) {
+    const choices = sectionGroups.map((g,i)=>`${i+1}. ${g.name}`).join('\n');
+    const pick = prompt(`اگر می‌خواهی بخش داخل گروه باشد، شماره گروه را وارد کن:\n${choices}\nخالی = بخش اصلی`);
+    if (pick && /^\d+$/.test(pick)) groupId = sectionGroups[Number(pick)-1]?.id || null;
+  }
+  const ref = await addDoc(userCol('notebooks', activeNotebookId, 'sections'), {
+    name: name.trim(), groupId, createdAt: serverTimestamp(), position: Date.now()
+  });
+  activeSectionId = ref.id; activeNoteId = null;
+  listenToNotes(activeNotebookId, activeSectionId);
 });
 
 // ---------- Render: notes ----------
@@ -771,7 +1602,7 @@ function renderNotes() {
     const timeStr = n.updatedAt?.toDate ? formatTime(n.updatedAt.toDate()) : '';
     el.innerHTML = `<div class="n-title">${escapeHtml(n.title || 'بدون عنوان')}</div>
       <div class="n-preview">${escapeHtml(preview) || '&nbsp;'}</div>
-      <div class="n-time">${timeStr}</div>
+      <div class="n-time">${timeStr}</div>${(n.tags||[]).length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${(n.tags||[]).slice(0,3).map(t=>`<span class="tag-chip" style="font-size:10px;padding:2px 6px">${escapeHtml(t)}</span>`).join('')}</div>`:''}
       <div class="note-actions">
         <button class="note-action ${n.pinned ? 'pinned' : ''}" title="${n.pinned ? 'برداشتن سنجاق' : 'سنجاق کردن'}">📌</button>
         <button class="note-action" title="حذف">🗑</button>
@@ -823,40 +1654,231 @@ function formatTime(date) {
 $('add-note-btn').addEventListener('click', async () => {
   if (!activeNotebookId) { alert('اول یک دفتر انتخاب کن.'); return; }
   const ref = await addDoc(userCol('notebooks', activeNotebookId, 'notes'), {
-    title: '', body: '', createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, position: Date.now()
+    title: '', body: '', sectionId: activeSectionId, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, tags: [], attachments: [], position: Date.now()
   });
   activeNoteId = ref.id;
   openNoteInEditor({ id: ref.id, title: '', body: '' });
   openMobilePane(null);
 });
 
+// ---------- Global search ----------
+let searchCache = [];
+let searchRequestId = 0;
+
+function stripHtml(html){
+  const d=document.createElement('div'); d.innerHTML=html||'';
+  return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim();
+}
+function escapeRegExp(s){ return (s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function highlightText(text, term){
+  const safe=escapeHtml(text||'');
+  if(!term) return safe;
+  const re=new RegExp('('+escapeRegExp(term).split(/\s+/).filter(Boolean).join('|')+')','gi');
+  return safe.replace(re,'<mark>$1</mark>');
+}
+function collectSearchOptions(){
+  const nb=$('search-notebook-filter'), tg=$('search-tag-filter');
+  if(!nb||!tg)return;
+  const currentNb=nb.value, currentTag=tg.value;
+  nb.innerHTML='<option value="">همه دفترها</option>';
+  notebooks.filter(n=>!n.deletedAt).forEach(n=>{const o=document.createElement('option');o.value=n.id;o.textContent=n.name||'دفتر';nb.appendChild(o);});
+  const tags=[...new Set(searchCache.flatMap(n=>Array.isArray(n.tags)?n.tags:[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fa'));
+  tg.innerHTML='<option value="">همه برچسب‌ها</option>';
+  tags.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent='#'+t;tg.appendChild(o);});
+  if([...nb.options].some(o=>o.value===currentNb))nb.value=currentNb;
+  if([...tg.options].some(o=>o.value===currentTag))tg.value=currentTag;
+}
+function scoreSearchResult(n,q){
+  const title=(n.title||'').toLowerCase(), body=stripHtml(n.body).toLowerCase(), tags=(n.tags||[]).join(' ').toLowerCase();
+  let score=0;
+  if(title===q)score+=1000; if(title.includes(q))score+=300; if(tags.includes(q))score+=220; if(body.includes(q))score+=100;
+  if(n.pinned)score+=35;
+  const t=n.updatedAt?.toDate?n.updatedAt.toDate().getTime():0;
+  score+=Math.min(30,t/1e13);
+  return score;
+}
+function formatSearchDate(v){
+  try{const d=v?.toDate?v.toDate():new Date(v);if(!d||isNaN(d))return '';return d.toLocaleDateString('fa-IR',{year:'numeric',month:'short',day:'numeric'});}catch{return '';}}
+function renderSearchResults(term){
+  const results=$('search-results'), nbFilter=$('search-notebook-filter').value, tagFilter=$('search-tag-filter').value, sort=$('search-sort').value;
+  let arr=searchCache.filter(n=>!n.deletedAt);
+  if(nbFilter)arr=arr.filter(n=>n.notebookId===nbFilter);
+  if(tagFilter)arr=arr.filter(n=>(n.tags||[]).includes(tagFilter));
+  const q=(term||'').trim().toLowerCase();
+  if(q)arr=arr.filter(n=>[n.title||'',stripHtml(n.body),...(n.tags||[])].join(' ').toLowerCase().includes(q));
+  arr.forEach(n=>n._score=scoreSearchResult(n,q));
+  if(sort==='updated')arr.sort((a,b)=>{const ta=a.updatedAt?.toDate?a.updatedAt.toDate().getTime():0,tb=b.updatedAt?.toDate?b.updatedAt.toDate().getTime():0;return tb-ta;});
+  else if(sort==='title')arr.sort((a,b)=>(a.title||'').localeCompare(b.title||'','fa'));
+  else if(sort==='pinned')arr.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||b._score-a._score);
+  else arr.sort((a,b)=>b._score-a._score);
+  $('search-count').textContent=`${arr.length} نتیجه`+(nbFilter||tagFilter?' با فیلتر':'');
+  const active=[];if(nbFilter){const n=notebooks.find(x=>x.id===nbFilter);if(n)active.push('دفتر: '+n.name);}if(tagFilter)active.push('#'+tagFilter);
+  $('search-active-filter').innerHTML=active.length?active.map(x=>`<span class="tag-chip">${escapeHtml(x)}</span> <button class="search-clear" id="clear-search-filters">پاک کردن فیلترها</button>`).join(''):'';
+  results.innerHTML='';
+  if(!arr.length){results.innerHTML='<div class="search-empty">نتیجه‌ای پیدا نشد.<br><small>عبارت دیگری امتحان کن یا فیلترها را بردار.</small></div>';return;}
+  const max=100;
+  arr.slice(0,max).forEach(n=>{
+    const row=document.createElement('div');row.className='search-result';
+    const plain=stripHtml(n.body); const idx=q?plain.toLowerCase().indexOf(q):-1; const preview=idx>=0?plain.slice(Math.max(0,idx-70),idx+170):plain.slice(0,220);
+    row.innerHTML=`<div class="search-result-title">${n.pinned?'📌 ':''}${highlightText(n.title||'بدون عنوان',term)}</div><div class="search-result-meta">${escapeHtml(n.notebookName)} ← ${escapeHtml(n.sectionName)}${n.tags?.length?' · '+escapeHtml(n.tags.map(t=>'#'+t).join(' ')):''}${n.updatedAt?' · '+formatSearchDate(n.updatedAt):''}</div><div class="search-result-preview">${highlightText(preview,term)}</div>`;
+    row.addEventListener('click',()=>openSearchResult(n)); results.appendChild(row);
+  });
+  if(arr.length>max){const more=document.createElement('div');more.className='search-more';more.textContent=`۱۰۰ نتیجه نمایش داده شد؛ عبارت یا فیلتر را دقیق‌تر کن.`;results.appendChild(more);}
+}
+async function openSearchResult(n){
+  activeNotebookId=n.notebookId;activeSectionId=n.sectionId;activeNoteId=n.id;
+  $('search-modal').classList.remove('open');
+  renderNotebooks();
+  listenToSections(n.notebookId);
+  setTimeout(()=>{openNoteInEditor(n);openMobilePane(null);},300);
+}
+async function loadSearchIndex(){
+  const id=++searchRequestId;
+  $('search-results').innerHTML='<div class="search-loading">در حال آماده‌سازی فهرست جست‌وجو…</div>';
+  try{
+    const nbSnap=await getDocs(userCol('notebooks')); const all=[];
+    for(const nbDoc of nbSnap.docs){if(id!==searchRequestId)return;if(nbDoc.data().deletedAt)continue;
+      const secSnap=await getDocs(userCol('notebooks',nbDoc.id,'sections'));
+      const secMap=new Map(secSnap.docs.filter(d=>!d.data().deletedAt).map(d=>[d.id,d.data().name||'بخش']));
+      const noteSnap=await getDocs(userCol('notebooks',nbDoc.id,'notes'));
+      noteSnap.docs.forEach(d=>{const n={id:d.id,notebookId:nbDoc.id,...d.data()};if(n.deletedAt)return;all.push({...n,notebookName:nbDoc.data().name||'دفتر',sectionName:secMap.get(n.sectionId)||'بخش'});});
+    }
+    searchCache=all;collectSearchOptions();renderSearchResults($('global-search-input').value); 
+  }catch(e){$('search-results').innerHTML='<div class="search-empty">جست‌وجو با خطا مواجه شد.</div>';}
+}
+async function openSearch(){
+  $('search-modal').classList.add('open');
+  collectSearchOptions();
+  $('search-modal-input').value=$('global-search-input').value;
+  if(window.innerWidth<=860) setTimeout(()=>$('search-modal-input').focus(),50);
+  if(!searchCache.length)await loadSearchIndex();else renderSearchResults($('global-search-input').value);
+}
+$('global-search-input').addEventListener('focus',()=>{if(window.innerWidth>860)openSearch();});
+$('global-search-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(searchTimer);openSearch();}});
+$('global-search-input').addEventListener('input',e=>{clearTimeout(searchTimer);const val=e.target.value.trim();if(val.length>=2){searchTimer=setTimeout(()=>openSearch(),250);}else if($('search-modal').classList.contains('open'))renderSearchResults(val);});
+$('search-modal-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(searchTimer);renderSearchResults(e.target.value.trim());}});
+$('search-modal-input').addEventListener('input',e=>{
+  $('global-search-input').value=e.target.value;
+  clearTimeout(searchTimer);
+  const val=e.target.value.trim();
+  searchTimer=setTimeout(async()=>{ if(!searchCache.length) await loadSearchIndex(); else renderSearchResults(val); },250);
+});
+$('search-notebook-filter').addEventListener('change',()=>renderSearchResults($('global-search-input').value));
+$('search-tag-filter').addEventListener('change',()=>renderSearchResults($('global-search-input').value));
+$('search-sort').addEventListener('change',()=>renderSearchResults($('global-search-input').value));
+$('search-active-filter').addEventListener('click',e=>{if(e.target.id==='clear-search-filters'){$('search-notebook-filter').value='';$('search-tag-filter').value='';renderSearchResults($('global-search-input').value);}});
+$('close-search-btn').addEventListener('click',()=>$('search-modal').classList.remove('open'));
+$('mobile-search-btn')?.addEventListener('click',()=>{ openSearch(); });
+$('search-modal').addEventListener('click',e=>{if(e.target.id==='search-modal')$('search-modal').classList.remove('open');});
+
 // ---------- Editor ----------
 function showEditorEmpty() {
+  flushScheduledSave();
   $('editor-empty').style.display = 'flex';
   $('editor-content').style.display = 'none';
 }
 
 function openNoteInEditor(note) {
+  flushScheduledSave();
   $('editor-empty').style.display = 'none';
   $('editor-content').style.display = 'flex';
   $('title-input').value = note.title || '';
   $('body-editor').innerHTML = note.body || '';
+  activeTags = Array.isArray(note.tags) ? [...note.tags] : [];
+  renderTagChips();
+  renderAttachments(note.attachments || []);
+  document.dispatchEvent(new Event('yadno:note-opened'));
 }
 
-function scheduleSave() {
-  if (!activeNotebookId || !activeNoteId) return;
-  setSyncStatus('saving');
+function renderTagChips(){
+  const box=$('tag-chips'); box.innerHTML='';
+  activeTags.forEach((tag,i)=>{ const chip=document.createElement('span'); chip.className='tag-chip'; chip.innerHTML=`${escapeHtml(tag)} <button type="button" title="حذف برچسب">×</button>`; chip.querySelector('button').onclick=()=>{activeTags.splice(i,1);renderTagChips();scheduleSave();}; box.appendChild(chip); });
+}
+
+$('tag-input').addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return; e.preventDefault();
+  const val=e.target.value.trim().replace(/^#/, ''); if(!val) return;
+  if(!activeTags.includes(val)) activeTags.push(val); e.target.value=''; renderTagChips(); scheduleSave();
+});
+
+function renderAttachments(items){
+  const box=$('attachments-list'); box.innerHTML='';
+  if(!items || !items.length){ box.innerHTML='<span class="attach-progress">هنوز فایلی پیوست نشده است.</span>'; return; }
+  items.forEach((a,i)=>{
+    const row=document.createElement('div'); row.className='attachment-item';
+    const safeName=escapeHtml(a.name||'فایل');
+    row.innerHTML=`<span class="attachment-icon">📄</span><button type="button" class="attachment-open" title="باز کردن فایل">${safeName}</button><button type="button" class="attachment-download" title="دانلود فایل">⬇</button><span class="attach-progress">${a.size?formatBytes(a.size):''}</span><button class="attachment-remove" title="حذف پیوست">×</button>`;
+    row.querySelector('.attachment-open').onclick=()=>openAttachment(a);
+    row.querySelector('.attachment-download').onclick=()=>downloadAttachment(a);
+    row.querySelector('.attachment-remove').onclick=async()=>{
+      if(!confirm('این فایل پیوست حذف شود؟')) return;
+      try{ if(a.storagePath && storage) await deleteObject(storageRef(storage,a.storagePath)); }catch(e){}
+      const note=notes.find(n=>n.id===activeNoteId); const arr=(note?.attachments||[]).filter((_,idx)=>idx!==i);
+      await setDoc(doc(db,'users',currentUser.uid,'notebooks',activeNotebookId,'notes',activeNoteId),{attachments:arr,updatedAt:serverTimestamp()},{merge:true});
+      renderAttachments(arr);
+    };
+    box.appendChild(row);
+  });
+}
+function formatBytes(n){ if(!n) return ''; const u=['B','KB','MB','GB']; let i=0,x=n; while(x>=1024&&i<3){x/=1024;i++;} return `${x.toFixed(x>=10||i===0?0:1)} ${u[i]}`; }
+
+// ---------- Attachment viewer: mobile-safe open/download ----------
+function openAttachment(a){
+  const url=a && a.url;
+  if(!url){alert('آدرس این فایل در دسترس نیست.');return;}
+  const w=window.open(url,'_blank','noopener,noreferrer');
+  if(!w) window.location.href=url;
+}
+function downloadAttachment(a){
+  const url=a && a.url;
+  if(!url){alert('آدرس این فایل در دسترس نیست.');return;}
+  const link=document.createElement('a');
+  link.href=url; link.target='_blank'; link.rel='noopener'; link.download=a.name||'';
+  document.body.appendChild(link); link.click(); link.remove();
+}
+async function uploadAttachments(files){
+  if(!activeNotebookId||!activeNoteId){alert('اول یک یادداشت را انتخاب کن.');return;}
+  if(!storage){alert('Firebase Storage در دسترس نیست. ابتدا Storage را در پروژه Firebase فعال کن.');return;}
+  const status=$('attachments-status'); const note=notes.find(n=>n.id===activeNoteId)||{}; const arr=[...(note.attachments||[])];
+  for(const file of Array.from(files||[])){
+    if(file.size>25*1024*1024){alert(`حجم «${file.name}» بیشتر از 25MB است.`);continue;}
+    try{
+      status.textContent=`در حال بارگذاری ${file.name}…`;
+      const safe=file.name.replace(/[^\w\u0600-\u06FF. -]/g,'_');
+      const path=`users/${currentUser.uid}/notebooks/${activeNotebookId}/notes/${activeNoteId}/${Date.now()}_${safe}`;
+      const ref=storageRef(storage,path); await uploadBytes(ref,file,{contentType:file.type||'application/octet-stream'});
+      const url=await getDownloadURL(ref); arr.push({name:file.name,size:file.size,type:file.type||'',url,storagePath:path,uploadedAt:new Date().toISOString()});
+      await setDoc(doc(db,'users',currentUser.uid,'notebooks',activeNotebookId,'notes',activeNoteId),{attachments:arr,updatedAt:serverTimestamp()},{merge:true});
+      renderAttachments(arr);
+    }catch(e){ console.error(e); alert(`بارگذاری «${file.name}» انجام نشد. ممکن است Firebase Storage هنوز فعال نشده باشد.`); }
+  }
+  status.textContent='';
+}
+$('attachment-btn').addEventListener('click',()=>{ if(!activeNoteId){alert('اول یک یادداشت را انتخاب کن.');return;} $('attachment-file-input').click(); });
+$('attachment-file-input').addEventListener('change',async e=>{ await uploadAttachments(e.target.files); e.target.value=''; });
+
+let queuedSave=null;
+function flushScheduledSave(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId), {
-      title: $('title-input').value,
-      body: $('body-editor').innerHTML,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-    setSyncStatus('online');
-  }, 600);
+  const draft=queuedSave;queuedSave=null;
+  if(!draft||!currentUser||draft.uid!==currentUser.uid)return;
+  // Firestore writes are persisted in IndexedDB while offline when available.
+  // Do not await a server acknowledgement before allowing navigation.
+  setDoc(doc(db,'users',draft.uid,'notebooks',draft.nbId,'notes',draft.noteId),{
+    title:draft.title,body:draft.body,tags:draft.tags,updatedAt:serverTimestamp()
+  },{merge:true}).then(()=>{
+    if(!pendingWrites&&navigator.onLine&&!latestSnapshotFromCache)setSyncStatus('online');
+  }).catch(err=>{console.error('Save failed:',err);setSyncStatus('offline');});
 }
-
+function scheduleSave(){
+  if(!activeNotebookId||!activeNoteId||!currentUser)return;
+  queuedSave={uid:currentUser.uid,nbId:activeNotebookId,noteId:activeNoteId,
+    title:$('title-input').value,body:$('body-editor').innerHTML,tags:[...activeTags]};
+  setSyncStatus(navigator.onLine?'saving':'pending');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(flushScheduledSave,600);
+}
+window.addEventListener('pagehide',flushScheduledSave);
 $('title-input').addEventListener('input', scheduleSave);
 $('body-editor').addEventListener('input', scheduleSave);
 $('body-editor').addEventListener('change', scheduleSave);
@@ -894,8 +1916,7 @@ $('link-btn').addEventListener('click', () => {
   scheduleSave();
 });
 $('image-btn').addEventListener('click', () => {
-  const mode = confirm('برای عکس از فایل دستگاه استفاده می‌کنی؟
-اگر لغو را بزنی، می‌توانی آدرس اینترنتی عکس را وارد کنی.') ? 'file' : 'url';
+  const mode = confirm('برای عکس از فایل دستگاه استفاده می‌کنی؟\nاگر لغو را بزنی، می‌توانی آدرس اینترنتی عکس را وارد کنی.') ? 'file' : 'url';
   if (mode === 'file') $('image-file-input').click();
   else {
     const url = prompt('آدرس اینترنتی عکس را وارد کن:');
@@ -1200,9 +2221,363 @@ $('backup-file-input').addEventListener('change', async (e) => {
   setTimeout(() => setBackupStatus(''), 4000);
 });
 
+
+// ---------- OneNote importer: structural package bridge ----------
+let oneNoteImportData = null;
+let oneNoteImportName = '';
+const oneNoteModal = $('onenote-modal');
+const oneNoteStatus = $('onenote-import-status');
+const oneNotePreview = $('onenote-preview');
+const oneNoteInput = $('onenote-file-input');
+let oneNoteEnginePromise = null;
+
+function setOneNoteStatus(msg,error=false){
+  oneNoteStatus.textContent = msg || '';
+  oneNoteStatus.style.color = error ? '#A83E32' : 'var(--muted)';
+}
+function openOneNoteModal(){
+  oneNoteImportData=null; oneNotePreview.style.display='none'; oneNotePreview.innerHTML='';
+  $('onenote-import-confirm-btn').style.display='none'; setOneNoteStatus(''); oneNoteModal.classList.add('open');
+}
+function closeOneNoteModal(){ oneNoteModal.classList.remove('open'); oneNoteInput.value=''; oneNoteImportData=null; }
+$('onenote-import-btn').addEventListener('click',()=>{ closeMoreMenu(); openOneNoteModal(); });
+$('close-onenote-btn').addEventListener('click',closeOneNoteModal);
+$('onenote-cancel-btn').addEventListener('click',closeOneNoteModal);
+$('onenote-choose-btn').addEventListener('click',()=>oneNoteInput.click());
+
+// NOTE ON .one / .onepkg / .onetoc2 FILES:
+// These use Microsoft's proprietary binary "revision store" format
+// (MS-ONESTORE). There is no real, working browser library that parses
+// this format — an earlier version of this importer pointed at a
+// package ("@mdgate/onenote") that does not actually exist on npm, so
+// importing raw .one/.onepkg/.onetoc2 files always silently failed.
+// Rather than pretend to support them, we now fail fast with a clear
+// message and point people at the one format that reliably works:
+// HTML/MHT exported directly from OneNote (File → Export → "Page as
+// Single File Web Page" or a folder of pages), which the importer below
+// parses for real via the browser's own HTML parser.
+async function importNativeOne(file, meta = {}) {
+  throw new Error('فایل‌های .one / .onepkg / .onetoc2 مستقیماً پشتیبانی نمی‌شن (فرمت باینری اختصاصی مایکروسافته). توی OneNote، روی صفحه یا بخش راست‌کلیک کن → Export → گزینه‌ی "Single File Web Page (*.mht)" یا HTML رو انتخاب کن، و همون فایل رو اینجا وارد کن.');
+}
+function pathInfo(path,fallback='عمومی'){
+  const clean=String(path||'').replace(/\\/g,'/').split('/').filter(Boolean);
+  const file=clean.pop()||fallback;
+  const section=(file.replace(/\.(one|onetoc2|onepkg|html?|mht|mhtml)$/i,'').trim()||fallback);
+  const meaningful=clean.filter(x=>!/^\.?_?rels?$/i.test(x));
+  const notebookHint=meaningful.length?meaningful[0]:null;
+  const groups=meaningful.slice(1);
+  return {file,section,groupName:groups.join(' / '),notebookHint};
+}
+async function importZipContainer(file){
+  const zip=await JSZip.loadAsync(await file.arrayBuffer());
+  const all=Object.values(zip.files).filter(x=>!x.dir);
+  const oneEntries=all.filter(x=>/\.(one|onetoc2)$/i.test(x.name));
+  const htmlEntries=all.filter(x=>/\.(html?|xhtml|mht|mhtml)$/i.test(x.name));
+  const zipBaseName=file.name.replace(/\.(zip|onepkg)$/i,'');
+  const pages=[];
+  if(oneEntries.length){
+    for(const entry of oneEntries){
+      if(/\.onetoc2$/i.test(entry.name)) continue;
+      const info=pathInfo(entry.name);
+      const notebookName=info.notebookHint||zipBaseName;
+      const blob=await entry.async('blob');
+      const f=new File([blob],info.file,{type:'application/octet-stream'});
+      try{pages.push(...(await importNativeOne(f,{sectionName:info.section,groupName:info.groupName,sourcePath:entry.name})).map(pg=>({...pg,notebookName})));}
+      catch(e){ pages.push({title:info.section,body:`<p><b>خطا در تبدیل این بخش:</b> ${escapeHtml(e.message||String(e))}</p>`,sectionName:info.section,groupName:info.groupName,sourcePath:entry.name,notebookName,importError:true}); }
+    }
+  }else{
+    for(const entry of htmlEntries.slice(0,500)){
+      const info=pathInfo(entry.name);
+      const notebookName=info.notebookHint||zipBaseName;
+      const html=await entry.async('text');
+      const parsedPages=await parseOneNoteHtml(html,info.file,info.groupName);
+      parsedPages.forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:entry.name,notebookName}));
+    }
+  }
+  if(!pages.length) throw new Error('داخل بسته، فایل OneNote یا صفحه HTML پیدا نشد.');
+  return pages;
+}
+// ---------- MHTML (.mht) decoding ----------
+// OneNote's "Single File Web Page" export is a MIME multipart message.
+// Text parts are almost always quoted-printable encoded (so every non-ASCII
+// byte of Persian text shows up as literal "=D8=B9" sequences if left
+// undecoded), and embedded images are separate base64/quoted-printable
+// parts referenced by Content-Location or Content-ID. This decodes both
+// properly before the HTML ever reaches the DOM parser.
+function qpToBytes(str) {
+  const s = str.replace(/=\r\n/g, '').replace(/=\n/g, '');
+  const bytes = [];
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '=' && /^[0-9A-Fa-f]{2}$/.test(s.substr(i + 1, 2))) {
+      bytes.push(parseInt(s.substr(i + 1, 2), 16));
+      i += 2;
+    } else {
+      bytes.push(s.charCodeAt(i) & 0xFF);
+    }
+  }
+  return bytes;
+}
+function decodeQuotedPrintable(str) {
+  return new TextDecoder('utf-8').decode(new Uint8Array(qpToBytes(str)));
+}
+function bytesToBinaryString(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return s;
+}
+function parseMhtml(raw) {
+  const boundaryMatch = raw.match(/boundary="?([^"\r\n;]+)"?/i);
+  if (!boundaryMatch) {
+    const cteOnly = raw.match(/Content-Transfer-Encoding:\s*quoted-printable/i);
+    if (cteOnly) {
+      const headerEnd = raw.search(/\r?\n\r?\n/);
+      return { html: decodeQuotedPrintable(headerEnd >= 0 ? raw.slice(headerEnd) : raw), resources: {} };
+    }
+    return { html: raw, resources: {} };
+  }
+  const boundary = boundaryMatch[1];
+  const escaped = boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = raw.split(new RegExp('--' + escaped + '(?:--)?'));
+  let htmlPart = null;
+  const resources = {};
+  parts.forEach((part) => {
+    if (!part || !part.trim()) return;
+    const headerEnd = part.search(/\r?\n\r?\n/);
+    if (headerEnd < 0) return;
+    const headerText = part.slice(0, headerEnd);
+    const body = part.slice(headerEnd).replace(/^\r?\n/, '');
+    const typeMatch = headerText.match(/Content-Type:\s*([^\r\n;]+)/i);
+    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n;]+)/i);
+    const locMatch = headerText.match(/Content-Location:\s*([^\r\n]+)/i);
+    const cidMatch = headerText.match(/Content-ID:\s*<([^>]+)>/i);
+    const type = (typeMatch ? typeMatch[1] : '').trim().toLowerCase();
+    const cte = (cteMatch ? cteMatch[1] : '').trim().toLowerCase();
+    const location = (locMatch ? locMatch[1] : '').trim();
+    const cid = cidMatch ? cidMatch[1].trim() : '';
+    if (type.startsWith('text/html')) {
+      let decoded;
+      if (cte === 'quoted-printable') decoded = decodeQuotedPrintable(body);
+      else if (cte === 'base64') decoded = new TextDecoder('utf-8').decode(Uint8Array.from(atob(body.replace(/\s+/g, '')), (c) => c.charCodeAt(0)));
+      else decoded = body;
+      if (!htmlPart) htmlPart = decoded;
+    } else if (type.startsWith('image/')) {
+      let dataUri = null;
+      if (cte === 'base64') dataUri = `data:${type};base64,${body.replace(/\s+/g, '')}`;
+      else if (cte === 'quoted-printable') dataUri = `data:${type};base64,${btoa(bytesToBinaryString(qpToBytes(body)))}`;
+      if (dataUri) {
+        if (location) resources[location] = dataUri;
+        if (cid) resources['cid:' + cid] = dataUri;
+      }
+    }
+  });
+  let html = htmlPart || raw;
+  Object.keys(resources).forEach((key) => { html = html.split(key).join(resources[key]); });
+  return { html, resources };
+}
+
+async function sanitizeImportedHtml(root){
+  root.querySelectorAll('script,style,meta,link,noscript').forEach(x=>x.remove());
+  root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
+}
+
+// تشخیص خروجی چندصفحه‌ای OneNote: وقتی کل یک بخش به‌صورت
+// "Single File Web Page (.mht)" خروجی گرفته می‌شود، همه‌ی صفحه‌ها در
+// یک سند HTML واحد می‌آیند؛ صفحه‌ها با <hr> از هم جدا شده‌اند و تیتر هر
+// صفحه یک <h1> است. این تابع آن سند را به قطعات صفحه‌به‌صفحه تقسیم می‌کند.
+function splitOneNoteHtmlDocument(doc){
+  const body=doc.body||doc.documentElement;
+  if(!body) return null;
+
+  // ── الگوی OneNote 15 (خروجی «Single File Web Page» از OneNote 2013/2016):
+  // هر صفحه داخل یک <div style="direction:rtl;border-width:100%"> قرار می‌گیرد
+  // و تیتر صفحه اولین <p> با font-size:20pt است؛ بلاک تاریخ/ساعت هم با رنگ
+  // خاکستری (color:#767676) مشخص است. این فایل‌ها نه <hr> دارند نه <h1>.
+  const markers=[...body.children].filter(el=>
+    el.tagName==='DIV' && /border-width\s*:\s*100%/.test(el.getAttribute('style')||''));
+  if(markers.length>=2){
+    const all=[...body.childNodes];
+    const segments=[];
+    for(let i=0;i<markers.length;i++){
+      const from=all.indexOf(markers[i]);
+      const to=(i+1<markers.length)?all.indexOf(markers[i+1]):all.length;
+      const seg=all.slice(from,to);
+      // حذف پاراگراف‌های خالیِ جداکننده بین صفحه‌ها (از ته هر قطعه)
+      while(seg.length && !((seg[seg.length-1].textContent||'').replace(/\u00a0/g,' ').trim())) seg.pop();
+      if(seg.length) segments.push(seg);
+    }
+    if(segments.length>=2) return {segments,mode:'onenote15'};
+  }
+
+  // ── الگوی عمومی‌تر (بعضی خروجی‌ها): صفحه‌ها با <hr> جدا شده‌اند و هر
+  // صفحه با <h1> شروع می‌شود
+  const hrs=body.querySelectorAll('hr');
+  const h1s=body.querySelectorAll('h1');
+  if(hrs.length&&h1s.length>=2){
+    const segments=[]; let current=[];
+    const flush=()=>{ if(current.some(n=>(n.textContent||'').trim())) segments.push(current); current=[]; };
+    [...body.childNodes].forEach(node=>{
+      if(node.nodeType===Node.ELEMENT_NODE&&node.tagName==='HR'){ flush(); }
+      else current.push(node);
+    });
+    flush();
+    if(segments.length>=2) return {segments,mode:'hr'};
+  }
+  return null;
+}
+
+async function parseOneNoteHtml(html,name,groupName=''){
+  const { html: decodedHtml } = parseMhtml(html);
+  const parser=new DOMParser(),docx=parser.parseFromString(decodedHtml,'text/html');
+  const split=splitOneNoteHtmlDocument(docx);
+  if(split){
+    // خروجی چندصفحه‌ای: هر قطعه یک یادداشت جدا می‌شود
+    return split.segments.map((nodes,i)=>{
+      const wrap=document.createElement('div');
+      nodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
+      sanitizeImportedHtml(wrap);
+      let titleEl=null;
+      if(split.mode==='onenote15'){
+        // تیتر صفحه = اولین <p> با font-size:20pt
+        titleEl=[...wrap.querySelectorAll('p')].find(p=>/font-size\s*:\s*20/.test(p.getAttribute('style')||''));
+      }else{
+        titleEl=wrap.querySelector('h1,h2,h3');
+      }
+      let title=(titleEl?.textContent||'').replace(/\s+/g,' ').trim();
+      if(title) titleEl.remove();
+      if(!title) title=`صفحهٔ ${i+1}`;
+      if(title.length>160) title=title.slice(0,160);
+      return {title,body:wrap.innerHTML,groupName,position:i+1};
+    });
+  }
+  const titleEl=docx.querySelector('title,h1,h2')||docx.body?.querySelector('p');
+  let title=(titleEl?.textContent||name||'یادداشت').trim().replace(/\s+/g,' '); if(title.length>160) title=title.slice(0,160);
+  const body=docx.body?docx.body.cloneNode(true):docx.documentElement.cloneNode(true);
+  sanitizeImportedHtml(body);
+  return [{title:title||'یادداشت واردشده',body:body.innerHTML,groupName}];
+}
+
+oneNoteInput.addEventListener('change',async e=>{
+  const files=[...e.target.files]; if(!files.length)return;
+  setOneNoteStatus(`در حال بررسی ${files.length} فایل...`);
+  try{
+    let pages=[];
+    for(const file of files){
+      const ext=file.name.toLowerCase().split('.').pop();
+      const relPath=file.webkitRelativePath||file.name;
+      const info=pathInfo(relPath);
+      // When files come from a real folder structure, the top folder is the
+      // notebook. When several loose files are picked directly (no folder
+      // structure), each file is its own notebook — that's the fix for
+      // "multiple notebooks were merging into one".
+      const standaloneNotebookName=info.notebookHint||file.name.replace(/\.(one|onetoc2|onepkg|zip|html?|mht|mhtml)$/i,'');
+      if(ext==='onepkg'||ext==='zip') pages.push(...await importZipContainer(file));
+      else if(ext==='one'){
+        pages.push(...(await importNativeOne(file,{sectionName:info.section,groupName:info.groupName,sourcePath:relPath})).map(pg=>({...pg,notebookName:standaloneNotebookName})));
+      }else if(ext==='onetoc2'){
+        // TOC is structural metadata; keep it as a manifest item rather than
+        // pretending it is a page. Section files are imported separately.
+        pages.push({title:info.section||file.name,body:'<p>فایل فهرست OneNote شناسایی شد؛ برای ورود محتوای صفحات، فایل‌های بخش‌های مربوط نیز لازم است.</p>',sectionName:info.section,groupName:info.groupName,sourcePath:file.name,notebookName:standaloneNotebookName,manifestOnly:true});
+      }else if(['html','htm','mht','mhtml'].includes(ext)){
+        (await parseOneNoteHtml(await file.text(),info.file,info.groupName)).forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:relPath,notebookName:standaloneNotebookName}));
+      }else throw new Error(`نوع فایل پشتیبانی نمی‌شود: ${file.name}`);
+    }
+    pages=pages.filter(p=>p&&(p.title||p.body));
+    if(!pages.length)throw new Error('محتوای قابل انتقال پیدا نشد.');
+    oneNoteImportData=pages;
+    const notebookNames=[...new Set(pages.map(p=>p.notebookName||'دفتر واردشده از OneNote'))];
+    const groups=new Set(pages.map(p=>p.groupName).filter(Boolean));
+    const sections=new Set(pages.map(p=>p.sectionName).filter(Boolean));
+    const errors=pages.filter(p=>p.importError).length;
+    const perNotebookCount=nb=>pages.filter(p=>(p.notebookName||'دفتر واردشده از OneNote')===nb).length;
+    oneNotePreview.innerHTML=`<b>پیش‌نمایش ساختاری:</b><div style="margin-top:8px;line-height:2">دفترها: <b>${notebookNames.length}</b> &nbsp; گروه‌ها: <b>${groups.size}</b> &nbsp; بخش‌ها: <b>${sections.size}</b> &nbsp; صفحات: <b>${pages.length}</b>${errors?`<br><span style="color:#A83E32">موارد دارای خطا: ${errors}</span>`:''}</div><ul>${notebookNames.map(nb=>`<li>📕 <b>${escapeHtml(nb)}</b> — ${perNotebookCount(nb)} صفحه</li>`).join('')}</ul><ul>${pages.slice(0,30).map(p=>`<li><b>${escapeHtml(p.notebookName||'دفتر واردشده از OneNote')}</b> / ${escapeHtml(p.groupName||'بخش اصلی')} / ${escapeHtml(p.sectionName||'عمومی')} / ${escapeHtml(p.title||'بدون عنوان')}</li>`).join('')}</ul>${pages.length>30?`<small>و ${pages.length-30} مورد دیگر...</small>`:''}`;
+    oneNotePreview.style.display='block'; $('onenote-import-confirm-btn').style.display='inline-block';
+    setOneNoteStatus(`${pages.length} صفحه در ${notebookNames.length} دفتر برای ورود آماده است.`);
+  }catch(err){
+    oneNoteImportData=null; $('onenote-import-confirm-btn').style.display='none';
+    setOneNoteStatus(err?.message||'فایل OneNote قابل خواندن نیست.',true);
+  }
+  e.target.value='';
+});
+
+// Firestore caps a document at ~1MiB. OneNote pages with embedded images
+// can easily exceed that once images are inlined as base64. Rather than
+// letting one oversized page abort the whole import (losing everything
+// already written), we degrade gracefully: strip images first, then
+// truncate the text as a last resort, and say so on the note itself.
+const FIRESTORE_DOC_SAFE_BYTES = 900000; // leaves headroom for the other fields
+function byteSize(str) { return new Blob([str || '']).size; }
+async function addNoteWithSizeGuard(notebookId, sectionId, p) {
+  let title = p.title || 'بدون عنوان';
+  let body = p.body || '';
+  let note = '';
+  if (byteSize(body) > FIRESTORE_DOC_SAFE_BYTES) {
+    body = body.replace(/<img[^>]*>/gi, '');
+    note = '<p><i>(یک یا چند تصویر این صفحه به‌خاطر محدودیت حجم حذف شدند)</i></p>';
+  }
+  if (byteSize(body) > FIRESTORE_DOC_SAFE_BYTES) {
+    const plain = body.replace(/<[^>]+>/g, ' ');
+    let cut = plain;
+    while (byteSize(cut) > FIRESTORE_DOC_SAFE_BYTES - 500) cut = cut.slice(0, Math.floor(cut.length * 0.9));
+    body = `<p>${escapeHtml(cut)}…</p>`;
+    note = '<p><i>(این صفحه به‌خاطر حجم زیاد کوتاه شد؛ برای متن کامل، همون فایل رو دوباره export کن)</i></p>';
+  }
+  try {
+    await addDoc(userCol('notebooks', notebookId, 'notes'), {
+      title, body: body + note, sectionId,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, position: p.position ?? Date.now()
+    });
+  } catch (e) {
+    await addDoc(userCol('notebooks', notebookId, 'notes'), {
+      title, body: `<p><i>خطا در ذخیره‌ی این صفحه: ${escapeHtml(e?.message || String(e))}</i></p>`, sectionId,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(), pinned: false, position: p.position ?? Date.now()
+    });
+  }
+}
+
+$('onenote-import-confirm-btn').addEventListener('click',async()=>{
+  if(!oneNoteImportData?.length||!currentUser)return;
+  try{
+    setOneNoteStatus('در حال ساخت دفترها، گروه‌ها، بخش‌ها و صفحات...');
+    const byNotebook=new Map();
+    oneNoteImportData.forEach(p=>{
+      const nbName=(p.notebookName||'دفتر واردشده از OneNote').trim()||'دفتر واردشده از OneNote';
+      if(!byNotebook.has(nbName)) byNotebook.set(nbName,[]);
+      byNotebook.get(nbName).push(p);
+    });
+    let firstNbId=null,nbCount=0,nbPos=Date.now();
+    for(const [nbName,pagesForNb] of byNotebook){
+      const nbRef=await addDoc(userCol('notebooks'),{name:nbName,createdAt:serverTimestamp(),position:nbPos++});
+      if(!firstNbId) firstNbId=nbRef.id;
+      nbCount++;
+      const groupMap=new Map(),sectionMap=new Map(); let groupPos=0,sectionPos=0;
+      for(const p of pagesForNb){
+        const gname=(p.groupName||'').trim();
+        if(gname&&!groupMap.has(gname)){
+          const gref=await addDoc(userCol('notebooks',nbRef.id,'sectionGroups'),{name:gname,createdAt:serverTimestamp(),position:groupPos++});
+          groupMap.set(gname,gref.id);
+        }
+        const secName=(p.sectionName||'عمومی').trim()||'عمومی';
+        const skey=gname+'|'+secName;
+        if(!sectionMap.has(skey)){
+          const sref=await addDoc(userCol('notebooks',nbRef.id,'sections'),{name:secName,groupId:groupMap.get(gname)||null,createdAt:serverTimestamp(),position:sectionPos++});
+          sectionMap.set(skey,sref.id);
+        }
+        if(p.manifestOnly)continue;
+        const sectionId=sectionMap.get(skey);
+        await addNoteWithSizeGuard(nbRef.id, sectionId, p);
+      }
+    }
+    activeNotebookId=firstNbId;activeSectionId=null;activeNoteId=null;
+    closeOneNoteModal();setOneNoteStatus(`ورود انجام شد: ${nbCount} دفتر ساخته شد.`);
+    if(firstNbId) listenToSections(firstNbId);
+  }catch(e){setOneNoteStatus('ورود انجام نشد: '+(e?.message||e),true);}
+});
+
 // ---------- Mobile panes ----------
 function openMobilePane(which) {
   $('notebooks-pane').classList.toggle('open', which === 'notebooks');
+  $('sections-pane').classList.toggle('open', which === 'sections');
   $('notes-pane').classList.toggle('open', which === 'notes');
   $('mobile-overlay').classList.toggle('show', !!which);
 }
@@ -1215,7 +2590,146 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+
+// ---------- v16 phone navigation ----------
+(function setupPhoneNavigation(){
+  const nav=document.createElement('nav'); nav.id='phone-bottom-nav'; nav.setAttribute('aria-label','ناوبری موبایل');
+  nav.innerHTML=`
+    <button data-phone-pane="notebooks"><span>📚</span><span>دفترها</span></button>
+    <button data-phone-pane="sections"><span>▤</span><span>بخش‌ها</span></button>
+    <button data-phone-new="1" class="phone-new"><span>＋</span><span>یادداشت</span></button>
+    <button data-phone-pane="notes"><span>📝</span><span>یادداشت‌ها</span></button>`;
+  document.body.appendChild(nav);
+  const isPhone=()=>window.matchMedia('(max-width: 600px)').matches;
+  const syncActive=()=>{
+    nav.querySelectorAll('[data-phone-pane]').forEach(b=>b.classList.toggle('active',b.dataset.phonePane==='notebooks'&&document.getElementById('notebooks-pane').classList.contains('open')||b.dataset.phonePane==='sections'&&document.getElementById('sections-pane').classList.contains('open')||b.dataset.phonePane==='notes'&&document.getElementById('notes-pane').classList.contains('open')));
+  };
+  nav.addEventListener('click',e=>{
+    const pane=e.target.closest('[data-phone-pane]')?.dataset.phonePane;
+    if(pane){openMobilePane(pane);syncActive();return;}
+    if(e.target.closest('[data-phone-new]')){if(activeSectionId&&typeof createNote==='function')createNote();else document.getElementById('add-note-btn')?.click();}
+  });
+  const oldOpen=window.openMobilePane;
+  window.openMobilePane=function(which){
+    oldOpen(which);
+    syncActive();
+    if(isPhone() && !which) nav.classList.remove('hidden'); else nav.classList.remove('hidden');
+  };
+  window.addEventListener('resize',syncActive);
+  syncActive();
+})();
+
+
+// ---------- v19: reading mode and compact editing toolbar ----------
+(function setupReadingMode(){
+  const pane=$('editor-pane'), body=$('body-editor'), title=$('title-input');
+  const readButton=$('reading-toggle'), readLabel=$('reading-toggle-label');
+  const toolbarButton=$('toolbar-toggle'), toolbarLabel=$('toolbar-toggle-label');
+  const sizeLabel=$('reading-size-label');
+  const fontKey='yadno-reading-font-size';
+  const getSize=()=>{
+    try { return Math.min(28,Math.max(16,Number(localStorage.getItem(fontKey))||19)); }
+    catch(_) { return 19; }
+  };
+  let size=getSize();
+  const updateSize=()=>{
+    pane.style.setProperty('--reader-font-size',size+'px');
+    sizeLabel.textContent=String(size);
+    try { localStorage.setItem(fontKey,String(size)); } catch(_) {}
+  };
+  updateSize();
+  function setReading(on){
+    if(on && $('editor-content').style.display==='none')return;
+    // Ensure the current editor is blurred before disabling edits.
+    if(on && document.activeElement===body)body.blur();
+    if(on && document.activeElement===title)title.blur();
+    pane.classList.toggle('read-mode',on);
+    readButton.setAttribute('aria-pressed',String(on));
+    readLabel.textContent=on?'ویرایش':'مطالعه';
+    readButton.title=on?'بازگشت به ویرایش':'ورود به حالت مطالعه';
+    body.setAttribute('contenteditable',on?'false':'true');
+    title.readOnly=on;
+    if(!on){pane.classList.remove('toolbar-collapsed');toolbarButton.setAttribute('aria-expanded','true');toolbarLabel.textContent='ابزارها';}
+  }
+  readButton.addEventListener('click',()=>setReading(!pane.classList.contains('read-mode')));
+  toolbarButton.addEventListener('click',()=>{
+    const collapsed=pane.classList.toggle('toolbar-collapsed');
+    toolbarButton.setAttribute('aria-expanded',String(!collapsed));
+    toolbarLabel.textContent=collapsed?'نمایش ابزارها':'ابزارها';
+  });
+  $('reading-smaller').addEventListener('click',()=>{size=Math.max(16,size-1);updateSize();});
+  $('reading-larger').addEventListener('click',()=>{size=Math.min(28,size+1);updateSize();});
+  // Avoid observing and rewriting contenteditable: that caused a mutation loop
+  // on some mobile browsers and froze the reading and font-size buttons.
+  // When a different note opens, preserve the current reading/editing state.
+  document.addEventListener('yadno:note-opened',()=>{
+    const reading=pane.classList.contains('read-mode');
+    body.contentEditable=reading?'false':'true';
+    title.readOnly=reading;
+  });
+})();
+
+
+// v22 mobile formatting drawer: uses the existing editor toolbar and save handlers.
+function setupMobileFormatDrawer(){
+  const pane=document.getElementById('editor-pane');
+  const toolbar=document.getElementById('editor-toolbar');
+  const body=document.getElementById('body-editor');
+  const toggle=document.getElementById('toolbar-toggle');
+  const label=document.getElementById('toolbar-toggle-label');
+  if(!pane||!toolbar||!body||!toggle)return;
+  const phone=()=>window.matchMedia('(max-width:600px)').matches;
+  const grip=document.createElement('div');grip.id='mobile-format-grip';grip.setAttribute('aria-hidden','true');
+  const head=document.createElement('div');head.id='mobile-format-head';
+  head.innerHTML='<span>قالب‌بندی متن</span><button type="button" id="mobile-format-close" aria-label="بستن ابزارها">✕</button>';
+  const extra=document.createElement('div');extra.id='mobile-format-extra';
+  extra.innerHTML='<span>اندازه</span><button type="button" id="mobile-size-down" aria-label="کوچک کردن فونت">−</button><output id="mobile-size-value">۳</output><button type="button" id="mobile-size-up" aria-label="بزرگ کردن فونت">＋</button><select id="mobile-style-select" aria-label="سبک نوشته"><option value="p">متن عادی</option><option value="h2">عنوان بزرگ</option><option value="h3">عنوان کوچک</option></select>';
+  toolbar.prepend(extra);toolbar.prepend(head);toolbar.prepend(grip);
+  const strike=document.createElement('button');strike.type='button';strike.dataset.cmd='strikeThrough';strike.title='خط خورده';strike.textContent='S̶';
+  toolbar.insertBefore(strike,toolbar.querySelector('.sep'));
+  // The original data-cmd handlers are already installed; wire this new button separately.
+  let lastRange=null;
+  function remember(){const sel=window.getSelection();if(sel&&sel.rangeCount&&body.contains(sel.anchorNode))lastRange=sel.getRangeAt(0).cloneRange();}
+  body.addEventListener('keyup',remember);body.addEventListener('mouseup',remember);body.addEventListener('touchend',remember,{passive:true});
+  toolbar.addEventListener('pointerdown',e=>{if(e.target.closest('button'))remember();},true);
+  toolbar.addEventListener('click',e=>{if(!e.target.closest('button,select')||!lastRange)return;const sel=window.getSelection();if(sel){try{sel.removeAllRanges();sel.addRange(lastRange);}catch(_){}}},true);
+  strike.addEventListener('click',()=>{body.focus();document.execCommand('strikeThrough',false,null);scheduleSave();});
+  let fontSize=19;
+  const sizeOut=extra.querySelector('#mobile-size-value');
+  function setFontSize(n){fontSize=Math.min(32,Math.max(12,n));sizeOut.textContent=String(fontSize);body.style.fontSize=fontSize+'px';try{localStorage.setItem('yadno-edit-font-size',String(fontSize));}catch(_){}}
+  try{fontSize=Number(localStorage.getItem('yadno-edit-font-size'))||19;}catch(_){}
+  setFontSize(fontSize);
+  extra.querySelector('#mobile-size-down').addEventListener('click',()=>setFontSize(fontSize-1));
+  extra.querySelector('#mobile-size-up').addEventListener('click',()=>setFontSize(fontSize+1));
+  extra.querySelector('#mobile-style-select').addEventListener('change',e=>{body.focus();document.execCommand('formatBlock',false,e.target.value);scheduleSave();});
+  function sync(){const show=phone()&&!pane.classList.contains('read-mode')&&document.getElementById('editor-content').style.display!=='none'&&!pane.classList.contains('toolbar-collapsed');document.body.classList.toggle('yadno-format-open',show);}
+  extra.querySelector('#mobile-style-select').addEventListener('pointerdown',remember);
+  head.querySelector('#mobile-format-close').addEventListener('click',()=>{pane.classList.add('toolbar-collapsed');toggle.setAttribute('aria-expanded','false');label.textContent='نمایش ابزارها';sync();});
+  toggle.addEventListener('click',()=>requestAnimationFrame(sync));
+  document.getElementById('reading-toggle').addEventListener('click',()=>requestAnimationFrame(sync));
+  document.addEventListener('yadno:note-opened',()=>{if(phone()){pane.classList.add('toolbar-collapsed');toggle.setAttribute('aria-expanded','false');label.textContent='نمایش ابزارها';}sync();});
+  const vv=window.visualViewport;
+  function keyboardPosition(){if(!phone()){document.documentElement.style.removeProperty('--yadno-keyboard-bottom');document.body.classList.remove('yadno-keyboard-open');return;}
+    const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
+    document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
+    const focused=document.activeElement===body||document.activeElement===document.getElementById('title-input');
+    document.body.classList.toggle('yadno-keyboard-open',focused&&gap>100);
+  }
+  if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
+  window.addEventListener('resize',()=>{sync();keyboardPosition();});
+  document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
+  document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
+  // Drag the grip down to close the sheet.
+  let startY=null;
+  grip.addEventListener('touchstart',e=>{startY=e.touches[0].clientY;},{passive:true});
+  grip.addEventListener('touchend',e=>{if(startY!==null&&e.changedTouches[0].clientY-startY>55){head.querySelector('#mobile-format-close').click();}startY=null;},{passive:true});
+  sync();keyboardPosition();
+}
+;
+
 boot();
+// Optional mobile UI must never prevent Firebase authentication.
+setTimeout(() => { try { setupMobileFormatDrawer(); } catch (error) { console.error("Yadno mobile toolbar:", error); } }, 0);
 </script>
 </body>
 </html>
