@@ -26,6 +26,27 @@
     --radius: 10px;
     --shadow: 0 1px 2px rgba(29,43,79,0.06), 0 4px 16px rgba(29,43,79,0.06);
   }
+  html[data-theme="dark"] {
+    --paper: #12161F;
+    --paper-line: #2A303C;
+    --line: #2A303C;
+    --ink: #ECEAE3;
+    --ink-soft: #A7AEBD;
+    --gold: #D9AE66;
+    --sage: #7FAF7F;
+    --danger: #E08776;
+    --panel: #1B212C;
+    --shadow: 0 6px 24px rgba(0,0,0,.45);
+    --accent: #D9AE66;
+    --accent-soft: #3A3320;
+  }
+  html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+  html[data-theme="dark"] #editor-pane{background:radial-gradient(circle at 50% 0%,#1c2330 0%,#171c26 52%,#12161f 100%)}
+  html[data-theme="dark"] .notebook-item.active,html[data-theme="dark"] .note-item.active{background:linear-gradient(90deg,#3a3320,#1b212c);border-color:#5c4a25}
+  html[data-theme="dark"] .notebook-item:hover,html[data-theme="dark"] .note-item:hover{background:#232a37;border-color:#333c4c}
+  html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+  html[data-theme="dark"] .config-card,html[data-theme="dark"] .auth-card,html[data-theme="dark"] .modal-box{background:var(--panel);border-color:var(--line)}
+  html[data-theme="dark"] .config-card input,html[data-theme="dark"] .auth-card input,html[data-theme="dark"] textarea{background:#12161F;color:var(--ink);border-color:var(--line)}
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -235,6 +256,8 @@
     color: var(--ink-soft); background: var(--panel); outline: none;
   }
   #highlight-group { display: flex; align-items: center; gap: 5px; }
+  #reading-size-group { display: flex; align-items: center; gap: 4px; }
+  #reading-size-group button{min-width:34px!important;padding:6px 8px!important;font-weight:700}
   .hl-swatch {
     width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0;
   }
@@ -249,7 +272,7 @@
   }
   #title-input::placeholder { color: #C9C4B2; }
   #body-editor {
-    flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: 17px; line-height: 2.05;
+    flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: var(--note-font-size, 17px); line-height: 2.05;
     outline: none;
   }
   #body-editor:empty:before {
@@ -401,7 +424,7 @@
     #mobile-overlay.show { display: block; }
     #editor-pane { grid-column: 1; }
     #title-input{font-size:26px;line-height:1.5}
-    #body-editor{font-size:17.5px;line-height:2.1}
+    #body-editor{font-size:var(--note-font-size, 17.5px);line-height:2.1}
   }
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
@@ -437,7 +460,7 @@
   #editor-toolbar .sep{height:26px;flex:0 0 1px;margin:0 3px}
   #highlight-group{flex:0 0 auto;gap:7px}
   .hl-swatch{width:30px;height:30px;min-width:30px!important;min-height:30px!important}
-  #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:18px;line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:var(--note-font-size, 18px);line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
   #body-editor img{max-width:100%;height:auto}
   #body-editor h2{font-size:23px}.body-editor h3{font-size:20px}
   .tag-editor{margin:7px 0 10px;overflow-x:auto;flex-wrap:nowrap;padding:5px 1px;scrollbar-width:none}
@@ -469,6 +492,11 @@
   .pane-header .icon-btn{width:40px;height:40px;justify-content:center;font-size:18px}
   .pane-collapse{display:none!important}
   #mobile-overlay{z-index:85!important;background:rgba(15,18,24,.42);backdrop-filter:blur(1px)}
+  #float-toolbar{position:fixed;display:none;align-items:center;gap:2px;z-index:70;background:#1D2B4F;border-radius:10px;padding:5px;box-shadow:0 8px 24px rgba(0,0,0,.3);transform:translate(-50%,-100%);top:0;left:0;margin-top:-10px}
+  #float-toolbar.show{display:flex}
+  #float-toolbar button{background:none;border:none;color:#fff;padding:7px 10px;border-radius:7px;font-size:14px;min-width:0}
+  #float-toolbar button:active,#float-toolbar button:hover{background:rgba(255,255,255,.18)}
+  html[data-theme="dark"] #float-toolbar{background:#2A303C;box-shadow:0 8px 24px rgba(0,0,0,.55)}
   #mobile-overlay.show{display:block}
 
   /* bottom navigation */
@@ -597,6 +625,7 @@
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
       </button>
       <div id="more-menu-dropdown">
+        <button id="theme-toggle-btn">🌙 حالت شب</button>
         <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
         <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
@@ -665,6 +694,11 @@
           <button data-cmd="insertUnorderedList" title="فهرست">• فهرست</button>
           <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">۱. فهرست</button>
           <div class="sep"></div>
+          <div id="reading-size-group" title="اندازه‌ی متن">
+            <button id="reading-size-dec" title="کوچیک‌تر">A-</button>
+            <button id="reading-size-inc" title="بزرگ‌تر">A+</button>
+          </div>
+          <div class="sep"></div>
           <select id="font-select" title="فونت">
             <option value="Vazirmatn" selected>فونت پیش‌فرض</option>
             <option value="Tahoma">Tahoma</option>
@@ -707,6 +741,13 @@
     </div>
   </div>
   <div id="mobile-overlay"></div>
+  <div id="float-toolbar">
+    <button data-fcmd="bold" title="ضخیم"><b>B</b></button>
+    <button data-fcmd="italic" title="مورب"><i>I</i></button>
+    <button data-fcmd="underline" title="زیرخط"><u>U</u></button>
+    <button id="float-highlight-btn" title="هایلات">✎</button>
+    <button id="float-link-btn" title="لینک">🔗</button>
+  </div>
   <input type="file" id="image-file-input" accept="image/*" style="display:none">
   <input type="file" id="attachment-file-input" multiple style="display:none">
 </div>
@@ -765,6 +806,30 @@ import {
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const $ = (id) => document.getElementById(id);
+
+// ---------- Theme (dark mode) ----------
+const THEME_KEY = 'yadno_theme';
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️ حالت روز' : '🌙 حالت شب';
+}
+(function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(theme);
+})();
+
+// ---------- Adjustable reading font size (A-/A+) ----------
+const FONT_SIZE_KEY = 'yadno_note_font_size';
+const FONT_SIZE_MIN = 14, FONT_SIZE_MAX = 26, FONT_SIZE_DEFAULT = 17;
+function applyNoteFontSize(px) {
+  document.documentElement.style.setProperty('--note-font-size', px + 'px');
+}
+(function initFontSize() {
+  const saved = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10);
+  if (saved && saved >= FONT_SIZE_MIN && saved <= FONT_SIZE_MAX) applyNoteFontSize(saved);
+})();
 
 // ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
@@ -943,6 +1008,24 @@ function translateAuthError(code) {
 }
 
 $('signout-btn-menu').addEventListener('click', () => { signOut(auth); closeMoreMenu(); });
+
+$('theme-toggle-btn').addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
+$('reading-size-dec').addEventListener('click', () => {
+  const current = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10) || FONT_SIZE_DEFAULT;
+  const next = Math.max(FONT_SIZE_MIN, current - 1);
+  localStorage.setItem(FONT_SIZE_KEY, next);
+  applyNoteFontSize(next);
+});
+$('reading-size-inc').addEventListener('click', () => {
+  const current = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10) || FONT_SIZE_DEFAULT;
+  const next = Math.min(FONT_SIZE_MAX, current + 1);
+  localStorage.setItem(FONT_SIZE_KEY, next);
+  applyNoteFontSize(next);
+});
 
 // ---------- More menu dropdown ----------
 function closeMoreMenu() { $('more-menu-dropdown').classList.remove('open'); }
@@ -1566,14 +1649,15 @@ $('section-btn').addEventListener('click', () => {
     if (text) insertHtmlAtCursor(`<h${type}>${escapeHtml(text)}</h${type}>`);
   } else if (type === '0') insertHtmlAtCursor('<hr class="section-divider">');
 });
-$('link-btn').addEventListener('click', () => {
+function promptInsertLink() {
   const url = prompt('آدرس لینک را وارد کن (مثلاً https://example.com):');
   if (!url) return;
   const text = prompt('متن لینک (خالی = خود آدرس):') || url;
   $('body-editor').focus();
   document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`);
   scheduleSave();
-});
+}
+$('link-btn').addEventListener('click', promptInsertLink);
 $('image-btn').addEventListener('click', () => {
   const mode = confirm('برای عکس از فایل دستگاه استفاده می‌کنی؟\nاگر لغو را بزنی، می‌توانی آدرس اینترنتی عکس را وارد کنی.') ? 'file' : 'url';
   if (mode === 'file') $('image-file-input').click();
@@ -1669,6 +1753,86 @@ document.querySelectorAll('.hl-swatch').forEach((btn) => {
     scheduleSave();
   });
 });
+
+// ---------- Floating selection toolbar ----------
+// Appears right above whatever text you select inside the note, for quick
+// formatting without reaching up to the main toolbar — similar to
+// Notion/Google Docs mobile.
+const floatTb = $('float-toolbar');
+document.querySelectorAll('#float-toolbar [data-fcmd]').forEach((btn) => {
+  btn.addEventListener('mousedown', (e) => e.preventDefault()); // keep selection alive
+  btn.addEventListener('click', () => {
+    document.execCommand(btn.dataset.fcmd, false, null);
+    scheduleSave();
+    positionFloatToolbar();
+  });
+});
+$('float-highlight-btn').addEventListener('mousedown', (e) => e.preventDefault());
+$('float-highlight-btn').addEventListener('click', () => {
+  document.execCommand('hiliteColor', false, '#FFF59D');
+  scheduleSave();
+  floatTb.classList.remove('show');
+});
+$('float-link-btn').addEventListener('mousedown', (e) => e.preventDefault());
+$('float-link-btn').addEventListener('click', () => {
+  floatTb.classList.remove('show');
+  promptInsertLink();
+});
+
+function positionFloatToolbar() {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) { floatTb.classList.remove('show'); return; }
+  const range = sel.getRangeAt(0);
+  if (!$('body-editor').contains(range.commonAncestorContainer)) { floatTb.classList.remove('show'); return; }
+  const rect = range.getBoundingClientRect();
+  if (!rect || (rect.width === 0 && rect.height === 0)) { floatTb.classList.remove('show'); return; }
+  floatTb.classList.add('show');
+  const tbRect = floatTb.getBoundingClientRect();
+  let left = rect.left + rect.width / 2;
+  left = Math.min(Math.max(left, tbRect.width / 2 + 8), window.innerWidth - tbRect.width / 2 - 8);
+  floatTb.style.left = left + 'px';
+  floatTb.style.top = Math.max(rect.top, 60) + 'px';
+}
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement !== $('body-editor') && !$('body-editor').contains(document.activeElement)) {
+    floatTb.classList.remove('show');
+    return;
+  }
+  positionFloatToolbar();
+});
+$('body-editor').addEventListener('blur', () => setTimeout(() => { if (!floatTb.matches(':hover')) floatTb.classList.remove('show'); }, 150));
+
+// ---------- Swipe between notes (mobile) ----------
+// Swipe left = next note, swipe right = previous note, within the
+// currently visible/filtered notes list — matches the common
+// left=forward/right=back convention used across most mobile apps.
+(function setupSwipeNav() {
+  let startX = 0, startY = 0, active = false;
+  const target = $('editor-content');
+  if (!target) return;
+  target.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1 || e.target.closest('#editor-toolbar') || e.target.closest('#float-toolbar')) { active = false; return; }
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY; active = true;
+  }, { passive: true });
+  target.addEventListener('touchend', (e) => {
+    if (!active) return;
+    active = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 60) navigateNote(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+function navigateNote(dir) {
+  if (!activeNoteId || !notes.length) return;
+  const idx = notes.findIndex((n) => n.id === activeNoteId);
+  if (idx === -1) return;
+  const nextIdx = idx + dir;
+  if (nextIdx < 0 || nextIdx >= notes.length) return;
+  const n = notes[nextIdx];
+  activeNoteId = n.id;
+  renderNotes();
+  openNoteInEditor(n);
+}
 
 function safeFileName(str) {
   return (str || 'یادداشت').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 60) || 'یادداشت';
