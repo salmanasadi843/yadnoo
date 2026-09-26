@@ -1,6 +1,6 @@
 
-/* Yadno offline service worker v3 */
-const CACHE_NAME = 'yadno-shell-v3';
+/* Yadno Offline Service Worker - sw2.js */
+const CACHE_NAME = 'yadno-shell-v4';
 const PREFIX = 'yadno-shell-';
 
 const SHELL = [
@@ -28,7 +28,7 @@ const CDN_HOSTS = new Set([
   'fonts.gstatic.com'
 ]);
 
-// ذخیره ماژول‌های Firebase و وابستگی‌های آنها
+// ذخیره کتابخانه‌های Firebase و وابستگی‌های آن‌ها
 async function cacheFirebaseModules(cache) {
   const visited = new Set();
 
@@ -54,10 +54,7 @@ async function cacheFirebaseModules(cache) {
 
         if (!response.ok) continue;
 
-        await cache.put(
-          request,
-          response.clone()
-        );
+        await cache.put(request, response.clone());
       }
 
       const js = await response.text();
@@ -77,10 +74,7 @@ async function cacheFirebaseModules(cache) {
           continue;
         }
 
-        const dependency = new URL(
-          specifier,
-          url
-        );
+        const dependency = new URL(specifier, url);
 
         if (
           dependency.hostname === 'www.gstatic.com' &&
@@ -89,7 +83,6 @@ async function cacheFirebaseModules(cache) {
           pending.push(dependency.href);
         }
       }
-
     } catch (error) {
       console.warn(
         '[Yadno offline] Could not precache:',
@@ -100,26 +93,33 @@ async function cacheFirebaseModules(cache) {
   }
 }
 
-// نصب و ذخیره فایل‌های ضروری
+// نصب سرویس‌ورکر
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
 
-    await cache.add('./index.html');
-
-    await Promise.allSettled(
-      SHELL
-        .filter(x => x !== './index.html')
-        .map(x => cache.add(x))
+    // ذخیره فایل اصلی
+    await cache.add(
+      new Request('./index.html', {
+        cache: 'reload'
+      })
     );
 
+    // ذخیره سایر فایل‌های برنامه
+    await Promise.allSettled(
+      SHELL
+        .filter(path => path !== './index.html')
+        .map(path => cache.add(path))
+    );
+
+    // ذخیره کتابخانه‌های Firebase
     await cacheFirebaseModules(cache);
 
     await self.skipWaiting();
   })());
 });
 
-// فعال‌سازی و پاک‌سازی کش‌های قدیمی یادنو
+// فعال‌سازی و پاک‌سازی کش‌های قدیمی برنامه
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
@@ -127,18 +127,18 @@ self.addEventListener('activate', event => {
     await Promise.all(
       keys
         .filter(
-          k =>
-            k.startsWith(PREFIX) &&
-            k !== CACHE_NAME
+          key =>
+            key.startsWith(PREFIX) &&
+            key !== CACHE_NAME
         )
-        .map(k => caches.delete(k))
+        .map(key => caches.delete(key))
     );
 
     await self.clients.claim();
   })());
 });
 
-// پاسخ به درخواست‌های برنامه
+// مدیریت درخواست‌ها
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -166,13 +166,25 @@ self.addEventListener('fetch', event => {
       )
     );
 
-  // فایل‌های اصلی: ابتدا اینترنت، سپس کش
+  // فایل‌های اصلی برنامه:
+  // ابتدا اینترنت، سپس نسخه ذخیره‌شده
   if (isShell) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
 
       try {
-        const network = await fetch(request);
+        const network = await Promise.race([
+          fetch(request),
+
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(
+                new Error('Network timeout')
+              ),
+              3500
+            )
+          )
+        ]);
 
         if (network.ok) {
           await cache.put(
@@ -183,21 +195,27 @@ self.addEventListener('fetch', event => {
 
         return network;
 
-      } catch (_) {
-        return (
+      } catch (error) {
+        const cached =
           await cache.match(
             request,
             { ignoreSearch: true }
-          )
-        ) || (
+          );
+
+        if (cached) return cached;
+
+        const fallback =
           await cache.match(
             new URL(
               './index.html',
               self.registration.scope
             ).href
-          )
-        ) || new Response(
-          'یادنو هنوز برای اجرای آفلاین ذخیره نشده است. یک بار با اینترنت باز کنید.',
+          );
+
+        if (fallback) return fallback;
+
+        return new Response(
+          'یادنو هنوز برای اجرای آفلاین ذخیره نشده است. یک بار با اینترنت برنامه را باز کنید.',
           {
             status: 503,
             headers: {
@@ -212,7 +230,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // کتابخانه‌های خارجی: ابتدا کش
+  // کتابخانه‌های خارجی:
+  // ابتدا کش، سپس اینترنت
   if (CDN_HOSTS.has(url.hostname)) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
@@ -249,8 +268,10 @@ self.addEventListener('fetch', event => {
 
       return response;
     })());
+
+    return;
   }
 
   // درخواست‌های Firestore و Authentication
-  // به خود Firebase واگذار می‌شوند.
+  // توسط خود Firebase مدیریت می‌شوند.
 });
