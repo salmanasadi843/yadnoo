@@ -16,7 +16,6 @@
   :root {
     --paper: #F7F4EC;
     --paper-line: #E7E1D2;
-    --line: #E7E1D2;
     --ink: #1D2B4F;
     --ink-soft: #45537A;
     --gold: #B8862E;
@@ -26,27 +25,6 @@
     --radius: 10px;
     --shadow: 0 1px 2px rgba(29,43,79,0.06), 0 4px 16px rgba(29,43,79,0.06);
   }
-  html[data-theme="dark"] {
-    --paper: #12161F;
-    --paper-line: #2A303C;
-    --line: #2A303C;
-    --ink: #ECEAE3;
-    --ink-soft: #A7AEBD;
-    --gold: #D9AE66;
-    --sage: #7FAF7F;
-    --danger: #E08776;
-    --panel: #1B212C;
-    --shadow: 0 6px 24px rgba(0,0,0,.45);
-    --accent: #D9AE66;
-    --accent-soft: #3A3320;
-  }
-  html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
-  html[data-theme="dark"] #editor-pane{background:radial-gradient(circle at 50% 0%,#1c2330 0%,#171c26 52%,#12161f 100%)}
-  html[data-theme="dark"] .notebook-item.active,html[data-theme="dark"] .note-item.active{background:linear-gradient(90deg,#3a3320,#1b212c);border-color:#5c4a25}
-  html[data-theme="dark"] .notebook-item:hover,html[data-theme="dark"] .note-item:hover{background:#232a37;border-color:#333c4c}
-  html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
-  html[data-theme="dark"] .config-card,html[data-theme="dark"] .auth-card,html[data-theme="dark"] .modal-box{background:var(--panel);border-color:var(--line)}
-  html[data-theme="dark"] .config-card input,html[data-theme="dark"] .auth-card input,html[data-theme="dark"] textarea{background:#12161F;color:var(--ink);border-color:var(--line)}
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -256,8 +234,6 @@
     color: var(--ink-soft); background: var(--panel); outline: none;
   }
   #highlight-group { display: flex; align-items: center; gap: 5px; }
-  #reading-size-group { display: flex; align-items: center; gap: 4px; }
-  #reading-size-group button{min-width:34px!important;padding:6px 8px!important;font-weight:700}
   .hl-swatch {
     width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0;
   }
@@ -272,7 +248,7 @@
   }
   #title-input::placeholder { color: #C9C4B2; }
   #body-editor {
-    flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: var(--note-font-size, 17px); line-height: 2.05;
+    flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: 15px; line-height: 2;
     outline: none;
   }
   #body-editor:empty:before {
@@ -423,8 +399,6 @@
     #notes-pane { z-index: 22; width: 260px; }
     #mobile-overlay.show { display: block; }
     #editor-pane { grid-column: 1; }
-    #title-input{font-size:26px;line-height:1.5}
-    #body-editor{font-size:var(--note-font-size, 17.5px);line-height:2.1}
   }
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
@@ -460,7 +434,7 @@
   #editor-toolbar .sep{height:26px;flex:0 0 1px;margin:0 3px}
   #highlight-group{flex:0 0 auto;gap:7px}
   .hl-swatch{width:30px;height:30px;min-width:30px!important;min-height:30px!important}
-  #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:var(--note-font-size, 18px);line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:18px;line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
   #body-editor img{max-width:100%;height:auto}
   #body-editor h2{font-size:23px}.body-editor h3{font-size:20px}
   .tag-editor{margin:7px 0 10px;overflow-x:auto;flex-wrap:nowrap;padding:5px 1px;scrollbar-width:none}
@@ -490,13 +464,8 @@
   .pane-header{height:50px;min-height:50px;padding:4px 5px 7px;font-size:14px;position:sticky;top:0;z-index:4}
   .pane-header .header-actions{gap:4px}
   .pane-header .icon-btn{width:40px;height:40px;justify-content:center;font-size:18px}
-  .pane-collapse{display:none!important}
+  .pane-collapse{display:flex!important}
   #mobile-overlay{z-index:85!important;background:rgba(15,18,24,.42);backdrop-filter:blur(1px)}
-  #float-toolbar{position:fixed;display:none;align-items:center;gap:2px;z-index:70;background:#1D2B4F;border-radius:10px;padding:5px;box-shadow:0 8px 24px rgba(0,0,0,.3);transform:translate(-50%,-100%);top:0;left:0;margin-top:-10px}
-  #float-toolbar.show{display:flex}
-  #float-toolbar button{background:none;border:none;color:#fff;padding:7px 10px;border-radius:7px;font-size:14px;min-width:0}
-  #float-toolbar button:active,#float-toolbar button:hover{background:rgba(255,255,255,.18)}
-  html[data-theme="dark"] #float-toolbar{background:#2A303C;box-shadow:0 8px 24px rgba(0,0,0,.55)}
   #mobile-overlay.show{display:block}
 
   /* bottom navigation */
@@ -539,6 +508,11 @@
 }
 @media (min-width:601px){#phone-bottom-nav{display:none!important}}
 
+  html[data-theme="dark"]{--paper:#12161F;--paper-line:#2A303C;--line:#2A303C;--ink:#ECEAE3;--ink-soft:#A7AEBD;--gold:#D9AE66;--sage:#7FAF7F;--danger:#E08776;--panel:#1B212C;--shadow:0 6px 24px rgba(0,0,0,.45);--accent:#D9AE66;--accent-soft:#3A3320}
+  html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+  html[data-theme="dark"] #editor-pane{background:radial-gradient(circle at 50% 0%,#1c2330 0%,#171c26 52%,#12161f 100%)}
+  html[data-theme="dark"] .notebook-item.active,html[data-theme="dark"] .note-item.active{background:linear-gradient(90deg,#3a3320,#1b212c);border-color:#5c4a25}
+  html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c}
 </style>
 </head>
 <body>
@@ -625,7 +599,6 @@
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
       </button>
       <div id="more-menu-dropdown">
-        <button id="theme-toggle-btn">🌙 حالت شب</button>
         <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
         <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
@@ -694,11 +667,6 @@
           <button data-cmd="insertUnorderedList" title="فهرست">• فهرست</button>
           <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">۱. فهرست</button>
           <div class="sep"></div>
-          <div id="reading-size-group" title="اندازه‌ی متن">
-            <button id="reading-size-dec" title="کوچیک‌تر">A-</button>
-            <button id="reading-size-inc" title="بزرگ‌تر">A+</button>
-          </div>
-          <div class="sep"></div>
           <select id="font-select" title="فونت">
             <option value="Vazirmatn" selected>فونت پیش‌فرض</option>
             <option value="Tahoma">Tahoma</option>
@@ -741,13 +709,6 @@
     </div>
   </div>
   <div id="mobile-overlay"></div>
-  <div id="float-toolbar">
-    <button data-fcmd="bold" title="ضخیم"><b>B</b></button>
-    <button data-fcmd="italic" title="مورب"><i>I</i></button>
-    <button data-fcmd="underline" title="زیرخط"><u>U</u></button>
-    <button id="float-highlight-btn" title="هایلات">✎</button>
-    <button id="float-link-btn" title="لینک">🔗</button>
-  </div>
   <input type="file" id="image-file-input" accept="image/*" style="display:none">
   <input type="file" id="attachment-file-input" multiple style="display:none">
 </div>
@@ -792,6 +753,31 @@
   </div>
 </div>
 
+<script>
+// This guard also runs when an ES module fails to load before application code executes.
+(function(){
+  let started=false;
+  window.__yadnoStarted=()=>{started=true;};
+  function report(message){
+    if(started)return;
+    const screen=document.getElementById('loading-screen');
+    if(!screen || getComputedStyle(screen).display==='none')return;
+    let panel=document.getElementById('startup-recovery');
+    if(!panel){
+      panel=document.createElement('div');panel.id='startup-recovery';
+      panel.style.cssText='max-width:430px;width:calc(100% - 36px);padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;text-align:center;line-height:2';
+      const message=document.createElement('p');message.id='startup-detail';panel.appendChild(message);
+      const retry=document.createElement('button');retry.textContent='تلاش دوباره';retry.style.cssText='padding:10px 16px;border-radius:8px';retry.onclick=()=>location.reload();panel.appendChild(retry);
+      screen.appendChild(panel);
+    }
+    document.getElementById('startup-detail').textContent=message;
+  }
+  window.__yadnoStartupError=e=>report(e?.message||String(e));
+  window.addEventListener('error',e=>report('خطا در راه‌اندازی: '+(e.message||'یکی از فایل‌ها بارگذاری نشد.')));
+  window.addEventListener('unhandledrejection',e=>report('خطا در راه‌اندازی: '+(e.reason?.message||'نامشخص')));
+  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),12000);
+})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
@@ -801,35 +787,11 @@ import {
 import {
   getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
   collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, getDocs, writeBatch
+  query, orderBy, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const $ = (id) => document.getElementById(id);
-
-// ---------- Theme (dark mode) ----------
-const THEME_KEY = 'yadno_theme';
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('theme-toggle-btn');
-  if (btn) btn.textContent = theme === 'dark' ? '☀️ حالت روز' : '🌙 حالت شب';
-}
-(function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
-  const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  applyTheme(theme);
-})();
-
-// ---------- Adjustable reading font size (A-/A+) ----------
-const FONT_SIZE_KEY = 'yadno_note_font_size';
-const FONT_SIZE_MIN = 14, FONT_SIZE_MAX = 26, FONT_SIZE_DEFAULT = 17;
-function applyNoteFontSize(px) {
-  document.documentElement.style.setProperty('--note-font-size', px + 'px');
-}
-(function initFontSize() {
-  const saved = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10);
-  if (saved && saved >= FONT_SIZE_MIN && saved <= FONT_SIZE_MAX) applyNoteFontSize(saved);
-})();
 
 // ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
@@ -866,6 +828,10 @@ let authMode = 'login'; // or 'signup'
 let draggedNoteId = null;
 let activeTags = [];
 let searchTimer = null;
+let currentListenerNotebookId=null;
+let currentListenerSectionKey=null;
+let pendingWrites=false;
+let latestSnapshotFromCache=true;
 
 function showScreen(name) {
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
@@ -879,12 +845,33 @@ function initFirebase(config) {
     firebaseApp = initializeApp(config);
     auth = getAuth(firebaseApp);
     try {
-      db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+      db = initializeFirestore(firebaseApp, {
+        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager()})
+      });
     } catch (e) {
-      db = getFirestore(firebaseApp); // fallback: e.g. unsupported browser/private mode — falls back to memory-only cache
+      console.warn('Persistent Firestore cache unavailable:',e);
+      db = getFirestore(firebaseApp);
     }
     try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
+    let authResolved=false;
+    const authWatchdog=setTimeout(()=>{
+      if(authResolved)return;
+      if(auth.currentUser){
+        // Only Firebase's actual restored user is allowed to access its cached documents.
+        authResolved=true;
+        currentUser=auth.currentUser;
+        showScreen('app');startListening();
+      }else{
+        window.__yadnoStartupError?.(new Error(navigator.onLine
+          ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
+          : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+      }
+    },8000);
     onAuthStateChanged(auth, (user) => {
+      clearTimeout(authWatchdog);
+      authResolved=true;
+      // Avoid re-creating listeners when the watchdog already started this same user.
+      if(currentUser?.uid===user?.uid && user && unsubNotebooks)return;
       currentUser = user;
       if (user) {
         showScreen('app');
@@ -893,9 +880,13 @@ function initFirebase(config) {
         stopListening();
         showScreen('auth');
       }
+    }, (error)=>{
+      clearTimeout(authWatchdog);
+      window.__yadnoStartupError?.(error);
     });
     return true;
   } catch (e) {
+    window.__yadnoStartupError?.(e);
     return false;
   }
 }
@@ -1009,24 +1000,6 @@ function translateAuthError(code) {
 
 $('signout-btn-menu').addEventListener('click', () => { signOut(auth); closeMoreMenu(); });
 
-$('theme-toggle-btn').addEventListener('click', () => {
-  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
-  applyTheme(next);
-});
-$('reading-size-dec').addEventListener('click', () => {
-  const current = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10) || FONT_SIZE_DEFAULT;
-  const next = Math.max(FONT_SIZE_MIN, current - 1);
-  localStorage.setItem(FONT_SIZE_KEY, next);
-  applyNoteFontSize(next);
-});
-$('reading-size-inc').addEventListener('click', () => {
-  const current = parseInt(localStorage.getItem(FONT_SIZE_KEY), 10) || FONT_SIZE_DEFAULT;
-  const next = Math.min(FONT_SIZE_MAX, current + 1);
-  localStorage.setItem(FONT_SIZE_KEY, next);
-  applyNoteFontSize(next);
-});
-
 // ---------- More menu dropdown ----------
 function closeMoreMenu() { $('more-menu-dropdown').classList.remove('open'); }
 $('more-menu-btn').addEventListener('click', (e) => {
@@ -1137,9 +1110,9 @@ function startListening() {
       activeNotebookId = notebooks.length ? notebooks[0].id : null;
     }
     renderNotebooks();
-    if (activeNotebookId) listenToSections(activeNotebookId);
+    if (activeNotebookId && currentListenerNotebookId!==activeNotebookId) listenToSections(activeNotebookId);
     else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }
-    setSyncStatus('online');
+    updateSnapshotStatus(snap);
   }, (err) => {
     console.error('Yadno notebooks listener error:', err);
     setSyncStatus('offline');
@@ -1149,7 +1122,11 @@ function startListening() {
 }
 
 async function ensureDefaultSection(notebookId) {
-  const snap = await getDocs(userCol('notebooks', notebookId, 'sections'));
+  // Never block offline navigation on a network read.
+  const sectionsRef=userCol('notebooks', notebookId, 'sections');
+  let snap;
+  if(navigator.onLine) snap=await getDocs(sectionsRef);
+  else { snap=await getDocsFromCache(sectionsRef); if(snap.empty) throw new Error('No cached sections'); }
   const live = snap.docs.filter(d => !d.data().deletedAt);
   if (live.length) return live.sort((a,b) => (a.data().position||0)-(b.data().position||0))[0].id;
   const ref = await addDoc(userCol('notebooks', notebookId, 'sections'), {
@@ -1159,48 +1136,54 @@ async function ensureDefaultSection(notebookId) {
 }
 
 function listenToSections(notebookId) {
-  if (unsubSections) unsubSections();
-  if (unsubSectionGroups) unsubSectionGroups();
-  if (unsubNotes) { unsubNotes(); unsubNotes = null; }
-  const gq = query(userCol('notebooks', notebookId, 'sectionGroups'), orderBy('position', 'asc'));
-  unsubSectionGroups = onSnapshot(gq, (gsnap) => {
-    sectionGroups = gsnap.docs.map(d => ({id:d.id, ...d.data()}))
-      .filter(g => !g.deletedAt)
-      .sort((a,b) => (a.position ?? 0) - (b.position ?? 0));
-
-    const q = query(userCol('notebooks', notebookId, 'sections'));
-    if (unsubSections) unsubSections();
-    unsubSections = onSnapshot(q, async (snap) => {
-      sections = snap.docs.map(d => ({id:d.id, ...d.data()}))
-        .filter(s => !s.deletedAt)
-        .sort((a,b) => (a.position ?? 0) - (b.position ?? 0));
-      if (!sections.length) {
-        try { activeSectionId = await ensureDefaultSection(notebookId); } catch(e) { activeSectionId = null; }
-      } else if (!activeSectionId || !sections.some(s => s.id === activeSectionId)) {
-        activeSectionId = sections[0].id;
-      }
-      renderSections();
-      if (activeSectionId) listenToNotes(notebookId, activeSectionId);
-      else { notes=[]; renderNotes(); }
-    }, (err) => {
-      console.error('Yadno sections listener error:', err);
-      setSyncStatus('offline');
-    });
-  }, (err) => {
-    console.error('Yadno sectionGroups listener error:', err);
-    setSyncStatus('offline');
-  });
+  if(currentListenerNotebookId===notebookId && unsubSections && unsubSectionGroups)return;
+  currentListenerNotebookId=notebookId;
+  currentListenerSectionKey=null;
+  if(unsubSections)unsubSections();
+  if(unsubSectionGroups)unsubSectionGroups();
+  if(unsubNotes){unsubNotes();unsubNotes=null;}
+  const groupsQuery=query(userCol('notebooks',notebookId,'sectionGroups'));
+  unsubSectionGroups=onSnapshot(groupsQuery,{includeMetadataChanges:true},snap=>{
+    if(currentListenerNotebookId!==notebookId)return;
+    sectionGroups=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(g=>!g.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
+    renderSections();
+    updateSnapshotStatus(snap);
+  },err=>{console.error('Groups listener:',err);setSyncStatus('offline');});
+  const sectionsQuery=query(userCol('notebooks',notebookId,'sections'));
+  unsubSections=onSnapshot(sectionsQuery,{includeMetadataChanges:true},async snap=>{
+    if(currentListenerNotebookId!==notebookId)return;
+    sections=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
+    if(!sections.length){
+      // A cache miss does not mean the remote notebook has no sections.
+      // Never create a default section merely because the device is offline.
+      if(!snap.metadata.fromCache && navigator.onLine){
+        try{activeSectionId=await ensureDefaultSection(notebookId);}catch(e){console.warn(e);activeSectionId=null;}
+      }else{activeSectionId=null;}
+    }else if(!activeSectionId||!sections.some(s=>s.id===activeSectionId)){
+      activeSectionId=sections[0].id;
+    }
+    if(currentListenerNotebookId!==notebookId)return;
+    renderSections();
+    if(activeSectionId)listenToNotes(notebookId,activeSectionId);
+    else{notes=[];renderNotes();showEditorEmpty();}
+    updateSnapshotStatus(snap);
+  },err=>{console.error('Sections listener:',err);setSyncStatus('offline');});
 }
 function listenToNotes(notebookId, sectionId) {
+  const key=notebookId+'/'+sectionId;
+  if(currentListenerSectionKey===key && unsubNotes)return;
+  currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
   // بدون orderBy تا یادداشت‌های قدیمی فاقد updatedAt هم نمایش داده شوند.
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
-  unsubNotes = onSnapshot(nQuery, (snap) => {
+  unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
     notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      .filter(n => !n.deletedAt && (n.sectionId ? n.sectionId === sectionId : sectionId === (sections[0]?.id || sectionId)));
+      .filter(n => !n.deletedAt && (n.sectionId || sectionId) === sectionId);
     notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || ((b.updatedAt?.toDate ? b.updatedAt.toDate().getTime() : 0) - (a.updatedAt?.toDate ? a.updatedAt.toDate().getTime() : 0)));
     renderNotes();
-    setSyncStatus('online');
+    updateSnapshotStatus(snap);
   }, (err) => { console.error('Yadno notes listener error:', err); setSyncStatus('offline'); });
 }
 
@@ -1209,17 +1192,25 @@ function stopListening() {
   if (unsubSections) unsubSections();
   if (unsubSectionGroups) unsubSectionGroups();
   if (unsubNotes) unsubNotes();
+  unsubNotebooks=unsubSections=unsubSectionGroups=unsubNotes=null;
+  currentListenerNotebookId=currentListenerSectionKey=null;
   notebooks = []; sectionGroups = []; sections = []; notes = []; activeNotebookId = null; activeSectionId = null; activeNoteId = null;
 }
 
-function setSyncStatus(state) {
-  const el = $('sync-status');
-  el.className = state;
-  $('sync-status-text').textContent =
-    state === 'offline' ? 'آفلاین' : state === 'saving' ? 'در حال ذخیره' : 'همگام';
+function updateSnapshotStatus(snap){
+  latestSnapshotFromCache=!!snap.metadata.fromCache;
+  pendingWrites=!!snap.metadata.hasPendingWrites;
+  setSyncStatus(pendingWrites?'pending':(navigator.onLine&&!latestSnapshotFromCache?'online':'offline'));
 }
-window.addEventListener('online', () => setSyncStatus('online'));
-window.addEventListener('offline', () => setSyncStatus('offline'));
+function setSyncStatus(state) {
+  const el=$('sync-status');
+  el.className=state==='online'?'':(state==='saving'?'saving':'offline');
+  $('sync-status-text').textContent=state==='saving'?'در حال ذخیره':
+    state==='pending'?'در انتظار همگام‌سازی':state==='offline'?
+    (navigator.onLine?'اطلاعات محلی':'آفلاین · ذخیره محلی'):'همگام';
+}
+window.addEventListener('online',()=>setSyncStatus('pending'));
+window.addEventListener('offline',()=>setSyncStatus('offline'));
 
 // ---------- Render: notebooks ----------
 function renderNotebooks() {
@@ -1475,8 +1466,7 @@ async function openSearchResult(n){
   $('search-modal').classList.remove('open');
   renderNotebooks();
   listenToSections(n.notebookId);
-  openNoteInEditor(n);
-  openMobilePane(null);
+  setTimeout(()=>{openNoteInEditor(n);openMobilePane(null);},300);
 }
 async function loadSearchIndex(){
   const id=++searchRequestId;
@@ -1519,11 +1509,13 @@ $('search-modal').addEventListener('click',e=>{if(e.target.id==='search-modal')$
 
 // ---------- Editor ----------
 function showEditorEmpty() {
+  flushScheduledSave();
   $('editor-empty').style.display = 'flex';
   $('editor-content').style.display = 'none';
 }
 
 function openNoteInEditor(note) {
+  flushScheduledSave();
   $('editor-empty').style.display = 'none';
   $('editor-content').style.display = 'flex';
   $('title-input').value = note.title || '';
@@ -1600,27 +1592,28 @@ async function uploadAttachments(files){
 $('attachment-btn').addEventListener('click',()=>{ if(!activeNoteId){alert('اول یک یادداشت را انتخاب کن.');return;} $('attachment-file-input').click(); });
 $('attachment-file-input').addEventListener('change',async e=>{ await uploadAttachments(e.target.files); e.target.value=''; });
 
-function scheduleSave() {
-  if (!activeNotebookId || !activeNoteId) return;
-  // مقادیر همین لحظه capture می‌شن؛ وگرنه اگر کاربر در ۶۰۰ms یادداشت رو عوض کنه،
-  // ذخیره روی یادداشت جدید می‌افته
-  const nbId=activeNotebookId, noteId=activeNoteId;
-  const title=$('title-input').value, body=$('body-editor').innerHTML, tags=[...activeTags];
-  setSyncStatus('saving');
+let queuedSave=null;
+function flushScheduledSave(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    try {
-      await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', nbId, 'notes', noteId), {
-        title, body, tags, updatedAt: serverTimestamp()
-      }, { merge: true });
-      setSyncStatus('online');
-    } catch (e) {
-      console.error('Yadno save failed:', e);
-      setSyncStatus('offline');
-    }
-  }, 600);
+  const draft=queuedSave;queuedSave=null;
+  if(!draft||!currentUser||draft.uid!==currentUser.uid)return;
+  // Firestore writes are persisted in IndexedDB while offline when available.
+  // Do not await a server acknowledgement before allowing navigation.
+  setDoc(doc(db,'users',draft.uid,'notebooks',draft.nbId,'notes',draft.noteId),{
+    title:draft.title,body:draft.body,tags:draft.tags,updatedAt:serverTimestamp()
+  },{merge:true}).then(()=>{
+    if(!pendingWrites&&navigator.onLine&&!latestSnapshotFromCache)setSyncStatus('online');
+  }).catch(err=>{console.error('Save failed:',err);setSyncStatus('offline');});
 }
-
+function scheduleSave(){
+  if(!activeNotebookId||!activeNoteId||!currentUser)return;
+  queuedSave={uid:currentUser.uid,nbId:activeNotebookId,noteId:activeNoteId,
+    title:$('title-input').value,body:$('body-editor').innerHTML,tags:[...activeTags]};
+  setSyncStatus(navigator.onLine?'saving':'pending');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(flushScheduledSave,600);
+}
+window.addEventListener('pagehide',flushScheduledSave);
 $('title-input').addEventListener('input', scheduleSave);
 $('body-editor').addEventListener('input', scheduleSave);
 $('body-editor').addEventListener('change', scheduleSave);
@@ -1649,15 +1642,14 @@ $('section-btn').addEventListener('click', () => {
     if (text) insertHtmlAtCursor(`<h${type}>${escapeHtml(text)}</h${type}>`);
   } else if (type === '0') insertHtmlAtCursor('<hr class="section-divider">');
 });
-function promptInsertLink() {
+$('link-btn').addEventListener('click', () => {
   const url = prompt('آدرس لینک را وارد کن (مثلاً https://example.com):');
   if (!url) return;
   const text = prompt('متن لینک (خالی = خود آدرس):') || url;
   $('body-editor').focus();
   document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`);
   scheduleSave();
-}
-$('link-btn').addEventListener('click', promptInsertLink);
+});
 $('image-btn').addEventListener('click', () => {
   const mode = confirm('برای عکس از فایل دستگاه استفاده می‌کنی؟\nاگر لغو را بزنی، می‌توانی آدرس اینترنتی عکس را وارد کنی.') ? 'file' : 'url';
   if (mode === 'file') $('image-file-input').click();
@@ -1726,8 +1718,8 @@ async function renderTrash() {
 
 $('delete-note-btn').addEventListener('click', async () => {
   if (!activeNoteId) return;
-  if (!confirm('این یادداشت به سطل زباله منتقل بشه؟')) return;
-  await setDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId), { deletedAt: serverTimestamp() }, { merge: true });
+  if (!confirm('این یادداشت حذف بشه؟')) return;
+  await deleteDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'notes', activeNoteId));
   activeNoteId = null;
   showEditorEmpty();
 });
@@ -1753,86 +1745,6 @@ document.querySelectorAll('.hl-swatch').forEach((btn) => {
     scheduleSave();
   });
 });
-
-// ---------- Floating selection toolbar ----------
-// Appears right above whatever text you select inside the note, for quick
-// formatting without reaching up to the main toolbar — similar to
-// Notion/Google Docs mobile.
-const floatTb = $('float-toolbar');
-document.querySelectorAll('#float-toolbar [data-fcmd]').forEach((btn) => {
-  btn.addEventListener('mousedown', (e) => e.preventDefault()); // keep selection alive
-  btn.addEventListener('click', () => {
-    document.execCommand(btn.dataset.fcmd, false, null);
-    scheduleSave();
-    positionFloatToolbar();
-  });
-});
-$('float-highlight-btn').addEventListener('mousedown', (e) => e.preventDefault());
-$('float-highlight-btn').addEventListener('click', () => {
-  document.execCommand('hiliteColor', false, '#FFF59D');
-  scheduleSave();
-  floatTb.classList.remove('show');
-});
-$('float-link-btn').addEventListener('mousedown', (e) => e.preventDefault());
-$('float-link-btn').addEventListener('click', () => {
-  floatTb.classList.remove('show');
-  promptInsertLink();
-});
-
-function positionFloatToolbar() {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) { floatTb.classList.remove('show'); return; }
-  const range = sel.getRangeAt(0);
-  if (!$('body-editor').contains(range.commonAncestorContainer)) { floatTb.classList.remove('show'); return; }
-  const rect = range.getBoundingClientRect();
-  if (!rect || (rect.width === 0 && rect.height === 0)) { floatTb.classList.remove('show'); return; }
-  floatTb.classList.add('show');
-  const tbRect = floatTb.getBoundingClientRect();
-  let left = rect.left + rect.width / 2;
-  left = Math.min(Math.max(left, tbRect.width / 2 + 8), window.innerWidth - tbRect.width / 2 - 8);
-  floatTb.style.left = left + 'px';
-  floatTb.style.top = Math.max(rect.top, 60) + 'px';
-}
-document.addEventListener('selectionchange', () => {
-  if (document.activeElement !== $('body-editor') && !$('body-editor').contains(document.activeElement)) {
-    floatTb.classList.remove('show');
-    return;
-  }
-  positionFloatToolbar();
-});
-$('body-editor').addEventListener('blur', () => setTimeout(() => { if (!floatTb.matches(':hover')) floatTb.classList.remove('show'); }, 150));
-
-// ---------- Swipe between notes (mobile) ----------
-// Swipe left = next note, swipe right = previous note, within the
-// currently visible/filtered notes list — matches the common
-// left=forward/right=back convention used across most mobile apps.
-(function setupSwipeNav() {
-  let startX = 0, startY = 0, active = false;
-  const target = $('editor-content');
-  if (!target) return;
-  target.addEventListener('touchstart', (e) => {
-    if (e.touches.length !== 1 || e.target.closest('#editor-toolbar') || e.target.closest('#float-toolbar')) { active = false; return; }
-    startX = e.touches[0].clientX; startY = e.touches[0].clientY; active = true;
-  }, { passive: true });
-  target.addEventListener('touchend', (e) => {
-    if (!active) return;
-    active = false;
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) > 70 && Math.abs(dy) < 60) navigateNote(dx < 0 ? 1 : -1);
-  }, { passive: true });
-})();
-function navigateNote(dir) {
-  if (!activeNoteId || !notes.length) return;
-  const idx = notes.findIndex((n) => n.id === activeNoteId);
-  if (idx === -1) return;
-  const nextIdx = idx + dir;
-  if (nextIdx < 0 || nextIdx >= notes.length) return;
-  const n = notes[nextIdx];
-  activeNoteId = n.id;
-  renderNotes();
-  openNoteInEditor(n);
-}
 
 function safeFileName(str) {
   return (str || 'یادداشت').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 60) || 'یادداشت';
@@ -1903,7 +1815,7 @@ function collectRuns(node, fmt, runs) {
     } else if (tag === 'div' || tag === 'p') {
       pushParagraph(block, null);
     } else {
-      pushParagraph(block, null);
+      pushParagraph(container, null);
     }
   });
   return paragraphs.length ? paragraphs : [{ runs: [{ text: '' }], listType: null }];
@@ -2052,6 +1964,7 @@ const oneNoteModal = $('onenote-modal');
 const oneNoteStatus = $('onenote-import-status');
 const oneNotePreview = $('onenote-preview');
 const oneNoteInput = $('onenote-file-input');
+let oneNoteEnginePromise = null;
 
 function setOneNoteStatus(msg,error=false){
   oneNoteStatus.textContent = msg || '';
@@ -2198,7 +2111,7 @@ function parseMhtml(raw) {
   return { html, resources };
 }
 
-function sanitizeImportedHtml(root){
+async function sanitizeImportedHtml(root){
   root.querySelectorAll('script,style,meta,link,noscript').forEach(x=>x.remove());
   root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
 }
@@ -2429,12 +2342,14 @@ function escapeHtml(str) {
   nav.addEventListener('click',e=>{
     const pane=e.target.closest('[data-phone-pane]')?.dataset.phonePane;
     if(pane){openMobilePane(pane);syncActive();return;}
-    if(e.target.closest('[data-phone-new]')){document.getElementById('add-note-btn')?.click();}
+    if(e.target.closest('[data-phone-new]')){if(activeSectionId&&typeof createNote==='function')createNote();else document.getElementById('add-note-btn')?.click();}
   });
-  // openMobilePane یک تابع ماژول‌اسکوپه (روی window نیست)؛ wrapper باید همان
-  // binding ماژول را بپوشاند وگرنه نه خطا می‌دهد نه syncActive اجرا می‌شود
-  const _openMobilePaneOrig=openMobilePane;
-  openMobilePane=function(which){ _openMobilePaneOrig(which); syncActive(); };
+  const oldOpen=window.openMobilePane;
+  window.openMobilePane=function(which){
+    oldOpen(which);
+    syncActive();
+    if(isPhone() && !which) nav.classList.remove('hidden'); else nav.classList.remove('hidden');
+  };
   window.addEventListener('resize',syncActive);
   syncActive();
 })();
