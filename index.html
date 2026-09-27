@@ -623,6 +623,9 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
 :root{--onenote-purple:#7719aa;--onenote-dark:#55117c;--paper:#faf9fc;--paper-line:#eae5f0;--ink:#32263d;--ink-soft:#6c6076;--gold:#8a3cba;--sage:#4eae68;--active-book-color:#7719aa}
 #topbar{background:linear-gradient(105deg,#64118f,#8425ae)!important;color:#fff!important;border-bottom:0!important}
 #topbar button,#topbar .logo,#topbar #sync-status{color:#fff!important}
+#app #more-menu-dropdown button{color:var(--ink)!important}
+#app #more-menu-dropdown button#signout-btn-menu{color:#A83E32!important}
+#app #more-menu-dropdown{color:var(--ink)}
 #topbar .brand-mark{background:#fff2!important}
 #topbar .brand-mark svg path{stroke:#fff!important}
 #notebooks-pane{background:#fff!important}
@@ -656,7 +659,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #notebooks-pane.open,#sections-pane.open,#notes-pane.open{z-index:100!important}
  #editor-content{padding:16px 15px 90px!important}
  #title-input{font-size:25px!important;line-height:1.55!important}
- #body-editor{font-size:19px!important;line-height:2.1!important}
+ #body-editor{line-height:2.1!important}
  #editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.15!important}
 }
 
@@ -668,7 +671,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #editor-content{padding:8px 13px 100px!important;overflow-y:auto!important;overscroll-behavior:contain}
  #reading-controls{background:#fff!important;border:0!important;border-bottom:1px solid #eee!important;border-radius:0!important;box-shadow:none!important;position:relative;z-index:3}
  #title-input{font-size:29px!important;font-weight:750!important;text-align:right!important;padding:20px 4px 9px!important;border-bottom:2px solid var(--active-book-color,#7719aa)!important;border-radius:0!important}
- #body-editor{font-size:19px!important;line-height:2.02!important;padding:18px 5px 105px!important;border:0!important;border-radius:0!important;overflow-wrap:anywhere;min-height:55vh!important}
+ #body-editor{line-height:2.02!important;padding:18px 5px 105px!important;border:0!important;border-radius:0!important;overflow-wrap:anywhere;min-height:55vh!important}
  #body-editor p{margin:.35em 0 .9em}
  #editor-pane:not(.read-mode) #editor-toolbar{position:fixed!important;top:auto!important;bottom:var(--yadno-keyboard-bottom,0px)!important;left:0!important;right:0!important;width:100%!important;max-height:min(42vh,340px)!important;overflow-y:auto!important;overflow-x:hidden!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px!important;padding:12px 10px calc(12px + env(safe-area-inset-bottom))!important;margin:0!important;border:1px solid #eae6ee!important;border-radius:19px 19px 0 0!important;background:#fff!important;box-shadow:0 -7px 28px #23172d25!important;z-index:160!important;white-space:normal!important;transform:translateY(0);overscroll-behavior:contain}
  #editor-pane.toolbar-collapsed #editor-toolbar{display:none!important}
@@ -682,11 +685,12 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #mobile-format-extra select{min-width:0!important;max-width:34%;padding:8px 4px!important;font-size:13px!important;background:#f6f5f8;border:0;border-radius:8px}
  #mobile-format-extra button{flex:0 0 36px!important}
  #mobile-format-extra output{min-width:23px;text-align:center;font-size:14px}
- #editor-toolbar #font-select{grid-column:span 3;min-width:0;width:100%;font-size:13px!important}
+ #editor-toolbar #font-select{grid-column:span 3;min-width:0;width:100%;font-size:14px!important}
  #editor-toolbar #highlight-group{grid-column:span 3;display:flex;justify-content:space-around;gap:1px;min-width:0}
  #editor-toolbar #highlight-group button{min-width:23px!important;min-height:34px!important;width:23px!important;height:34px!important;padding:0!important}
- #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar{grid-column:span 2;font-size:12px!important}
- #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2;font-size:12px!important}
+ #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar{grid-column:span 2}
+ #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2}
+ #editor-toolbar .export-btn svg{width:19px;height:19px}
  #editor-pane.read-mode #editor-toolbar{display:none!important}
  body.yadno-keyboard-open #phone-bottom-nav,body.yadno-format-open #phone-bottom-nav{display:none!important}
  body.yadno-format-open #editor-content{padding-bottom:360px!important}
@@ -859,8 +863,8 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
           <button class="i" data-cmd="italic" title="مورب">I</button>
           <button class="u" data-cmd="underline" title="زیرخط">U</button>
           <div class="sep"></div>
-          <button data-cmd="insertUnorderedList" title="فهرست">• فهرست</button>
-          <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">۱. فهرست</button>
+          <button data-cmd="insertUnorderedList" title="فهرست">•</button>
+          <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
           <div class="sep"></div>
           <select id="font-select" title="فونت">
             <option value="Vazirmatn" selected>فونت پیش‌فرض</option>
@@ -878,23 +882,21 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
             <button class="hl-swatch hl-none" data-color="transparent" title="حذف هایلات">✕</button>
           </div>
           <div class="sep"></div>
-          <button id="checklist-btn" title="چک‌لیست">☑ چک‌لیست</button>
-          <button id="link-btn" title="درج لینک">🔗 لینک</button>
-          <button id="image-btn" title="درج عکس">🖼 عکس</button>
-          <button id="attachment-btn" title="افزودن فایل پیوست">📎 پیوست</button>
-          <button id="section-btn" title="بخش‌بندی">§ بخش</button>
-          <button id="add-section-group-toolbar" title="گروه بخش جدید">▣ گروه</button>
+          <button id="checklist-btn" title="چک‌لیست">☑</button>
+          <button id="link-btn" title="درج لینک">🔗</button>
+          <button id="image-btn" title="درج عکس">🖼</button>
+          <button id="attachment-btn" title="افزودن فایل پیوست">📎</button>
+          <button id="section-btn" title="بخش‌بندی">§</button>
+          <button id="add-section-group-toolbar" title="گروه بخش جدید">▣</button>
           <div class="sep" style="margin-inline-start:auto;"></div>
-          <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">اشتراک</button>
+          <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">↗</button>
           <button class="export-btn" id="export-docx-btn" title="خروجی Word">
             <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Word
           </button>
           <button class="export-btn" id="export-pdf-btn" title="خروجی PDF">
             <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            PDF
           </button>
-          <button id="delete-note-btn" style="color:#A83E32;">حذف یادداشت</button>
+          <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
         </div>
         <input id="title-input" type="text" placeholder="عنوان یادداشت">
         <div id="attachments-box"><div id="attachments-header"><span>📎 فایل‌های پیوست</span><span id="attachments-status" class="attach-progress"></span></div><div id="attachments-list"></div></div>
