@@ -729,6 +729,141 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
   body.yadno-format-open #editor-content{padding-bottom:calc(min(54dvh,440px) + 26px)!important}
 }
 
+
+/* Yadno v25: compact OneNote-like mobile formatting bar */
+@media (max-width:600px){
+  /* The mobile toolbar is a small single-row bar when collapsed. */
+  #editor-pane:not(.read-mode) #editor-toolbar{
+    position:fixed!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:calc(var(--yadno-keyboard-bottom,0px) + 8px)!important;
+    top:auto!important;
+    width:auto!important;
+    max-height:54px!important;
+    min-height:54px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:5px!important;
+    padding:6px 8px!important;
+    margin:0!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    background:rgba(255,255,255,.97)!important;
+    border:1px solid #e5dbea!important;
+    border-radius:16px!important;
+    box-shadow:0 5px 24px rgba(47,20,65,.18)!important;
+    z-index:160!important;
+  }
+  #editor-pane.toolbar-collapsed #editor-toolbar{
+    display:flex!important;
+    max-height:54px!important;
+    min-height:54px!important;
+  }
+  #editor-pane.toolbar-collapsed #editor-toolbar > :not(#mobile-format-head),
+  #editor-pane.toolbar-collapsed #editor-toolbar > #mobile-format-head ~ *{
+    display:none!important;
+  }
+  #editor-pane.toolbar-collapsed #mobile-format-head{
+    display:flex!important;
+    width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    padding:0 8px!important;
+    margin:0!important;
+    cursor:pointer!important;
+    background:transparent!important;
+    color:#4d255f!important;
+    font-size:14px!important;
+    font-weight:700!important;
+  }
+  #editor-pane.toolbar-collapsed #mobile-format-head::before{
+    content:'A  B  I  U';
+    direction:ltr;
+    letter-spacing:5px;
+    color:#6d3b82;
+    font-family:Arial,sans-serif;
+    font-size:15px;
+    font-weight:700;
+  }
+  #editor-pane.toolbar-collapsed #mobile-format-head span{
+    display:none!important;
+  }
+  #editor-pane.toolbar-collapsed #mobile-format-close{
+    display:block!important;
+    width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    border:0!important;
+    border-radius:9px!important;
+    background:#f4eef7!important;
+    color:#5e286f!important;
+    font-size:17px!important;
+    padding:0!important;
+  }
+  #editor-pane.toolbar-collapsed #mobile-format-close{transform:rotate(45deg)}
+  #editor-pane.toolbar-collapsed #mobile-format-close::after{content:'باز کردن';font-size:10px;font-family:inherit;margin-inline-start:5px;white-space:nowrap;transform:rotate(-45deg);display:inline-block;color:#6b3979}
+
+  /* Expanded sheet: still compact and scrollable, never a giant full-screen grid. */
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar{
+    max-height:min(48dvh,380px)!important;
+    min-height:0!important;
+    display:block!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;
+    border-radius:18px 18px 0 0!important;
+  }
+  #editor-pane:not(.toolbar-collapsed) #mobile-format-head{
+    display:flex!important;
+    position:sticky!important;
+    top:0!important;
+    z-index:2!important;
+    height:34px!important;
+    min-height:34px!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    margin:-2px 0 7px!important;
+    padding:0 2px!important;
+    background:#fff!important;
+    color:#4d255f!important;
+    font-size:14px!important;
+    font-weight:700!important;
+  }
+  #mobile-format-head::before{content:'⌄';color:#7b2aa4;font-size:20px;margin-inline-end:8px}
+  #mobile-format-close{width:32px!important;height:32px!important;min-height:32px!important;padding:0!important;border:0!important;border-radius:9px!important;background:#f5f2f7!important;color:#5b4862!important;font-size:17px!important}
+  #mobile-format-grip{display:block!important;width:42px!important;height:4px!important;border-radius:10px!important;background:#bdb4c2!important;margin:0 auto 5px!important}
+  #mobile-format-extra{grid-template-columns:auto 38px 34px 38px minmax(110px,1fr)!important;gap:5px!important;padding:5px 0 8px!important;border-bottom:1px solid #eee7f1!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar > button[data-cmd]{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:42px!important;width:auto!important;min-height:40px!important;height:40px!important;padding:5px 10px!important;margin:3px 2px!important;border:1px solid #eee8f2!important;border-radius:9px!important;background:#f7f5f8!important;font-size:17px!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar > button[data-cmd="insertUnorderedList"],
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar > button[data-cmd="insertOrderedList"]{font-size:13px!important;min-width:90px!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar .sep{display:none!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #font-select{display:block!important;width:100%!important;height:40px!important;min-height:40px!important;margin:5px 0!important;border:1px solid #e8e0ec!important;border-radius:9px!important;background:#fff!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #text-color-group,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #highlight-group{
+    display:flex!important;align-items:center!important;gap:7px!important;padding:7px 8px!important;margin:5px 0!important;border:1px solid #eee7f2!important;border-radius:10px!important;background:#fbf9fc!important;flex-wrap:nowrap!important;overflow-x:auto!important;white-space:nowrap!important;
+  }
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar .color-group-label{flex:0 0 auto!important;width:auto!important;font-size:11px!important;margin-inline-end:3px!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar .text-color-swatch,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #highlight-group .hl-swatch{flex:0 0 27px!important;width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar .color-custom-label{flex:0 0 28px!important;width:28px!important;height:28px!important}
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #checklist-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #link-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #image-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #attachment-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #section-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #add-section-group-toolbar,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar .export-btn,
+  #editor-pane:not(.toolbar-collapsed) #editor-toolbar #delete-note-btn{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;width:calc(33.333% - 7px)!important;min-height:38px!important;height:38px!important;margin:3px!important;padding:4px 5px!important;border:1px solid #eee8f2!important;border-radius:9px!important;background:#f7f5f8!important;font-size:11px!important;font-weight:600!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  body.yadno-format-open #editor-content{padding-bottom:calc(min(48dvh,380px) + 28px)!important}
+  body:not(.yadno-format-open) #editor-content{padding-bottom:90px!important}
+}
+
 </style>
 </head>
 <body>
@@ -2090,8 +2225,17 @@ yadnoCustomColor.addEventListener('input', () => {
 
 document.querySelectorAll('.hl-swatch').forEach((btn) => {
   btn.addEventListener('click', () => {
-    $('body-editor').focus();
-    document.execCommand('hiliteColor', false, btn.dataset.color);
+    yadnoRestoreSelection();
+    const bodyEditor = $('body-editor');
+    bodyEditor.focus();
+    const color = btn.dataset.color;
+    try {
+      document.execCommand('styleWithCSS', false, true);
+      document.execCommand('hiliteColor', false, color);
+    } catch (_) {
+      try { document.execCommand('backColor', false, color); } catch (_) {}
+    }
+    yadnoRememberSelection();
     scheduleSave();
   });
 });
@@ -2755,7 +2899,7 @@ function escapeHtml(str) {
 })();
 
 
-// v22 mobile formatting drawer: uses the existing editor toolbar and save handlers.
+// v25 mobile formatting drawer: compact OneNote-like bottom bar.
 function setupMobileFormatDrawer(){
   const pane=document.getElementById('editor-pane');
   const toolbar=document.getElementById('editor-toolbar');
@@ -2764,53 +2908,114 @@ function setupMobileFormatDrawer(){
   const label=document.getElementById('toolbar-toggle-label');
   if(!pane||!toolbar||!body||!toggle)return;
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
-  const grip=document.createElement('div');grip.id='mobile-format-grip';grip.setAttribute('aria-hidden','true');
-  const head=document.createElement('div');head.id='mobile-format-head';
-  head.innerHTML='<span>قالب‌بندی متن</span><button type="button" id="mobile-format-close" aria-label="بستن ابزارها">✕</button>';
-  const extra=document.createElement('div');extra.id='mobile-format-extra';
-  extra.innerHTML='<span>اندازه</span><button type="button" id="mobile-size-down" aria-label="کوچک کردن فونت">−</button><output id="mobile-size-value">۳</output><button type="button" id="mobile-size-up" aria-label="بزرگ کردن فونت">＋</button><select id="mobile-style-select" aria-label="سبک نوشته"><option value="p">متن عادی</option><option value="h2">عنوان بزرگ</option><option value="h3">عنوان کوچک</option></select>';
-  toolbar.prepend(extra);toolbar.prepend(head);toolbar.prepend(grip);
-  const strike=document.createElement('button');strike.type='button';strike.dataset.cmd='strikeThrough';strike.title='خط خورده';strike.textContent='S̶';
-  toolbar.insertBefore(strike,toolbar.querySelector('.sep'));
-  // The original data-cmd handlers are already installed; wire this new button separately.
-  let lastRange=null;
-  function remember(){const sel=window.getSelection();if(sel&&sel.rangeCount&&body.contains(sel.anchorNode))lastRange=sel.getRangeAt(0).cloneRange();}
-  body.addEventListener('keyup',remember);body.addEventListener('mouseup',remember);body.addEventListener('touchend',remember,{passive:true});
-  toolbar.addEventListener('pointerdown',e=>{if(e.target.closest('button'))remember();},true);
-  toolbar.addEventListener('click',e=>{if(!e.target.closest('button,select')||!lastRange)return;const sel=window.getSelection();if(sel){try{sel.removeAllRanges();sel.addRange(lastRange);}catch(_){}}},true);
-  strike.addEventListener('click',()=>{body.focus();document.execCommand('strikeThrough',false,null);scheduleSave();});
-  let fontSize=19;
-  const sizeOut=extra.querySelector('#mobile-size-value');
-  function setFontSize(n){fontSize=Math.min(32,Math.max(12,n));sizeOut.textContent=String(fontSize);body.style.fontSize=fontSize+'px';try{localStorage.setItem('yadno-edit-font-size',String(fontSize));}catch(_){}}
-  try{fontSize=Number(localStorage.getItem('yadno-edit-font-size'))||19;}catch(_){}
-  setFontSize(fontSize);
-  extra.querySelector('#mobile-size-down').addEventListener('click',()=>setFontSize(fontSize-1));
-  extra.querySelector('#mobile-size-up').addEventListener('click',()=>setFontSize(fontSize+1));
-  extra.querySelector('#mobile-style-select').addEventListener('change',e=>{body.focus();document.execCommand('formatBlock',false,e.target.value);scheduleSave();});
-  function sync(){const show=phone()&&!pane.classList.contains('read-mode')&&document.getElementById('editor-content').style.display!=='none'&&!pane.classList.contains('toolbar-collapsed');document.body.classList.toggle('yadno-format-open',show);}
-  extra.querySelector('#mobile-style-select').addEventListener('pointerdown',remember);
-  head.querySelector('#mobile-format-close').addEventListener('click',()=>{pane.classList.add('toolbar-collapsed');toggle.setAttribute('aria-expanded','false');label.textContent='نمایش ابزارها';sync();});
-  toggle.addEventListener('click',()=>requestAnimationFrame(sync));
-  document.getElementById('reading-toggle').addEventListener('click',()=>requestAnimationFrame(sync));
-  document.addEventListener('yadno:note-opened',()=>{if(phone()){pane.classList.add('toolbar-collapsed');toggle.setAttribute('aria-expanded','false');label.textContent='نمایش ابزارها';}sync();});
-  const vv=window.visualViewport;
-  function keyboardPosition(){if(!phone()){document.documentElement.style.removeProperty('--yadno-keyboard-bottom');document.body.classList.remove('yadno-keyboard-open');return;}
-    const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
-    document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
-    const focused=document.activeElement===body||document.activeElement===document.getElementById('title-input');
-    document.body.classList.toggle('yadno-keyboard-open',focused&&gap>100);
+
+  if(!document.getElementById('mobile-format-grip')){
+    const grip=document.createElement('div');
+    grip.id='mobile-format-grip';
+    grip.setAttribute('aria-hidden','true');
+    const head=document.createElement('div');
+    head.id='mobile-format-head';
+    head.innerHTML='<span>قالب‌بندی متن</span><button type="button" id="mobile-format-close" aria-label="بستن ابزارها">✕</button>';
+    const extra=document.createElement('div');
+    extra.id='mobile-format-extra';
+    extra.innerHTML='<span>اندازه</span><button type="button" id="mobile-size-down" aria-label="کوچک کردن فونت">−</button><output id="mobile-size-value">16</output><button type="button" id="mobile-size-up" aria-label="بزرگ کردن فونت">＋</button><select id="mobile-style-select" aria-label="سبک نوشته"><option value="p">متن عادی</option><option value="h2">عنوان بزرگ</option><option value="h3">عنوان کوچک</option></select>';
+    toolbar.prepend(extra);
+    toolbar.prepend(head);
+    toolbar.prepend(grip);
+
+    const strike=document.createElement('button');
+    strike.type='button';
+    strike.dataset.cmd='strikeThrough';
+    strike.title='خط خورده';
+    strike.textContent='S̶';
+    toolbar.insertBefore(strike,toolbar.querySelector('.sep'));
+
+    let lastRange=null;
+    function remember(){
+      const sel=window.getSelection();
+      if(sel&&sel.rangeCount&&body.contains(sel.anchorNode)) lastRange=sel.getRangeAt(0).cloneRange();
+    }
+    function restore(){
+      if(!lastRange)return;
+      const sel=window.getSelection();
+      if(!sel)return;
+      try{sel.removeAllRanges();sel.addRange(lastRange);}catch(_){ }
+    }
+    body.addEventListener('keyup',remember);
+    body.addEventListener('mouseup',remember);
+    body.addEventListener('touchend',remember,{passive:true});
+    toolbar.addEventListener('pointerdown',e=>{if(e.target.closest('button,.text-color-swatch,.hl-swatch,.color-custom-label'))remember();},true);
+
+    strike.addEventListener('click',()=>{restore();body.focus();document.execCommand('strikeThrough',false,null);remember();scheduleSave();});
+
+    let fontSize=16;
+    try{fontSize=Number(localStorage.getItem('yadno-edit-font-size'))||16;}catch(_){ }
+    const sizeOut=extra.querySelector('#mobile-size-value');
+    function setFontSize(n){
+      fontSize=Math.min(28,Math.max(12,n));
+      sizeOut.textContent=String(fontSize);
+      body.style.fontSize=fontSize+'px';
+      try{localStorage.setItem('yadno-edit-font-size',String(fontSize));}catch(_){ }
+    }
+    setFontSize(fontSize);
+    extra.querySelector('#mobile-size-down').addEventListener('click',()=>setFontSize(fontSize-1));
+    extra.querySelector('#mobile-size-up').addEventListener('click',()=>setFontSize(fontSize+1));
+    extra.querySelector('#mobile-style-select').addEventListener('pointerdown',remember);
+    extra.querySelector('#mobile-style-select').addEventListener('change',e=>{restore();body.focus();document.execCommand('formatBlock',false,e.target.value);remember();scheduleSave();});
+
+    function openBar(){
+      if(!phone())return;
+      pane.classList.remove('toolbar-collapsed');
+      pane.classList.add('mobile-format-expanded');
+      toggle.setAttribute('aria-expanded','true');
+      if(label)label.textContent='بستن ابزارها';
+      document.body.classList.add('yadno-format-open');
+      requestAnimationFrame(keyboardPosition);
+    }
+    function closeBar(){
+      if(!phone())return;
+      pane.classList.add('toolbar-collapsed');
+      pane.classList.remove('mobile-format-expanded');
+      toggle.setAttribute('aria-expanded','false');
+      if(label)label.textContent='ابزارها';
+      document.body.classList.remove('yadno-format-open');
+      requestAnimationFrame(keyboardPosition);
+    }
+    head.addEventListener('click',e=>{if(e.target.closest('#mobile-format-close'))return;openBar();});
+    head.querySelector('#mobile-format-close').addEventListener('click',e=>{e.stopPropagation();closeBar();});
+    toggle.addEventListener('click',()=>{
+      if(!phone())return;
+      if(pane.classList.contains('toolbar-collapsed'))openBar();else closeBar();
+    });
+    document.getElementById('reading-toggle')?.addEventListener('click',()=>{closeBar();requestAnimationFrame(keyboardPosition);});
+    document.addEventListener('yadno:note-opened',()=>{if(phone())closeBar();});
+
+    const vv=window.visualViewport;
+    function keyboardPosition(){
+      if(!phone()){
+        document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
+        document.body.classList.remove('yadno-keyboard-open');
+        return;
+      }
+      const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
+      document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
+      const focused=document.activeElement===body||document.activeElement===document.getElementById('title-input');
+      document.body.classList.toggle('yadno-keyboard-open',focused&&gap>100);
+    }
+    if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
+    window.addEventListener('resize',()=>{keyboardPosition();});
+    document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
+    document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
+
+    let startY=null;
+    grip.addEventListener('touchstart',e=>{startY=e.touches[0].clientY;},{passive:true});
+    grip.addEventListener('touchend',e=>{if(startY!==null&&e.changedTouches[0].clientY-startY>40)closeBar();startY=null;},{passive:true});
+
+    if(phone())closeBar();
+    keyboardPosition();
   }
-  if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
-  window.addEventListener('resize',()=>{sync();keyboardPosition();});
-  document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
-  document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
-  // Drag the grip down to close the sheet.
-  let startY=null;
-  grip.addEventListener('touchstart',e=>{startY=e.touches[0].clientY;},{passive:true});
-  grip.addEventListener('touchend',e=>{if(startY!==null&&e.changedTouches[0].clientY-startY>55){head.querySelector('#mobile-format-close').click();}startY=null;},{passive:true});
-  sync();keyboardPosition();
 }
-;
+setupMobileFormatDrawer();
 
 boot();
 // Optional mobile UI must never prevent Firebase authentication.
