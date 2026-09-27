@@ -10,8 +10,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- jszip and html2pdf are now lazy-loaded on demand (see loadScriptOnce), only when the user actually exports a note -->
 <style>
   :root {
     /* Consolidated theme (previously redeclared three times across the
@@ -243,7 +242,6 @@
     border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
     color: var(--ink-soft); background: var(--panel); outline: none;
   }
-  #highlight-group { display: flex; align-items: center; gap: 5px; }
   .hl-swatch {
     width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--paper-line); padding: 0;
   }
@@ -1038,6 +1036,25 @@ import {
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 const $ = (id) => document.getElementById(id);
+
+// ---------- Lazy-load heavy export libraries ----------
+// jszip and html2pdf together add ~400-500KB; most people never export a
+// note, so they're only fetched the first time an export/import feature
+// that actually needs them is used, not on every page load.
+const _loadedScripts = {};
+function loadScriptOnce(url) {
+  if (_loadedScripts[url]) return _loadedScripts[url];
+  _loadedScripts[url] = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = () => resolve();
+    s.onerror = () => { delete _loadedScripts[url]; reject(new Error('بارگذاری کتابخانه ناموفق بود: ' + url)); };
+    document.head.appendChild(s);
+  });
+  return _loadedScripts[url];
+}
+const JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
 // ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
@@ -2213,6 +2230,7 @@ function buildDocxXml(title, bodyHtml) {
 }
 
 async function exportNoteAsDocx(note) {
+  await loadScriptOnce(JSZIP_URL);
   const zip = new JSZip();
   zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -2231,6 +2249,7 @@ async function exportNoteAsDocx(note) {
 
 // ---------- Export: PDF ----------
 async function exportNoteAsPdf(note) {
+  await loadScriptOnce(HTML2PDF_URL);
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'direction:rtl; font-family:Vazirmatn,sans-serif; padding:30px; background:#fff; color:#1D2B4F;';
   wrapper.innerHTML = `<h1 style="font-size:22px;margin:0 0 16px;">${escapeHtml(note.title || 'بدون عنوان')}</h1>
@@ -2363,6 +2382,7 @@ function pathInfo(path,fallback='عمومی'){
   return {file,section,groupName:groups.join(' / '),notebookHint};
 }
 async function importZipContainer(file){
+  await loadScriptOnce(JSZIP_URL);
   const zip=await JSZip.loadAsync(await file.arrayBuffer());
   const all=Object.values(zip.files).filter(x=>!x.dir);
   const oneEntries=all.filter(x=>/\.(one|onetoc2)$/i.test(x.name));
