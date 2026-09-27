@@ -14,16 +14,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
-    --paper: #F7F4EC;
-    --paper-line: #E7E1D2;
-    --ink: #1D2B4F;
-    --ink-soft: #45537A;
-    --gold: #B8862E;
-    --sage: #5B7B5B;
+    /* Consolidated theme (previously redeclared three times across the
+       file's history as "v9", "visual refresh", and "v21 OneNote purple"
+       layers — those redeclarations have been removed; these are the
+       values that were actually winning). */
+    --paper: #faf9fc;
+    --paper-line: #eae5f0;
+    --line: #eae5f0; /* alias of --paper-line: some rules (e.g. modal borders) reference --line specifically, and previously had no light-mode value at all */
+    --ink: #32263d;
+    --ink-soft: #6c6076;
+    --gold: #8a3cba;
+    --sage: #4eae68;
     --danger: #A83E32;
     --panel: #FFFFFF;
-    --radius: 10px;
-    --shadow: 0 1px 2px rgba(29,43,79,0.06), 0 4px 16px rgba(29,43,79,0.06);
+    --radius: 13px;
+    --shadow: 0 2px 12px rgba(30,46,75,.055);
+    --accent: #B8862E;
+    --accent-soft: #F3E8CC;
+    --onenote-purple: #7719aa;
+    --onenote-dark: #55117c;
+    --active-book-color: #7719aa;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -313,7 +323,6 @@
 
 
   /* ---------- v9 visual refresh ---------- */
-  :root{--accent:#B8862E;--accent-soft:#F3E8CC;--panel:#FBFAF7;--shadow:0 10px 35px rgba(43,35,22,.08)}
   body{background:linear-gradient(135deg,#f7f3ea 0%,#f1eee6 48%,#f8f7f3 100%)}
   #topbar{height:58px;background:rgba(42,35,24,.97);box-shadow:0 4px 20px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
   .logo{font-size:18px;letter-spacing:.2px}.logo .brand-mark{box-shadow:0 4px 14px rgba(184,134,46,.22)}
@@ -515,17 +524,6 @@
   html[data-theme="dark"] #body-editor{background:rgba(255,255,255,.03);border-color:#2a303c}
 
 /* ---------- Yadno visual refresh: desktop, phone and authentication ---------- */
-:root {
-  --paper:#f7f8fb;
-  --paper-line:#e4e9f1;
-  --ink:#243451;
-  --ink-soft:#65748b;
-  --gold:#a87a34;
-  --sage:#397e69;
-  --panel:#fff;
-  --radius:13px;
-  --shadow:0 2px 12px rgba(30,46,75,.055);
-}
 html,body{font-synthesis:none}
 button,input,textarea,select{font-family:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible,[contenteditable]:focus-visible{
@@ -620,7 +618,6 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
 
 
 /* Yadno v21: OneNote-inspired purple and per-notebook colors */
-:root{--onenote-purple:#7719aa;--onenote-dark:#55117c;--paper:#faf9fc;--paper-line:#eae5f0;--ink:#32263d;--ink-soft:#6c6076;--gold:#8a3cba;--sage:#4eae68;--active-book-color:#7719aa}
 #topbar{background:linear-gradient(105deg,#64118f,#8425ae)!important;color:#fff!important;border-bottom:0!important}
 #topbar button,#topbar .logo,#topbar #sync-status{color:#fff!important}
 #app #more-menu-dropdown button{color:var(--ink)!important}
@@ -664,8 +661,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
 }
 
 
-/* v22: OneNote-style mobile editor (toolbar-specific rules superseded by v25 below) */
-#mobile-format-head,#mobile-format-extra,#mobile-format-grip{display:none}
+/* v22: OneNote-style mobile editor */
 @media(max-width:600px){
  #editor-pane{background:#fff!important}
  #editor-content{padding:8px 13px 100px!important;overflow-y:auto!important;overscroll-behavior:contain}
