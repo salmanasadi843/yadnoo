@@ -623,9 +623,6 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
 :root{--onenote-purple:#7719aa;--onenote-dark:#55117c;--paper:#faf9fc;--paper-line:#eae5f0;--ink:#32263d;--ink-soft:#6c6076;--gold:#8a3cba;--sage:#4eae68;--active-book-color:#7719aa}
 #topbar{background:linear-gradient(105deg,#64118f,#8425ae)!important;color:#fff!important;border-bottom:0!important}
 #topbar button,#topbar .logo,#topbar #sync-status{color:#fff!important}
-#app #more-menu-dropdown button{color:var(--ink)!important}
-#app #more-menu-dropdown button#signout-btn-menu{color:#A83E32!important}
-#app #more-menu-dropdown{color:var(--ink)}
 #topbar .brand-mark{background:#fff2!important}
 #topbar .brand-mark svg path{stroke:#fff!important}
 #notebooks-pane{background:#fff!important}
@@ -659,7 +656,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #notebooks-pane.open,#sections-pane.open,#notes-pane.open{z-index:100!important}
  #editor-content{padding:16px 15px 90px!important}
  #title-input{font-size:25px!important;line-height:1.55!important}
- #body-editor{line-height:2.1!important}
+ #body-editor{font-size:19px!important;line-height:2.1!important}
  #editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.15!important}
 }
 
@@ -671,7 +668,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #editor-content{padding:8px 13px 100px!important;overflow-y:auto!important;overscroll-behavior:contain}
  #reading-controls{background:#fff!important;border:0!important;border-bottom:1px solid #eee!important;border-radius:0!important;box-shadow:none!important;position:relative;z-index:3}
  #title-input{font-size:29px!important;font-weight:750!important;text-align:right!important;padding:20px 4px 9px!important;border-bottom:2px solid var(--active-book-color,#7719aa)!important;border-radius:0!important}
- #body-editor{line-height:2.02!important;padding:18px 5px 105px!important;border:0!important;border-radius:0!important;overflow-wrap:anywhere;min-height:55vh!important}
+ #body-editor{font-size:19px!important;line-height:2.02!important;padding:18px 5px 105px!important;border:0!important;border-radius:0!important;overflow-wrap:anywhere;min-height:55vh!important}
  #body-editor p{margin:.35em 0 .9em}
  #editor-pane:not(.read-mode) #editor-toolbar{position:fixed!important;top:auto!important;bottom:var(--yadno-keyboard-bottom,0px)!important;left:0!important;right:0!important;width:100%!important;max-height:min(42vh,340px)!important;overflow-y:auto!important;overflow-x:hidden!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px!important;padding:12px 10px calc(12px + env(safe-area-inset-bottom))!important;margin:0!important;border:1px solid #eae6ee!important;border-radius:19px 19px 0 0!important;background:#fff!important;box-shadow:0 -7px 28px #23172d25!important;z-index:160!important;white-space:normal!important;transform:translateY(0);overscroll-behavior:contain}
  #editor-pane.toolbar-collapsed #editor-toolbar{display:none!important}
@@ -685,16 +682,51 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
  #mobile-format-extra select{min-width:0!important;max-width:34%;padding:8px 4px!important;font-size:13px!important;background:#f6f5f8;border:0;border-radius:8px}
  #mobile-format-extra button{flex:0 0 36px!important}
  #mobile-format-extra output{min-width:23px;text-align:center;font-size:14px}
- #editor-toolbar #font-select{grid-column:span 3;min-width:0;width:100%;font-size:14px!important}
+ #editor-toolbar #font-select{grid-column:span 3;min-width:0;width:100%;font-size:13px!important}
  #editor-toolbar #highlight-group{grid-column:span 3;display:flex;justify-content:space-around;gap:1px;min-width:0}
  #editor-toolbar #highlight-group button{min-width:23px!important;min-height:34px!important;width:23px!important;height:34px!important;padding:0!important}
- #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar{grid-column:span 2}
- #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2}
- #editor-toolbar .export-btn svg{width:19px;height:19px}
+ #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar{grid-column:span 2;font-size:12px!important}
+ #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2;font-size:12px!important}
  #editor-pane.read-mode #editor-toolbar{display:none!important}
  body.yadno-keyboard-open #phone-bottom-nav,body.yadno-format-open #phone-bottom-nav{display:none!important}
  body.yadno-format-open #editor-content{padding-bottom:360px!important}
  #editor-pane.read-mode #editor-content{padding-bottom:100px!important}
+}
+
+
+/* Yadno v24: compact OneNote-style toolbar, text color, legible menu */
+#text-color-group,.yadno-color-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.color-group-label{font-size:12px;font-weight:700;color:#4b3659;white-space:nowrap}
+.text-color-swatch{width:27px;min-width:27px;height:27px;min-height:27px;border:2px solid #fff!important;border-radius:50%!important;background:var(--swatch)!important;box-shadow:0 0 0 1px #d5c9df!important;padding:0!important;cursor:pointer}
+.text-color-swatch:focus-visible,.hl-swatch:focus-visible{outline:3px solid #7928ad;outline-offset:3px}
+.color-custom-label{position:relative;display:grid;place-items:center;width:31px;height:31px;border:1px solid #cfc4d9;border-radius:9px;background:#fff;color:#6e248e;font-size:22px;font-weight:700;overflow:hidden;cursor:pointer}
+.color-custom-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+#more-menu-dropdown{background:#fff!important;color:#292039!important;border:1px solid #e7deee!important;box-shadow:0 14px 45px #28133229!important;z-index:300!important}
+#more-menu-dropdown button{color:#292039!important;background:#fff!important;font-family:inherit!important;font-weight:600!important;line-height:1.8!important;white-space:normal!important;opacity:1!important;text-shadow:none!important}
+#more-menu-dropdown button:hover,#more-menu-dropdown button:focus-visible{background:#f5edf9!important;color:#5b1686!important}
+#more-menu-dropdown #signout-btn-menu{color:#a02736!important}
+#backup-status{color:#44334e!important;background:#faf7fc!important;font-size:13px!important;line-height:1.9!important}
+@media(max-width:600px){
+  #editor-pane:not(.read-mode) #editor-toolbar{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px 5px!important;padding:11px 12px calc(14px + env(safe-area-inset-bottom))!important;max-height:min(54dvh,440px)!important}
+  #mobile-format-head{font-size:15px!important;line-height:1.5!important;min-height:34px!important}
+  #mobile-format-extra{display:grid!important;grid-template-columns:auto 40px 36px 40px minmax(0,1fr)!important;gap:5px!important;padding:9px 0!important;direction:rtl!important;align-items:center!important;font-size:13px!important}
+  #mobile-format-extra select{width:100%!important;max-width:none!important;min-width:0!important;font-family:inherit!important;font-size:12px!important}
+  #mobile-format-extra button{width:38px!important;height:38px!important;min-height:38px!important;font-size:19px!important}
+  #mobile-format-extra output{font-size:14px!important;font-weight:700!important}
+  #editor-pane:not(.read-mode) #editor-toolbar>button[data-cmd]{font-family:Arial,sans-serif!important;font-size:18px!important;font-weight:700!important;min-height:43px!important}
+  #editor-pane:not(.read-mode) #editor-toolbar>button[data-cmd="insertUnorderedList"],
+  #editor-pane:not(.read-mode) #editor-toolbar>button[data-cmd="insertOrderedList"]{font-family:inherit!important;font-size:12px!important;font-weight:700!important;grid-column:span 3!important}
+  #editor-toolbar #text-color-group,#editor-toolbar #highlight-group{grid-column:1/-1!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:9px!important;min-width:0!important;padding:7px 9px!important;background:#faf7fc!important;border:1px solid #eee6f3!important;border-radius:12px!important}
+  #editor-toolbar .color-group-label{flex:0 0 100%!important;font-size:12px!important;line-height:1.2!important;color:#4a2c5c!important}
+  #editor-toolbar .text-color-swatch{flex:0 0 28px!important;width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;border-radius:50%!important;padding:0!important;background:var(--swatch)!important;box-shadow:0 0 0 1px #c8bed1!important}
+  #editor-toolbar #highlight-group .hl-swatch{flex:0 0 30px!important;width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;border-radius:7px!important;border:1px solid #d9d2df!important;padding:0!important}
+  #editor-toolbar .color-custom-label{flex:0 0 30px!important}
+  #editor-toolbar #font-select{grid-column:1/-1!important;width:100%!important;min-height:42px!important;font-family:inherit!important;font-size:13px!important;color:#33233f!important}
+  #editor-toolbar #checklist-btn,#editor-toolbar #link-btn,#editor-toolbar #image-btn,#editor-toolbar #attachment-btn,#editor-toolbar #section-btn,#editor-toolbar #add-section-group-toolbar,
+  #editor-toolbar .export-btn,#editor-toolbar #delete-note-btn{grid-column:span 2!important;font-family:inherit!important;font-size:12px!important;font-weight:650!important;line-height:1.5!important;min-height:46px!important;padding:6px 3px!important;white-space:normal!important}
+  #more-menu-dropdown{top:calc(var(--phone-bar,58px) + 4px)!important;inset-inline:8px auto!important;width:min(340px,calc(100vw - 16px))!important;max-height:calc(100dvh - 76px)!important;overflow-y:auto!important}
+  #more-menu-dropdown button{font-size:14px!important;padding:13px 16px!important;min-height:48px!important}
+  body.yadno-format-open #editor-content{padding-bottom:calc(min(54dvh,440px) + 26px)!important}
 }
 
 </style>
@@ -787,7 +819,7 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
       </button>
       <div id="more-menu-dropdown">
-        <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
+        <button id="backup-export-btn">دریافت پشتیبان یادداشت‌ها (JSON)</button>
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
         <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
         <button id="open-trash-btn">🗑️ سطل زباله</button>
@@ -863,8 +895,8 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
           <button class="i" data-cmd="italic" title="مورب">I</button>
           <button class="u" data-cmd="underline" title="زیرخط">U</button>
           <div class="sep"></div>
-          <button data-cmd="insertUnorderedList" title="فهرست">•</button>
-          <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
+          <button data-cmd="insertUnorderedList" title="فهرست">• فهرست</button>
+          <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">۱. فهرست</button>
           <div class="sep"></div>
           <select id="font-select" title="فونت">
             <option value="Vazirmatn" selected>فونت پیش‌فرض</option>
@@ -874,7 +906,16 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
             <option value="'Courier New'">Courier New</option>
           </select>
           <div class="sep"></div>
-          <div id="highlight-group" title="هایلات">
+          <div id="text-color-group" class="yadno-color-group" aria-label="رنگ نوشته">
+            <span class="color-group-label">رنگ متن</span>
+            <button type="button" class="text-color-swatch" data-text-color="#222222" style="--swatch:#222222" title="مشکی" aria-label="رنگ مشکی"></button>
+            <button type="button" class="text-color-swatch" data-text-color="#7518A4" style="--swatch:#7518A4" title="بنفش" aria-label="رنگ بنفش"></button>
+            <button type="button" class="text-color-swatch" data-text-color="#D32F2F" style="--swatch:#D32F2F" title="قرمز" aria-label="رنگ قرمز"></button>
+            <button type="button" class="text-color-swatch" data-text-color="#1565C0" style="--swatch:#1565C0" title="آبی" aria-label="رنگ آبی"></button>
+            <button type="button" class="text-color-swatch" data-text-color="#218447" style="--swatch:#218447" title="سبز" aria-label="رنگ سبز"></button>
+            <label class="color-custom-label" title="انتخاب رنگ دلخواه" aria-label="رنگ دلخواه">＋<input type="color" id="text-custom-color" value="#7518a4" aria-label="انتخاب رنگ دلخواه"></label>
+          </div>
+          <div id="highlight-group" title="هایلات"><span class="color-group-label">هایلایت</span>
             <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
             <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
             <button class="hl-swatch" data-color="#F8BBD0" style="background:#F8BBD0;"></button>
@@ -882,21 +923,23 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
             <button class="hl-swatch hl-none" data-color="transparent" title="حذف هایلات">✕</button>
           </div>
           <div class="sep"></div>
-          <button id="checklist-btn" title="چک‌لیست">☑</button>
-          <button id="link-btn" title="درج لینک">🔗</button>
-          <button id="image-btn" title="درج عکس">🖼</button>
-          <button id="attachment-btn" title="افزودن فایل پیوست">📎</button>
-          <button id="section-btn" title="بخش‌بندی">§</button>
-          <button id="add-section-group-toolbar" title="گروه بخش جدید">▣</button>
+          <button id="checklist-btn" title="چک‌لیست">☑ چک‌لیست</button>
+          <button id="link-btn" title="درج لینک">🔗 لینک</button>
+          <button id="image-btn" title="درج عکس">🖼 عکس</button>
+          <button id="attachment-btn" title="افزودن فایل پیوست">📎 پیوست</button>
+          <button id="section-btn" title="بخش‌بندی">§ بخش</button>
+          <button id="add-section-group-toolbar" title="گروه بخش جدید">▣ گروه</button>
           <div class="sep" style="margin-inline-start:auto;"></div>
-          <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">↗</button>
+          <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">اشتراک</button>
           <button class="export-btn" id="export-docx-btn" title="خروجی Word">
             <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Word
           </button>
           <button class="export-btn" id="export-pdf-btn" title="خروجی PDF">
             <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PDF
           </button>
-          <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
+          <button id="delete-note-btn" style="color:#A83E32;">حذف یادداشت</button>
         </div>
         <input id="title-input" type="text" placeholder="عنوان یادداشت">
         <div id="attachments-box"><div id="attachments-header"><span>📎 فایل‌های پیوست</span><span id="attachments-status" class="attach-progress"></span></div><div id="attachments-list"></div></div>
@@ -2002,6 +2045,46 @@ document.querySelectorAll('#editor-toolbar [data-cmd]').forEach((btn) => {
 $('font-select').addEventListener('change', () => {
   $('body-editor').focus();
   document.execCommand('fontName', false, $('font-select').value);
+  scheduleSave();
+});
+
+// Keep selected text when mobile formatting controls receive focus.
+let yadnoFormatRange = null;
+const yadnoEditorBody = document.getElementById('body-editor');
+function yadnoRememberSelection() {
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount && yadnoEditorBody.contains(selection.anchorNode)) {
+    yadnoFormatRange = selection.getRangeAt(0).cloneRange();
+  }
+}
+function yadnoRestoreSelection() {
+  if (!yadnoFormatRange) return;
+  const selection = window.getSelection();
+  if (!selection) return;
+  try { selection.removeAllRanges(); selection.addRange(yadnoFormatRange); } catch (_) {}
+}
+yadnoEditorBody.addEventListener('keyup', yadnoRememberSelection);
+yadnoEditorBody.addEventListener('mouseup', yadnoRememberSelection);
+yadnoEditorBody.addEventListener('touchend', yadnoRememberSelection, {passive:true});
+const yadnoColors = document.querySelectorAll('.text-color-swatch, .hl-swatch');
+yadnoColors.forEach(button => {
+  button.addEventListener('pointerdown', yadnoRememberSelection, {passive:true});
+  button.addEventListener('click', yadnoRestoreSelection, true);
+});
+document.querySelectorAll('.text-color-swatch').forEach(button => {
+  button.addEventListener('click', () => {
+    yadnoRestoreSelection();
+    document.execCommand('foreColor', false, button.dataset.textColor);
+    yadnoRememberSelection();
+    scheduleSave();
+  });
+});
+const yadnoCustomColor = document.getElementById('text-custom-color');
+yadnoCustomColor.addEventListener('pointerdown', yadnoRememberSelection, {passive:true});
+yadnoCustomColor.addEventListener('input', () => {
+  yadnoRestoreSelection();
+  document.execCommand('foreColor', false, yadnoCustomColor.value);
+  yadnoRememberSelection();
   scheduleSave();
 });
 
