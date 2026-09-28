@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۲۲)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۲۶)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -509,7 +509,7 @@
 @media (max-width:380px){
   #topbar .logo span{display:none}
   #sync-status{display:none}
-  #focus-mode-btn{display:none}
+  #focus-mode-btn{display:flex}
   #editor-content{padding-left:7px;padding-right:7px}
   #body-editor{padding-left:11px;padding-right:11px}
 }
@@ -739,6 +739,33 @@ html[data-theme="dark"] #body-editor [style*="background-color"]:not([style*="tr
   body.yadno-toolbar-docked #toolbar-secondary{border-top:0;border-bottom:1px solid var(--paper-line);margin:0 0 4px;padding:2px 4px 8px;max-height:28vh;overflow-y:auto;animation:none}
   body.yadno-toolbar-docked #editor-content{padding-bottom:150px!important}
 }
+
+/* v26: compact OneNote mobile toolbar and genuine editable focus */
+@media(max-width:600px){
+ #editor-toolbar{padding:3px 5px!important;margin:0!important;border-radius:12px!important;max-height:none!important}
+ #toolbar-primary{gap:2px!important;padding:0!important}
+ #toolbar-scroll{gap:1px!important}
+ #editor-toolbar button{min-width:36px!important;min-height:38px!important;height:38px!important;padding:0 7px!important;font-size:15px!important}
+ #toolbar-pinned button{min-width:35px!important;padding:0 5px!important}
+ #toolbar-secondary{max-height:34vh;overflow:auto;gap:5px!important}
+ #editor-toolbar select{height:38px!important;min-height:38px!important}
+ body.yadno-toolbar-docked #editor-toolbar{padding:3px 5px!important}
+ body.yadno-toolbar-docked #editor-content{padding-bottom:75px!important}
+ #app.focus-mode #topbar{position:fixed!important;top:0;right:0;left:0;height:48px!important;min-height:48px!important;z-index:190!important;padding:3px 10px!important}
+ #app.focus-mode #topbar .logo,#app.focus-mode #menu-toggle,#app.focus-mode #mobile-search-btn,#app.focus-mode #sync-status,#app.focus-mode #more-menu-wrap{display:none!important}
+ #app.focus-mode #focus-mode-btn{display:flex!important;margin-inline-start:auto;min-width:44px}
+ #app.focus-mode #main-grid{position:fixed!important;inset:48px 0 0!important;height:calc(100dvh - 48px)!important;z-index:120!important;display:block!important;background:#fff!important}
+ #app.focus-mode #editor-pane{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:121!important}
+ #app.focus-mode #editor-content{padding:6px 13px 80px!important;max-width:none!important;height:100%!important}
+ #app.focus-mode #title-input{padding:8px 3px!important;font-size:25px!important}
+ #app.focus-mode #body-editor{min-height:0!important;flex:1!important;padding:12px 4px 75px!important;font-size:18px!important;line-height:2.15!important;overflow-y:auto!important}
+ #app.focus-mode #reading-controls{display:none!important}
+ #app.focus-mode #phone-bottom-nav,#app.focus-mode #mobile-overlay,#app.focus-mode #notebooks-pane,#app.focus-mode #sections-pane,#app.focus-mode #notes-pane{display:none!important}
+ #app.focus-mode #editor-toolbar{position:fixed!important;top:auto!important;bottom:var(--yadno-keyboard-bottom,0px)!important;left:0!important;right:0!important;width:100%!important;z-index:180!important;margin:0!important;border-radius:12px 12px 0 0!important}
+}
+/* Palettes live directly under body, outside horizontally scrolling toolbar */
+body>.color-popover{position:fixed!important;z-index:9999!important;max-width:calc(100vw - 16px);flex-wrap:wrap;box-shadow:0 7px 28px #25123440}
+body>.color-popover button{touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -1347,10 +1374,17 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLower
 const FOCUS_KEY = 'yadno-focus-mode';
 function applyFocusMode(on){
   const app=$('app'); if(!app) return;
+  if(on && $('editor-pane').classList.contains('read-mode')) $('reading-toggle')?.click();
   app.classList.toggle('focus-mode',!!on);
-  localStorage.setItem(FOCUS_KEY,on?'1':'0');
+  try{localStorage.setItem(FOCUS_KEY,on?'1':'0');}catch(_){}
   const b=$('focus-mode-btn');
-  if(b){ b.setAttribute('aria-pressed',on?'true':'false'); b.title=on?'خروج از حالت تمرکز (Esc یا Ctrl+Shift+F)':'حالت تمرکز (Ctrl+Shift+F)'; }
+  if(b){b.setAttribute('aria-pressed',String(!!on));b.title=on?'خروج از تمرکز':'حالت تمرکز';}
+  if(on){
+    document.querySelectorAll('.pane.open').forEach(p=>p.classList.remove('open'));
+    $('mobile-overlay')?.classList.remove('show');
+  }
+  if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 function toggleFocusMode(){ applyFocusMode(!$('app')?.classList.contains('focus-mode')); }
 $('focus-mode-btn')?.addEventListener('click',toggleFocusMode);
@@ -2093,12 +2127,44 @@ $('font-select').addEventListener('change', () => {
   scheduleSave();
 });
 
-document.querySelectorAll('.hl-swatch').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    $('body-editor').focus();
-    document.execCommand('hiliteColor', false, btn.dataset.color);
-    scheduleSave();
-    $('highlight-group').classList.remove('open');
+// Preserve the selected range when the user taps a color palette on Android.
+let yadnoSavedRange = null;
+function yadnoRememberSelection(){
+  const sel=window.getSelection(), ed=$('body-editor');
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return;
+  const r=sel.getRangeAt(0);
+  if(ed.contains(r.commonAncestorContainer))yadnoSavedRange=r.cloneRange();
+}
+function yadnoRestoreSelection(){
+  const sel=window.getSelection(), ed=$('body-editor');
+  if(!yadnoSavedRange||!ed.contains(yadnoSavedRange.commonAncestorContainer))return false;
+  try{ed.focus({preventScroll:true});sel.removeAllRanges();sel.addRange(yadnoSavedRange.cloneRange());return true;}catch(_){return false;}
+}
+document.addEventListener('selectionchange',()=>{
+  if(document.activeElement===$('body-editor'))yadnoRememberSelection();
+});
+$('editor-toolbar').addEventListener('pointerdown',yadnoRememberSelection,{capture:true});
+function yadnoApplyHighlight(color){
+  if(!yadnoRestoreSelection())return;
+  const ed=$('body-editor');
+  // execCommand preserves native undo where supported.
+  let done=false;
+  try{done=document.execCommand('hiliteColor',false,color);}catch(_){}
+  if(!done){
+    const sel=window.getSelection();
+    if(sel&&sel.rangeCount&&!sel.isCollapsed){
+      const r=sel.getRangeAt(0),mark=document.createElement('span');
+      if(color!=='transparent')mark.style.backgroundColor=color;
+      try{mark.appendChild(r.extractContents());r.insertNode(mark);sel.removeAllRanges();const nr=document.createRange();nr.selectNodeContents(mark);sel.addRange(nr);}catch(e){console.warn('Highlight:',e);}
+    }
+  }
+  yadnoRememberSelection();scheduleSave();
+}
+document.querySelectorAll('.hl-swatch').forEach(btn=>{
+  btn.addEventListener('pointerdown',e=>e.preventDefault());
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();yadnoApplyHighlight(btn.dataset.color);
+    closeAllColorPopovers();
   });
 });
 
@@ -2123,8 +2189,10 @@ function resetTextColor() {
   });
 }
 document.querySelectorAll('#text-color-popover .color-swatch').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    $('body-editor').focus();
+  btn.addEventListener('pointerdown',e=>e.preventDefault());
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    yadnoRestoreSelection();
     const color = btn.dataset.color;
     if (color === 'reset') {
       resetTextColor();
@@ -2144,7 +2212,9 @@ function closeAllColorPopovers() {
   $('highlight-group').classList.remove('open');
 }
 function openColorPopover(pop, btn) {
+  yadnoRememberSelection();
   closeAllColorPopovers();
+  if(pop.parentElement!==document.body)document.body.appendChild(pop);
   pop.classList.add('open');
   const b = btn.getBoundingClientRect();
   const pw = pop.offsetWidth, ph = pop.offsetHeight;
@@ -2158,13 +2228,16 @@ function openColorPopover(pop, btn) {
 }
 function toggleColorPopover(pop, btn) {
   const willOpen = !pop.classList.contains('open');
+  yadnoRememberSelection();
   closeAllColorPopovers();
   if (willOpen) openColorPopover(pop, btn);
 }
+$('text-color-btn').addEventListener('pointerdown',yadnoRememberSelection);
+$('highlight-btn').addEventListener('pointerdown',yadnoRememberSelection);
 $('text-color-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleColorPopover($('text-color-popover'), $('text-color-btn')); });
 $('highlight-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleColorPopover($('highlight-group'), $('highlight-btn')); });
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.color-control')) closeAllColorPopovers();
+  if (!e.target.closest('.color-control') && !e.target.closest('.color-popover')) closeAllColorPopovers();
 });
 $('toolbar-scroll').addEventListener('scroll', closeAllColorPopovers, { passive: true });
 window.addEventListener('resize', closeAllColorPopovers);
@@ -2880,7 +2953,7 @@ function setupKeyboardAwareLayout(){
     const active=document.activeElement;
     const keyboardUp=gap>100;
     cls.toggle('yadno-keyboard-open',keyboardUp&&(active===body||active===title));
-    const docked=keyboardUp&&(active===body||toolbar.contains(active));
+    const docked=(keyboardUp&&(active===body||toolbar.contains(active))) || (phone()&&$('app')?.classList.contains('focus-mode'));
     if(docked!==cls.contains('yadno-toolbar-docked')){
       cls.toggle('yadno-toolbar-docked',docked);
       if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
