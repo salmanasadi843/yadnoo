@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۲۶)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۳۲)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -766,6 +766,59 @@ html[data-theme="dark"] #body-editor [style*="background-color"]:not([style*="tr
 /* Palettes live directly under body, outside horizontally scrolling toolbar */
 body>.color-popover{position:fixed!important;z-index:9999!important;max-width:calc(100vw - 16px);flex-wrap:wrap;box-shadow:0 7px 28px #25123440}
 body>.color-popover button{touch-action:manipulation}
+
+/* v27: reachable formatting controls in normal phone editing and focus mode */
+@media(max-width:600px){
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar,
+ #app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{
+   position:fixed!important;top:auto!important;left:0!important;right:0!important;
+   bottom:var(--yadno-toolbar-bottom,65px)!important;width:100%!important;
+   z-index:180!important;display:flex!important;flex-direction:column-reverse!important;
+   border-radius:13px 13px 0 0!important;margin:0!important;
+   box-shadow:0 -4px 20px rgba(22,37,64,.17)!important;
+   padding:5px 6px!important;max-height:min(45dvh,310px)!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #toolbar-secondary,
+ #app.focus-mode #toolbar-secondary{
+   border-top:0!important;border-bottom:1px solid var(--paper-line)!important;
+   margin:0 0 4px!important;padding:3px 4px 8px!important;
+   max-height:25dvh!important;overflow-y:auto!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-content{
+   padding-bottom:175px!important;scroll-padding-bottom:170px!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{
+   scroll-padding-bottom:135px!important;padding-bottom:165px!important;
+ }
+ body.yadno-keyboard-open #phone-bottom-nav{display:none!important}
+}
+
+/* v32: accessible, modern touch-sized mobile formatting controls */
+#editor-toolbar .yadno-tool-icon{display:block;width:23px;height:23px;flex:none;pointer-events:none}
+#editor-toolbar #highlight-swatch-icon{display:flex;align-items:center;justify-content:center}
+#editor-toolbar #highlight-swatch-icon::after{content:"";position:absolute;bottom:5px;width:22px;height:4px;border-radius:5px;background:#ffe56b}
+#editor-toolbar #highlight-btn{position:relative}
+@media(max-width:600px){
+ #editor-toolbar{padding:8px 7px!important;border-radius:17px 17px 0 0!important;box-shadow:0 -6px 24px rgba(21,38,76,.13)!important}
+ #toolbar-primary{gap:7px!important;align-items:center!important;min-height:54px!important}
+ #toolbar-scroll{gap:7px!important;align-items:center!important;scroll-snap-type:x proximity;scroll-padding-inline:5px}
+ #editor-toolbar #toolbar-scroll>button,#editor-toolbar #toolbar-scroll>.color-control>button,
+ #editor-toolbar #toolbar-pinned>button{box-sizing:border-box!important;min-width:50px!important;width:50px!important;min-height:50px!important;height:50px!important;padding:0!important;border-radius:13px!important;font-size:21px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:var(--panel,#fff)!important;border:1px solid var(--paper-line,#e5e7eb)!important;box-shadow:0 1px 3px rgba(20,35,65,.07)!important;scroll-snap-align:start}
+ #editor-toolbar #toolbar-scroll>.color-control{display:flex;align-items:center;flex:0 0 auto}
+ #editor-toolbar #toolbar-pinned{gap:5px!important;align-items:center!important;flex-shrink:0}
+ #editor-toolbar #toolbar-pinned>button{min-width:46px!important;width:46px!important}
+ #editor-toolbar .yadno-tool-icon{width:26px;height:26px}
+ #editor-toolbar #toolbar-more-btn svg{width:25px!important;height:25px!important}
+ #editor-toolbar #toolbar-scroll>button:active,#editor-toolbar #toolbar-pinned>button:active,#editor-toolbar .color-control>button:active{transform:scale(.94);background:var(--paper-line,#edf0f7)!important}
+ #editor-toolbar #toolbar-secondary{gap:8px!important;padding:10px 5px!important}
+ #editor-toolbar #toolbar-secondary>button{min-width:49px!important;min-height:49px!important;height:49px!important;padding:0 12px!important;border-radius:12px!important;display:inline-flex;align-items:center;justify-content:center}
+ #editor-toolbar #toolbar-secondary select{min-height:49px!important;height:49px!important;font-size:16px!important;border-radius:12px!important}
+ #editor-toolbar .color-popover button.color-swatch,#editor-toolbar .color-popover button.hl-swatch,body>.color-popover button{width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;border-radius:11px!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar,#app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{padding:8px 7px!important;max-height:min(52dvh,390px)!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-content{padding-bottom:195px!important;scroll-padding-bottom:195px!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{padding-bottom:185px!important;scroll-padding-bottom:185px!important}
+}
+@media(max-width:380px){#toolbar-primary{gap:4px!important}#toolbar-scroll{gap:5px!important}#editor-toolbar #toolbar-pinned>button{min-width:44px!important;width:44px!important}}
 </style>
 </head>
 <body>
@@ -947,7 +1000,7 @@ body>.color-popover button{touch-action:manipulation}
                 </div>
               </div>
               <div class="color-control">
-                <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon">🖊</span></button>
+                <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l5-.8L20 8a2.1 2.1 0 0 0-3-3L6 16l-2 4Z"/><path d="M4 22h16"/></svg></span></button>
                 <div class="color-popover" id="highlight-group">
                   <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
                   <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
@@ -957,13 +1010,13 @@ body>.color-popover button{touch-action:manipulation}
                 </div>
               </div>
               <div class="sep"></div>
-              <button data-cmd="insertUnorderedList" title="فهرست">•</button>
-              <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
-              <button id="checklist-btn" title="چک‌لیست">☑</button>
+              <button data-cmd="insertUnorderedList" title="فهرست" aria-label="فهرست نقطه‌ای"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/></svg></button>
+              <button data-cmd="insertOrderedList" title="فهرست شماره‌دار" aria-label="فهرست شماره‌دار"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h11M10 12h11M10 18h11M3 5h2v4M3 9h4M3 14c1-2 4-2 4 0 0 1-1 2-4 4h4"/></svg></button>
+              <button id="checklist-btn" title="چک‌لیست" aria-label="چک‌لیست"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m7 12 3 3 7-7"/></svg></button>
             </div>
             <div id="toolbar-pinned">
-              <button id="undo-btn" title="بازگشت (Undo)">↶</button>
-              <button id="redo-btn" title="جلو (Redo)">↷</button>
+              <button id="undo-btn" title="بازگشت (Undo)" aria-label="واگرد"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg></button>
+              <button id="redo-btn" title="جلو (Redo)" aria-label="بازانجام"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5m5 5H10a6 6 0 0 0 0 12h2"/></svg></button>
               <button id="toolbar-more-btn" title="گزینه‌های بیشتر" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>
               </button>
@@ -978,9 +1031,9 @@ body>.color-popover button{touch-action:manipulation}
               <option value="'Courier New'">Courier New</option>
             </select>
             <div class="sep"></div>
-            <button id="link-btn" title="درج لینک">🔗</button>
-            <button id="image-btn" title="درج عکس">🖼</button>
-            <button id="attachment-btn" title="افزودن فایل پیوست">📎</button>
+            <button id="link-btn" title="درج لینک"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 .4l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7-.4l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></button>
+            <button id="image-btn" title="درج عکس"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
+            <button id="attachment-btn" title="افزودن فایل پیوست"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11.5-8.5 8.5a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8-8"/></svg></button>
             <button id="section-btn" title="بخش‌بندی">§</button>
             <button id="add-section-group-toolbar" title="گروه بخش جدید">▣</button>
             <div class="sep"></div>
@@ -2115,14 +2168,17 @@ $('delete-note-btn').addEventListener('click', async () => {
 
 document.querySelectorAll('#editor-toolbar [data-cmd]').forEach((btn) => {
   btn.addEventListener('click', () => {
+    yadnoRestoreSelection();
     document.execCommand(btn.dataset.cmd, false, null);
-    $('body-editor').focus();
+    $('body-editor').focus({preventScroll:true});
+    yadnoRememberSelection();
     scheduleSave();
   });
 });
 
 $('font-select').addEventListener('change', () => {
-  $('body-editor').focus();
+  yadnoRestoreSelection();
+  $('body-editor').focus({preventScroll:true});
   document.execCommand('fontName', false, $('font-select').value);
   scheduleSave();
 });
@@ -2939,9 +2995,8 @@ function setupKeyboardAwareLayout(){
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
   const vv=window.visualViewport;
   const cls=document.body.classList;
-  // On phones, while the keyboard is open and you are editing the note body,
-  // the formatting toolbar is docked right above the keyboard
-  // (body.yadno-toolbar-docked). Otherwise it stays at the top of the page.
+  // In phone editing, keep the toolbar reachable above the bottom navigation;
+  // when the keyboard opens, move it directly above the visible keyboard.
   function keyboardPosition(){
     if(!phone()){
       document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
@@ -2951,9 +3006,16 @@ function setupKeyboardAwareLayout(){
     const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
     document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
     const active=document.activeElement;
-    const keyboardUp=gap>100;
-    cls.toggle('yadno-keyboard-open',keyboardUp&&(active===body||active===title));
-    const docked=(keyboardUp&&(active===body||toolbar.contains(active))) || (phone()&&$('app')?.classList.contains('focus-mode'));
+    const keyboardUp=gap>100 && (active===body||active===title||toolbar.contains(active));
+    const focus=$('app')?.classList.contains('focus-mode');
+    const editing=$('editor-content')?.style.display!=='none' &&
+      !$('editor-pane')?.classList.contains('read-mode');
+    // Keep the bottom navigation visible when there is no keyboard, unless in focus mode.
+    const navHeight=focus?0:65;
+    document.documentElement.style.setProperty('--yadno-toolbar-bottom',
+      (keyboardUp?gap:navHeight)+'px');
+    cls.toggle('yadno-keyboard-open',keyboardUp);
+    const docked=!!editing;
     if(docked!==cls.contains('yadno-toolbar-docked')){
       cls.toggle('yadno-toolbar-docked',docked);
       if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
@@ -2963,6 +3025,12 @@ function setupKeyboardAwareLayout(){
   window.addEventListener('resize',keyboardPosition);
   document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
   document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
+  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(keyboardPosition));
+  document.getElementById('reading-toggle')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
+  document.getElementById('focus-mode-btn')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
+  document.addEventListener('selectionchange',()=>{
+    if(phone() && document.activeElement===body)requestAnimationFrame(keyboardPosition);
+  });
   keyboardPosition();
 }
 
