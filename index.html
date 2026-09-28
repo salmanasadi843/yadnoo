@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۳۳)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۳۴)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -155,11 +155,15 @@
   .pane-resizer{cursor:col-resize;background:transparent;position:relative;z-index:5;touch-action:none}
   .pane-resizer::after{content:'';position:absolute;top:10%;bottom:10%;left:2px;right:2px;border-radius:4px;background:transparent;transition:.15s}
   .pane-resizer:hover::after,.pane-resizer.dragging::after{background:#d9c7a0}
-  .pane.collapsed{padding:0!important;overflow:hidden!important}
+  /* v34 NEW: pane collapsed = narrow strip with clickable arrow */
+  .pane.collapsed{padding:0!important;overflow:hidden!important;background:var(--panel)!important;cursor:pointer}
   .pane.collapsed > *:not(.pane-header){display:none!important}
-  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent}
+  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent;padding:8px 2px!important;justify-content:center!important;cursor:pointer;height:100%!important}
   .pane.collapsed .pane-header > span{display:none}
-  .pane.collapsed .pane-header .header-actions{margin-inline-start:auto}
+  .pane.collapsed .pane-header .header-actions{margin-inline-start:0!important;justify-content:center!important}
+  .pane.collapsed .pane-header .icon-btn:not(.pane-collapse){display:none!important}
+  .pane.collapsed .pane-collapse{font-size:18px!important;width:32px!important;height:32px!important;color:var(--gold)!important;background:var(--paper)!important;border:1px solid var(--paper-line)!important;border-radius:8px!important}
+  .pane.collapsed:hover .pane-collapse{background:var(--gold)!important;color:#fff!important}
   .pane-collapse{font-size:15px;line-height:1;width:28px;height:28px}
   .pane-header .header-actions{display:flex;align-items:center;gap:2px}
   #notebooks-pane.collapsed,#sections-pane.collapsed,#notes-pane.collapsed{min-width:0}
@@ -818,65 +822,38 @@ body>.color-popover button{touch-action:manipulation}
 
 /* ===== v33: fix mobile toolbar scroll + "more" panel access ===== */
 @media(max-width:600px){
-  /* تولبار اسکرول‌پذیر: فضای کافی برای دکمه‌ها */
-  #toolbar-primary{
-    display:flex!important;
-    align-items:center!important;
-    gap:6px!important;
-    min-width:0!important;
-    width:100%!important;
-  }
-  #toolbar-scroll{
-    flex:1 1 auto!important;
-    min-width:0!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding-bottom:2px!important;
-  }
+  #toolbar-primary{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;width:100%!important}
+  #toolbar-scroll{flex:1 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;padding-bottom:2px!important}
   #toolbar-scroll::-webkit-scrollbar{display:none!important}
-
-  /* دکمه‌های pinned کمی جمع‌تر تا فضای اسکرول بیشتر بشه */
-  #toolbar-pinned{
-    flex:0 0 auto!important;
-    gap:3px!important;
-    padding-inline-start:4px!important;
-    border-inline-start:1px solid var(--paper-line)!important;
-  }
-  #toolbar-pinned>button{
-    min-width:42px!important;
-    width:42px!important;
-    min-height:46px!important;
-    height:46px!important;
-    padding:0!important;
-  }
-
-  /* وقتی تولبار docked هست، پنل «بیشتر» بالای تولبار باز بشه نه پایین */
-  body.yadno-toolbar-docked #editor-toolbar,
-  #app.focus-mode #editor-toolbar{
-    flex-direction:column!important;
-    max-height:min(60dvh,460px)!important;
-    overflow:visible!important;
-  }
-  body.yadno-toolbar-docked #toolbar-secondary,
-  #app.focus-mode #toolbar-secondary{
-    order:-1!important;
-    max-height:38dvh!important;
-    overflow-y:auto!important;
-    border-top:0!important;
-    border-bottom:1px solid var(--paper-line)!important;
-    margin:0 0 6px!important;
-    padding:6px 4px 10px!important;
-    flex-wrap:wrap!important;
-  }
-  body.yadno-toolbar-docked #toolbar-secondary.open,
-  #app.focus-mode #toolbar-secondary.open{
-    display:flex!important;
-  }
+  #toolbar-pinned{flex:0 0 auto!important;gap:3px!important;padding-inline-start:4px!important;border-inline-start:1px solid var(--paper-line)!important}
+  #toolbar-pinned>button{min-width:42px!important;width:42px!important;min-height:46px!important;height:46px!important;padding:0!important}
+  body.yadno-toolbar-docked #editor-toolbar,#app.focus-mode #editor-toolbar{flex-direction:column!important;max-height:min(60dvh,460px)!important;overflow:visible!important}
+  body.yadno-toolbar-docked #toolbar-secondary,#app.focus-mode #toolbar-secondary{order:-1!important;max-height:38dvh!important;overflow-y:auto!important;border-top:0!important;border-bottom:1px solid var(--paper-line)!important;margin:0 0 6px!important;padding:6px 4px 10px!important;flex-wrap:wrap!important}
+  body.yadno-toolbar-docked #toolbar-secondary.open,#app.focus-mode #toolbar-secondary.open{display:flex!important}
 }
-</style>
-</head>
+
+/* ===== v34: خوانایی و تمرکز در دسکتاپ ===== */
+#editor-pane.read-mode #attachments-box,
+#editor-pane.read-mode #tag-editor,
+#editor-pane.read-mode #reading-options{display:none!important}
+#editor-pane.read-mode #editor-toolbar{display:none!important}
+#editor-pane.read-mode #title-input{font-size:32px!important;font-weight:800!important;text-align:right!important;padding:28px 8px 16px!important;border-bottom:3px solid var(--active-book-color,#7719aa)!important;margin-bottom:20px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important;cursor:text!important}
+#editor-pane.read-mode #editor-content{max-width:720px!important;margin:0 auto!important;padding:20px 30px 100px!important}
+#editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.2!important;text-align:right!important;padding:0 8px!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:auto!important;user-select:text!important;-webkit-user-select:text!important;cursor:text!important}
+#editor-pane.read-mode #attachments-box:has(#attachments-list .attach-progress:only-child){display:none!important}
+@media (min-width:861px){
+  #app.focus-mode #notebooks-pane,
+  #app.focus-mode #sections-pane,
+  #app.focus-mode #notes-pane,
+  #app.focus-mode .pane-resizer{display:none!important}
+  #app.focus-mode #main-grid{grid-template-columns:minmax(0,1fr)!important;background:#fff!important}
+  #app.focus-mode #editor-pane{grid-column:1/-1!important}
+  #app.focus-mode #topbar{height:48px!important;padding:4px 12px!important}
+}
+#app.focus-mode #editor-pane.read-mode #editor-content{max-width:680px!important;padding-top:40px!important}
+#reading-controls{padding:6px 10px!important;margin-bottom:16px!important}
+#reading-size-label{font-size:14px!important;font-weight:700!important;min-width:32px!important}
+</style></head>
 <body>
 
 <div id="loading-screen">
@@ -886,7 +863,6 @@ body>.color-popover button{touch-action:manipulation}
   <p>در حال بارگذاری یادنو...</p>
 </div>
 
-<!-- Firebase config screen: shown once, until user pastes their own Firebase project config -->
 <div id="config-screen">
   <div class="config-card">
     <h1>اتصال به Firebase</h1>
@@ -912,7 +888,6 @@ body>.color-popover button{touch-action:manipulation}
   </div>
 </div>
 
-<!-- Auth screen -->
 <div id="auth-screen">
   <div class="auth-card">
     <h1 id="auth-title">ورود به یادنو</h1>
@@ -941,7 +916,6 @@ body>.color-popover button{touch-action:manipulation}
   </div>
 </div>
 
-<!-- Main app -->
 <div id="app">
   <div id="topbar">
     <button id="menu-toggle" aria-label="منو">
@@ -1155,7 +1129,6 @@ body>.color-popover button{touch-action:manipulation}
 </div>
 
 <script>
-// This guard also runs when an ES module fails to load before application code executes.
 (function(){
   let started=false;
   window.__yadnoStarted=()=>{started=true;};
@@ -1178,8 +1151,7 @@ body>.color-popover button{touch-action:manipulation}
   window.addEventListener('unhandledrejection',e=>report('خطا در راه‌اندازی: '+(e.reason?.message||'نامشخص')));
   setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),12000);
 })();
-</script>
-<script type="module">
+</script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
@@ -1194,7 +1166,6 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 
 const $ = (id) => document.getElementById(id);
 
-// ---------- Lazy-load heavy export libraries ----------
 const _loadedScripts = {};
 function loadScriptOnce(url) {
   if (_loadedScripts[url]) return _loadedScripts[url];
@@ -1210,14 +1181,12 @@ function loadScriptOnce(url) {
 const JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
-// ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
 
-// ---------- Firebase config bootstrapping ----------
 const CONFIG_KEY = 'yadno_firebase_config';
 
 function getSavedConfig() {
@@ -1355,7 +1324,6 @@ $('reset-config-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- Auth ----------
 function setAuthMode(mode) {
   authMode = mode;
   if (mode === 'login') {
@@ -1414,7 +1382,6 @@ $('forgot-password-btn').addEventListener('click', async () => {
   }
 });
 
-
 $('auth-submit-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
   const password = $('auth-password').value;
@@ -1457,7 +1424,6 @@ function translateAuthError(code) {
 
 $('signout-btn-menu').addEventListener('click', () => { signOut(auth); closeMoreMenu(); });
 
-// ---------- More menu dropdown ----------
 function closeMoreMenu() { $('more-menu-dropdown').classList.remove('open'); }
 $('more-menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
@@ -1468,7 +1434,6 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('global-search-input')?.focus();}});
 
-// ---------- Resizable / collapsible navigation panes ----------
 const FOCUS_KEY = 'yadno-focus-mode';
 function applyFocusMode(on){
   const app=$('app'); if(!app) return;
@@ -1493,6 +1458,7 @@ document.addEventListener('keydown',e=>{
 
 const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':260 };
 const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
+/* v34 NEW: pane collapsed has 36px strip instead of 0px */
 function applyPaneState(){
   const grid=$('main-grid'); if(!grid) return;
   const mobile=window.innerWidth<=860;
@@ -1503,19 +1469,22 @@ function applyPaneState(){
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
     if(btn){ btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'باز کردن':'جمع کردن'; }
-    if(collapsed) grid.style.setProperty(paneCss[id],'0px');
-    else {
+    if(collapsed){
+      grid.style.setProperty(paneCss[id],'36px');
+    } else {
       const saved=parseInt(localStorage.getItem('yadno-pane-width-'+id)||paneDefaults[id],10);
       grid.style.setProperty(paneCss[id],Math.max(140,Math.min(420,saved))+'px');
     }
   });
 }
+/* v34 NEW: togglePane with resize event */
 function togglePane(id){
   const pane=$(id); if(!pane) return;
   if(window.innerWidth<=860){ openMobilePane(null); return; }
   const collapsed=!pane.classList.contains('collapsed');
   localStorage.setItem('yadno-pane-collapsed-'+id,collapsed?'1':'0');
   applyPaneState();
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 
 Object.keys(paneCss).forEach(id=>{
@@ -1548,7 +1517,6 @@ window.addEventListener('resize',()=>{
 });
 applyFocusMode(localStorage.getItem(FOCUS_KEY)==='1');
 
-// ---------- Data: notebooks & notes ----------
 function userCol(...path) {
   return collection(db, 'users', currentUser.uid, ...path);
 }
@@ -1682,7 +1650,6 @@ function yadnoCycleBookColor(id){
   }catch(e){console.warn('Notebook color not saved',e)}
 }
 
-// ---------- Render: notebooks ----------
 function renderNotebooks() {
   const list = $('notebooks-list');
   if (!notebooks.length) {
@@ -1732,7 +1699,6 @@ $('add-notebook-btn').addEventListener('click', async () => {
   listenToSections(ref.id);
 });
 
-// ---------- Render: sections ----------
 function renderSections() {
   const list = $('sections-list');
   if (!activeNotebookId) { list.innerHTML = '<div class="empty-hint">یک دفتر انتخاب کن</div>'; return; }
@@ -1792,7 +1758,6 @@ $('add-section-btn').addEventListener('click', async () => {
   listenToNotes(activeNotebookId, activeSectionId);
 });
 
-// ---------- Render: notes ----------
 function renderNotes() {
   const list = $('notes-list');
   if (!activeNotebookId) {
@@ -1871,7 +1836,6 @@ $('add-note-btn').addEventListener('click', async () => {
   openMobilePane(null);
 });
 
-// ---------- Global search ----------
 let searchCache = [];
 let searchRequestId = 0;
 
@@ -1981,7 +1945,6 @@ $('close-search-btn').addEventListener('click',()=>$('search-modal').classList.r
 $('mobile-search-btn')?.addEventListener('click',()=>{ openSearch(); });
 $('search-modal').addEventListener('click',e=>{if(e.target.id==='search-modal')$('search-modal').classList.remove('open');});
 
-// ---------- Editor ----------
 function showEditorEmpty() {
   flushScheduledSave();
   $('editor-empty').style.display = 'flex';
@@ -2032,7 +1995,6 @@ function renderAttachments(items){
 }
 function formatBytes(n){ if(!n) return ''; const u=['B','KB','MB','GB']; let i=0,x=n; while(x>=1024&&i<3){x/=1024;i++;} return `${x.toFixed(x>=10||i===0?0:1)} ${u[i]}`; }
 
-// ---------- Attachment viewer: mobile-safe open/download ----------
 function openAttachment(a){
   const url=a && a.url;
   if(!url){alert('آدرس این فایل در دسترس نیست.');return;}
@@ -2152,7 +2114,6 @@ $('share-note-btn').addEventListener('click', async () => {
   } catch (e) {}
 });
 
-// ---------- Trash ----------
 $('open-trash-btn').addEventListener('click', async () => { closeMoreMenu(); await renderTrash(); $('trash-modal').classList.add('open'); });
 $('close-trash-btn').addEventListener('click', () => $('trash-modal').classList.remove('open'));
 $('trash-modal').addEventListener('click', e => { if (e.target.id === 'trash-modal') $('trash-modal').classList.remove('open'); });
@@ -2253,7 +2214,6 @@ document.querySelectorAll('.hl-swatch').forEach(btn=>{
   });
 });
 
-// ---------- Text color ----------
 const RESET_SENTINEL = '#010203';
 function resetTextColor() {
   const sel = window.getSelection();
@@ -2288,7 +2248,6 @@ document.querySelectorAll('#text-color-popover .color-swatch').forEach((btn) => 
   });
 });
 
-// ---------- Color popovers ----------
 function closeAllColorPopovers() {
   $('text-color-popover').classList.remove('open');
   $('highlight-group').classList.remove('open');
@@ -2324,7 +2283,6 @@ document.addEventListener('click', (e) => {
 $('toolbar-scroll').addEventListener('scroll', closeAllColorPopovers, { passive: true });
 window.addEventListener('resize', closeAllColorPopovers);
 
-// ---------- Toolbar "more" panel ----------
 $('toolbar-more-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   const panel = $('toolbar-secondary');
@@ -2333,11 +2291,9 @@ $('toolbar-more-btn').addEventListener('click', (e) => {
   $('toolbar-more-btn').setAttribute('aria-expanded', String(nowOpen));
 });
 
-// ---------- Undo / Redo ----------
 $('undo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('undo'); scheduleSave(); });
 $('redo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('redo'); scheduleSave(); });
 
-// ---------- Keep the on-screen keyboard open while using the toolbar ----------
 $('editor-toolbar').addEventListener('mousedown', (e) => {
   if (e.target.closest('button') && !e.target.closest('select')) e.preventDefault();
 });
@@ -2354,7 +2310,6 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
-// ---------- Export: Word (.docx) ----------
 function xmlEscape(str) {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -2464,7 +2419,6 @@ async function exportNoteAsDocx(note) {
   downloadBlob(blob, safeFileName(note.title) + '.docx');
 }
 
-// ---------- Export: PDF ----------
 async function exportNoteAsPdf(note) {
   await loadScriptOnce(HTML2PDF_URL);
   const wrapper = document.createElement('div');
@@ -2496,7 +2450,6 @@ $('export-pdf-btn').addEventListener('click', () => {
   exportNoteAsPdf(note);
 });
 
-// ---------- Full backup: export & import ----------
 function setBackupStatus(msg) {
   const el = $('backup-status');
   el.textContent = msg;
@@ -2551,8 +2504,6 @@ $('backup-file-input').addEventListener('change', async (e) => {
   setTimeout(() => setBackupStatus(''), 4000);
 });
 
-
-// ---------- OneNote importer ----------
 let oneNoteImportData = null;
 let oneNoteImportName = '';
 const oneNoteModal = $('onenote-modal');
@@ -2864,7 +2815,6 @@ $('onenote-import-confirm-btn').addEventListener('click',async()=>{
   }catch(e){setOneNoteStatus('ورود انجام نشد: '+(e?.message||e),true);}
 });
 
-// ---------- Mobile panes ----------
 function openMobilePane(which) {
   $('notebooks-pane').classList.toggle('open', which === 'notebooks');
   $('sections-pane').classList.toggle('open', which === 'sections');
@@ -2880,8 +2830,6 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-
-// ---------- v16 phone navigation ----------
 (function setupPhoneNavigation(){
   const nav=document.createElement('nav'); nav.id='phone-bottom-nav'; nav.setAttribute('aria-label','ناوبری موبایل');
   nav.innerHTML=`
@@ -2909,8 +2857,6 @@ function escapeHtml(str) {
   syncActive();
 })();
 
-
-// ---------- v19: reading mode and compact editing toolbar ----------
 (function setupReadingMode(){
   const pane=$('editor-pane'), body=$('body-editor'), title=$('title-input');
   const readButton=$('reading-toggle'), readLabel=$('reading-toggle-label');
@@ -2955,8 +2901,6 @@ function escapeHtml(str) {
   });
 })();
 
-
-// Keyboard-aware layout
 function setupKeyboardAwareLayout(){
   const body=document.getElementById('body-editor');
   const title=document.getElementById('title-input');
