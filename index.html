@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۳۲)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۳۳)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -13,13 +13,9 @@
 <!-- jszip and html2pdf are now lazy-loaded on demand (see loadScriptOnce), only when the user actually exports a note -->
 <style>
   :root {
-    /* Consolidated theme (previously redeclared three times across the
-       file's history as "v9", "visual refresh", and "v21 OneNote purple"
-       layers — those redeclarations have been removed; these are the
-       values that were actually winning). */
     --paper: #faf9fc;
     --paper-line: #eae5f0;
-    --line: #eae5f0; /* alias of --paper-line: some rules (e.g. modal borders) reference --line specifically, and previously had no light-mode value at all */
+    --line: #eae5f0;
     --ink: #32263d;
     --ink-soft: #6c6076;
     --gold: #8a3cba;
@@ -819,6 +815,66 @@ body>.color-popover button{touch-action:manipulation}
  body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{padding-bottom:185px!important;scroll-padding-bottom:185px!important}
 }
 @media(max-width:380px){#toolbar-primary{gap:4px!important}#toolbar-scroll{gap:5px!important}#editor-toolbar #toolbar-pinned>button{min-width:44px!important;width:44px!important}}
+
+/* ===== v33: fix mobile toolbar scroll + "more" panel access ===== */
+@media(max-width:600px){
+  /* تولبار اسکرول‌پذیر: فضای کافی برای دکمه‌ها */
+  #toolbar-primary{
+    display:flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    min-width:0!important;
+    width:100%!important;
+  }
+  #toolbar-scroll{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding-bottom:2px!important;
+  }
+  #toolbar-scroll::-webkit-scrollbar{display:none!important}
+
+  /* دکمه‌های pinned کمی جمع‌تر تا فضای اسکرول بیشتر بشه */
+  #toolbar-pinned{
+    flex:0 0 auto!important;
+    gap:3px!important;
+    padding-inline-start:4px!important;
+    border-inline-start:1px solid var(--paper-line)!important;
+  }
+  #toolbar-pinned>button{
+    min-width:42px!important;
+    width:42px!important;
+    min-height:46px!important;
+    height:46px!important;
+    padding:0!important;
+  }
+
+  /* وقتی تولبار docked هست، پنل «بیشتر» بالای تولبار باز بشه نه پایین */
+  body.yadno-toolbar-docked #editor-toolbar,
+  #app.focus-mode #editor-toolbar{
+    flex-direction:column!important;
+    max-height:min(60dvh,460px)!important;
+    overflow:visible!important;
+  }
+  body.yadno-toolbar-docked #toolbar-secondary,
+  #app.focus-mode #toolbar-secondary{
+    order:-1!important;
+    max-height:38dvh!important;
+    overflow-y:auto!important;
+    border-top:0!important;
+    border-bottom:1px solid var(--paper-line)!important;
+    margin:0 0 6px!important;
+    padding:6px 4px 10px!important;
+    flex-wrap:wrap!important;
+  }
+  body.yadno-toolbar-docked #toolbar-secondary.open,
+  #app.focus-mode #toolbar-secondary.open{
+    display:flex!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -886,7 +942,6 @@ body>.color-popover button{touch-action:manipulation}
 </div>
 
 <!-- Main app -->
-<!-- v18: mobile-safe attachment opening/downloading -->
 <div id="app">
   <div id="topbar">
     <button id="menu-toggle" aria-label="منو">
@@ -1140,9 +1195,6 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 const $ = (id) => document.getElementById(id);
 
 // ---------- Lazy-load heavy export libraries ----------
-// jszip and html2pdf together add ~400-500KB; most people never export a
-// note, so they're only fetched the first time an export/import feature
-// that actually needs them is used, not on every page load.
 const _loadedScripts = {};
 function loadScriptOnce(url) {
   if (_loadedScripts[url]) return _loadedScripts[url];
@@ -1189,7 +1241,7 @@ let unsubSections = null;
 let unsubSectionGroups = null;
 let unsubNotes = null;
 let saveTimer = null;
-let authMode = 'login'; // or 'signup'
+let authMode = 'login';
 let draggedNoteId = null;
 let activeTags = [];
 let searchTimer = null;
@@ -1222,7 +1274,6 @@ function initFirebase(config) {
     const authWatchdog=setTimeout(()=>{
       if(authResolved)return;
       if(auth.currentUser){
-        // Only Firebase's actual restored user is allowed to access its cached documents.
         authResolved=true;
         currentUser=auth.currentUser;
         showScreen('app');startListening();
@@ -1235,7 +1286,6 @@ function initFirebase(config) {
     onAuthStateChanged(auth, (user) => {
       clearTimeout(authWatchdog);
       authResolved=true;
-      // Avoid re-creating listeners when the watchdog already started this same user.
       if(currentUser?.uid===user?.uid && user && unsubNotebooks)return;
       currentUser = user;
       if (user) {
@@ -1278,10 +1328,6 @@ $('config-save-btn').addEventListener('click', () => {
   const errEl = $('config-error');
   errEl.style.display = 'none';
 
-  // Extract key: "value" pairs directly, regardless of braces, quote
-  // style, trailing commas, or line-wraps inserted by mobile copy/paste.
-  // Any accidental whitespace/newline inside a value (from word-wrap) is
-  // stripped, since no real Firebase config value contains whitespace.
   const parsed = {};
   const re = /([A-Za-z_]\w*)\s*:\s*["']([\s\S]*?)["']/g;
   let m;
@@ -1330,7 +1376,6 @@ function setAuthMode(mode) {
 }
 $('auth-switch-link').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
 
-// Firebase sends the reset link. No password or reset token is stored in Yadno.
 $('forgot-password-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
   const error = $('auth-error');
@@ -1450,13 +1495,10 @@ const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':2
 const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
 function applyPaneState(){
   const grid=$('main-grid'); if(!grid) return;
-  // در موبایل، ستون‌ها به‌صورت کشویی باز می‌شن؛ حالت «جمع شده» دسکتاپ
-  // نباید روی کشوهای موبایل اعمال بشه وگرنه محتوای کشو مخفی می‌مونه و
-  // کاربر نمی‌تونه دفترها/بخش‌ها/یادداشت‌ها رو باز کنه.
   const mobile=window.innerWidth<=860;
   Object.keys(paneDefaults).forEach(id=>{
     const pane=$(id); if(!pane) return;
-    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id); // پاک‌سازی پرچم‌های قدیمی روی گوشی
+    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id);
     const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
@@ -1470,14 +1512,12 @@ function applyPaneState(){
 }
 function togglePane(id){
   const pane=$(id); if(!pane) return;
-  // در موبایل ستون‌ها به‌صورت کشویی باز می‌شن؛ جمع‌کردن دسکتاپ نباید روی کشو اثر بگذارد
   if(window.innerWidth<=860){ openMobilePane(null); return; }
   const collapsed=!pane.classList.contains('collapsed');
   localStorage.setItem('yadno-pane-collapsed-'+id,collapsed?'1':'0');
   applyPaneState();
 }
 
-// اگر روی هدر یک ستونِ جمع‌شده کلیک شد (غیر از دکمه‌ها)، همان ستون باز شود
 Object.keys(paneCss).forEach(id=>{
   const pane=$(id); if(!pane) return;
   pane.querySelector('.pane-header')?.addEventListener('click',(e)=>{
@@ -1514,8 +1554,6 @@ function userCol(...path) {
 }
 
 function startListening() {
-  // بدون orderBy: بعضی داده‌های قدیمی/واردشده ممکن است createdAt نداشته باشند.
-  // orderBy در Firestore چنین اسنادی را از نتیجه حذف می‌کند و در موبایل ممکن است لیست کاملاً خالی دیده شود.
   const nbQuery = query(userCol('notebooks'));
   unsubNotebooks = onSnapshot(nbQuery, (snap) => {
     notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -1541,7 +1579,6 @@ function startListening() {
 }
 
 async function ensureDefaultSection(notebookId) {
-  // Never block offline navigation on a network read.
   const sectionsRef=userCol('notebooks', notebookId, 'sections');
   let snap;
   if(navigator.onLine) snap=await getDocs(sectionsRef);
@@ -1575,8 +1612,6 @@ function listenToSections(notebookId) {
     sections=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
     if(!sections.length){
-      // A cache miss does not mean the remote notebook has no sections.
-      // Never create a default section merely because the device is offline.
       if(!snap.metadata.fromCache && navigator.onLine){
         try{activeSectionId=await ensureDefaultSection(notebookId);}catch(e){console.warn(e);activeSectionId=null;}
       }else{activeSectionId=null;}
@@ -1595,7 +1630,6 @@ function listenToNotes(notebookId, sectionId) {
   if(currentListenerSectionKey===key && unsubNotes)return;
   currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
-  // بدون orderBy تا یادداشت‌های قدیمی فاقد updatedAt هم نمایش داده شوند.
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
   unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
     notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -1631,7 +1665,6 @@ function setSyncStatus(state) {
 window.addEventListener('online',()=>setSyncStatus('pending'));
 window.addEventListener('offline',()=>setSyncStatus('offline'));
 
-// Notebook colors are presentation-only, saved on this device (no Firestore schema changes).
 const YADNO_BOOK_PALETTE=['#7719aa','#e32983','#43a832','#1685d5','#f39219','#18a9a5','#ed4747','#818996'];
 function yadnoBookColor(id){
   let saved=null;
@@ -2039,8 +2072,6 @@ function flushScheduledSave(){
   clearTimeout(saveTimer);
   const draft=queuedSave;queuedSave=null;
   if(!draft||!currentUser||draft.uid!==currentUser.uid)return;
-  // Firestore writes are persisted in IndexedDB while offline when available.
-  // Do not await a server acknowledgement before allowing navigation.
   setDoc(doc(db,'users',draft.uid,'notebooks',draft.nbId,'notes',draft.noteId),{
     title:draft.title,body:draft.body,tags:draft.tags,updatedAt:serverTimestamp()
   },{merge:true}).then(()=>{
@@ -2183,7 +2214,6 @@ $('font-select').addEventListener('change', () => {
   scheduleSave();
 });
 
-// Preserve the selected range when the user taps a color palette on Android.
 let yadnoSavedRange = null;
 function yadnoRememberSelection(){
   const sel=window.getSelection(), ed=$('body-editor');
@@ -2203,7 +2233,6 @@ $('editor-toolbar').addEventListener('pointerdown',yadnoRememberSelection,{captu
 function yadnoApplyHighlight(color){
   if(!yadnoRestoreSelection())return;
   const ed=$('body-editor');
-  // execCommand preserves native undo where supported.
   let done=false;
   try{done=document.execCommand('hiliteColor',false,color);}catch(_){}
   if(!done){
@@ -2225,13 +2254,10 @@ document.querySelectorAll('.hl-swatch').forEach(btn=>{
 });
 
 // ---------- Text color ----------
-// Palette is mid-tone so it stays readable on both the light and dark themes.
-// "Reset" removes the color again (so text follows the theme) instead of
-// forcing a fixed dark ink color, which was invisible in dark mode.
 const RESET_SENTINEL = '#010203';
 function resetTextColor() {
   const sel = window.getSelection();
-  if (!sel || sel.isCollapsed) return; // reset applies to selected text
+  if (!sel || sel.isCollapsed) return;
   document.execCommand('foreColor', false, RESET_SENTINEL);
   const ed = $('body-editor');
   ed.querySelectorAll('font[color]').forEach((f) => {
@@ -2262,7 +2288,7 @@ document.querySelectorAll('#text-color-popover .color-swatch').forEach((btn) => 
   });
 });
 
-// ---------- Color popovers (fixed-position so the scrolling toolbar can't clip them) ----------
+// ---------- Color popovers ----------
 function closeAllColorPopovers() {
   $('text-color-popover').classList.remove('open');
   $('highlight-group').classList.remove('open');
@@ -2308,15 +2334,10 @@ $('toolbar-more-btn').addEventListener('click', (e) => {
 });
 
 // ---------- Undo / Redo ----------
-// The browser keeps the editing history itself; these buttons just expose it
-// (phones have no Ctrl+Z).
 $('undo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('undo'); scheduleSave(); });
 $('redo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('redo'); scheduleSave(); });
 
 // ---------- Keep the on-screen keyboard open while using the toolbar ----------
-// Tapping a toolbar button normally moves focus out of the note (which hides
-// the keyboard). Cancelling mousedown keeps focus in the editor. <select>
-// must be excluded or its dropdown would never open.
 $('editor-toolbar').addEventListener('mousedown', (e) => {
   if (e.target.closest('button') && !e.target.closest('select')) e.preventDefault();
 });
@@ -2334,9 +2355,6 @@ function downloadBlob(blob, filename) {
 }
 
 // ---------- Export: Word (.docx) ----------
-// Hand-builds a minimal, valid .docx (Office Open XML zipped with JSZip),
-// converting the note's simple rich-text HTML (bold/italic/underline/lists)
-// into Word paragraphs. Renders right-to-left for Persian text.
 function xmlEscape(str) {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -2534,7 +2552,7 @@ $('backup-file-input').addEventListener('change', async (e) => {
 });
 
 
-// ---------- OneNote importer: structural package bridge ----------
+// ---------- OneNote importer ----------
 let oneNoteImportData = null;
 let oneNoteImportName = '';
 const oneNoteModal = $('onenote-modal');
@@ -2557,17 +2575,6 @@ $('close-onenote-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-cancel-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-choose-btn').addEventListener('click',()=>oneNoteInput.click());
 
-// NOTE ON .one / .onepkg / .onetoc2 FILES:
-// These use Microsoft's proprietary binary "revision store" format
-// (MS-ONESTORE). There is no real, working browser library that parses
-// this format — an earlier version of this importer pointed at a
-// package ("@mdgate/onenote") that does not actually exist on npm, so
-// importing raw .one/.onepkg/.onetoc2 files always silently failed.
-// Rather than pretend to support them, we now fail fast with a clear
-// message and point people at the one format that reliably works:
-// HTML/MHT exported directly from OneNote (File → Export → "Page as
-// Single File Web Page" or a folder of pages), which the importer below
-// parses for real via the browser's own HTML parser.
 async function importNativeOne(file, meta = {}) {
   throw new Error('فایل‌های .one / .onepkg / .onetoc2 مستقیماً پشتیبانی نمی‌شن (فرمت باینری اختصاصی مایکروسافته). توی OneNote، روی صفحه یا بخش راست‌کلیک کن → Export → گزینه‌ی "Single File Web Page (*.mht)" یا HTML رو انتخاب کن، و همون فایل رو اینجا وارد کن.');
 }
@@ -2610,13 +2617,7 @@ async function importZipContainer(file){
   if(!pages.length) throw new Error('داخل بسته، فایل OneNote یا صفحه HTML پیدا نشد.');
   return pages;
 }
-// ---------- MHTML (.mht) decoding ----------
-// OneNote's "Single File Web Page" export is a MIME multipart message.
-// Text parts are almost always quoted-printable encoded (so every non-ASCII
-// byte of Persian text shows up as literal "=D8=B9" sequences if left
-// undecoded), and embedded images are separate base64/quoted-printable
-// parts referenced by Content-Location or Content-ID. This decodes both
-// properly before the HTML ever reaches the DOM parser.
+
 function qpToBytes(str) {
   const s = str.replace(/=\r\n/g, '').replace(/=\n/g, '');
   const bytes = [];
@@ -2661,7 +2662,7 @@ function parseMhtml(raw) {
     const headerText = part.slice(0, headerEnd);
     const body = part.slice(headerEnd).replace(/^\r?\n/, '');
     const typeMatch = headerText.match(/Content-Type:\s*([^\r\n;]+)/i);
-    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n;]+)/i);
+    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/i);
     const locMatch = headerText.match(/Content-Location:\s*([^\r\n]+)/i);
     const cidMatch = headerText.match(/Content-ID:\s*<([^>]+)>/i);
     const type = (typeMatch ? typeMatch[1] : '').trim().toLowerCase();
@@ -2694,18 +2695,10 @@ async function sanitizeImportedHtml(root){
   root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
 }
 
-// تشخیص خروجی چندصفحه‌ای OneNote: وقتی کل یک بخش به‌صورت
-// "Single File Web Page (.mht)" خروجی گرفته می‌شود، همه‌ی صفحه‌ها در
-// یک سند HTML واحد می‌آیند؛ صفحه‌ها با <hr> از هم جدا شده‌اند و تیتر هر
-// صفحه یک <h1> است. این تابع آن سند را به قطعات صفحه‌به‌صفحه تقسیم می‌کند.
 function splitOneNoteHtmlDocument(doc){
   const body=doc.body||doc.documentElement;
   if(!body) return null;
 
-  // ── الگوی OneNote 15 (خروجی «Single File Web Page» از OneNote 2013/2016):
-  // هر صفحه داخل یک <div style="direction:rtl;border-width:100%"> قرار می‌گیرد
-  // و تیتر صفحه اولین <p> با font-size:20pt است؛ بلاک تاریخ/ساعت هم با رنگ
-  // خاکستری (color:#767676) مشخص است. این فایل‌ها نه <hr> دارند نه <h1>.
   const markers=[...body.children].filter(el=>
     el.tagName==='DIV' && /border-width\s*:\s*100%/.test(el.getAttribute('style')||''));
   if(markers.length>=2){
@@ -2715,15 +2708,12 @@ function splitOneNoteHtmlDocument(doc){
       const from=all.indexOf(markers[i]);
       const to=(i+1<markers.length)?all.indexOf(markers[i+1]):all.length;
       const seg=all.slice(from,to);
-      // حذف پاراگراف‌های خالیِ جداکننده بین صفحه‌ها (از ته هر قطعه)
       while(seg.length && !((seg[seg.length-1].textContent||'').replace(/\u00a0/g,' ').trim())) seg.pop();
       if(seg.length) segments.push(seg);
     }
     if(segments.length>=2) return {segments,mode:'onenote15'};
   }
 
-  // ── الگوی عمومی‌تر (بعضی خروجی‌ها): صفحه‌ها با <hr> جدا شده‌اند و هر
-  // صفحه با <h1> شروع می‌شود
   const hrs=body.querySelectorAll('hr');
   const h1s=body.querySelectorAll('h1');
   if(hrs.length&&h1s.length>=2){
@@ -2744,14 +2734,12 @@ async function parseOneNoteHtml(html,name,groupName=''){
   const parser=new DOMParser(),docx=parser.parseFromString(decodedHtml,'text/html');
   const split=splitOneNoteHtmlDocument(docx);
   if(split){
-    // خروجی چندصفحه‌ای: هر قطعه یک یادداشت جدا می‌شود
     return split.segments.map((nodes,i)=>{
       const wrap=document.createElement('div');
       nodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
       sanitizeImportedHtml(wrap);
       let titleEl=null;
       if(split.mode==='onenote15'){
-        // تیتر صفحه = اولین <p> با font-size:20pt
         titleEl=[...wrap.querySelectorAll('p')].find(p=>/font-size\s*:\s*20/.test(p.getAttribute('style')||''));
       }else{
         titleEl=wrap.querySelector('h1,h2,h3');
@@ -2779,17 +2767,11 @@ oneNoteInput.addEventListener('change',async e=>{
       const ext=file.name.toLowerCase().split('.').pop();
       const relPath=file.webkitRelativePath||file.name;
       const info=pathInfo(relPath);
-      // When files come from a real folder structure, the top folder is the
-      // notebook. When several loose files are picked directly (no folder
-      // structure), each file is its own notebook — that's the fix for
-      // "multiple notebooks were merging into one".
       const standaloneNotebookName=info.notebookHint||file.name.replace(/\.(one|onetoc2|onepkg|zip|html?|mht|mhtml)$/i,'');
       if(ext==='onepkg'||ext==='zip') pages.push(...await importZipContainer(file));
       else if(ext==='one'){
         pages.push(...(await importNativeOne(file,{sectionName:info.section,groupName:info.groupName,sourcePath:relPath})).map(pg=>({...pg,notebookName:standaloneNotebookName})));
       }else if(ext==='onetoc2'){
-        // TOC is structural metadata; keep it as a manifest item rather than
-        // pretending it is a page. Section files are imported separately.
         pages.push({title:info.section||file.name,body:'<p>فایل فهرست OneNote شناسایی شد؛ برای ورود محتوای صفحات، فایل‌های بخش‌های مربوط نیز لازم است.</p>',sectionName:info.section,groupName:info.groupName,sourcePath:file.name,notebookName:standaloneNotebookName,manifestOnly:true});
       }else if(['html','htm','mht','mhtml'].includes(ext)){
         (await parseOneNoteHtml(await file.text(),info.file,info.groupName)).forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:relPath,notebookName:standaloneNotebookName}));
@@ -2813,12 +2795,7 @@ oneNoteInput.addEventListener('change',async e=>{
   e.target.value='';
 });
 
-// Firestore caps a document at ~1MiB. OneNote pages with embedded images
-// can easily exceed that once images are inlined as base64. Rather than
-// letting one oversized page abort the whole import (losing everything
-// already written), we degrade gracefully: strip images first, then
-// truncate the text as a last resort, and say so on the note itself.
-const FIRESTORE_DOC_SAFE_BYTES = 900000; // leaves headroom for the other fields
+const FIRESTORE_DOC_SAFE_BYTES = 900000;
 function byteSize(str) { return new Blob([str || '']).size; }
 async function addNoteWithSizeGuard(notebookId, sectionId, p) {
   let title = p.title || 'بدون عنوان';
@@ -2953,7 +2930,6 @@ function escapeHtml(str) {
   updateSize();
   function setReading(on){
     if(on && $('editor-content').style.display==='none')return;
-    // Ensure the current editor is blurred before disabling edits.
     if(on && document.activeElement===body)body.blur();
     if(on && document.activeElement===title)title.blur();
     pane.classList.toggle('read-mode',on);
@@ -2972,9 +2948,6 @@ function escapeHtml(str) {
   });
   $('reading-smaller').addEventListener('click',()=>{size=Math.max(16,size-1);updateSize();});
   $('reading-larger').addEventListener('click',()=>{size=Math.min(28,size+1);updateSize();});
-  // Avoid observing and rewriting contenteditable: that caused a mutation loop
-  // on some mobile browsers and froze the reading and font-size buttons.
-  // When a different note opens, preserve the current reading/editing state.
   document.addEventListener('yadno:note-opened',()=>{
     const reading=pane.classList.contains('read-mode');
     body.contentEditable=reading?'false':'true';
@@ -2983,10 +2956,7 @@ function escapeHtml(str) {
 })();
 
 
-// Keyboard-aware layout: hides the bottom nav and adjusts positioning while
-// the on-screen keyboard is open on mobile. (The old toolbar-injecting
-// "format drawer" that used to live here was removed — the toolbar is now
-// always visible via the v25 single-row design above.)
+// Keyboard-aware layout
 function setupKeyboardAwareLayout(){
   const body=document.getElementById('body-editor');
   const title=document.getElementById('title-input');
@@ -2995,8 +2965,6 @@ function setupKeyboardAwareLayout(){
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
   const vv=window.visualViewport;
   const cls=document.body.classList;
-  // In phone editing, keep the toolbar reachable above the bottom navigation;
-  // when the keyboard opens, move it directly above the visible keyboard.
   function keyboardPosition(){
     if(!phone()){
       document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
@@ -3010,7 +2978,6 @@ function setupKeyboardAwareLayout(){
     const focus=$('app')?.classList.contains('focus-mode');
     const editing=$('editor-content')?.style.display!=='none' &&
       !$('editor-pane')?.classList.contains('read-mode');
-    // Keep the bottom navigation visible when there is no keyboard, unless in focus mode.
     const navHeight=focus?0:65;
     document.documentElement.style.setProperty('--yadno-toolbar-bottom',
       (keyboardUp?gap:navHeight)+'px');
