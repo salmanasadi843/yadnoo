@@ -678,8 +678,10 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
   background:var(--panel)!important;border:1px solid var(--paper-line)!important;border-radius:14px!important;
   padding:6px!important;margin:0 0 10px!important;box-shadow:0 2px 10px rgba(22,37,64,.06)!important;z-index:6;
   transform:none!important;overflow:visible!important}
-#toolbar-primary{display:flex!important;align-items:center;gap:3px;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px}
-#toolbar-primary::-webkit-scrollbar{display:none}
+#toolbar-primary{display:flex!important;align-items:center;gap:4px;padding:2px;overflow:visible}
+#toolbar-scroll{display:flex;align-items:center;gap:3px;flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#toolbar-scroll::-webkit-scrollbar{display:none}
+#toolbar-pinned{display:flex;align-items:center;gap:3px;flex:0 0 auto;padding-inline-start:5px;border-inline-start:1px solid var(--paper-line)}
 #toolbar-secondary{display:none;flex-wrap:wrap;align-items:center;gap:3px;padding:8px 4px 2px;margin-top:6px;border-top:1px solid var(--paper-line);animation:toolbarSlide .16s ease}
 #toolbar-secondary.open{display:flex}
 @keyframes toolbarSlide{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
@@ -701,13 +703,13 @@ html[data-theme="dark"] #reading-toggle[aria-pressed="true"]{background:#35435b;
 .color-control{position:relative;flex:0 0 auto}
 #text-color-swatch{font-weight:800;border-bottom:3px solid var(--ink);line-height:1.1;padding-bottom:1px}
 .color-popover{
-  display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--panel);border:1px solid var(--paper-line);
-  border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:7px;gap:5px;z-index:40;
+  display:none;position:fixed;top:0;left:0;background:var(--panel);border:1px solid var(--paper-line);
+  border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22);padding:8px;gap:6px;z-index:260;
 }
 .color-popover.open{display:flex}
-.color-swatch,#editor-toolbar .hl-swatch{all:unset;box-sizing:border-box!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;
+#editor-toolbar .color-swatch,#editor-toolbar .hl-swatch{all:unset;box-sizing:border-box!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;
   border-radius:7px!important;cursor:pointer;border:1px solid rgba(0,0,0,.08)!important;flex:0 0 auto}
-.color-swatch:hover,#editor-toolbar .hl-swatch:hover{transform:scale(1.12)}
+#editor-toolbar .color-swatch:hover,#editor-toolbar .hl-swatch:hover{transform:scale(1.12)}
 .reset-swatch{background:var(--panel)!important;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:12px}
 .hl-none{background:var(--panel)!important;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:11px}
 
@@ -721,6 +723,21 @@ html[data-theme="dark"] .reset-swatch,html[data-theme="dark"] .hl-none{backgroun
 @media(max-width:600px){
   #editor-toolbar{border-radius:0 0 14px 14px!important;padding:5px!important}
   #editor-toolbar button,#editor-toolbar select{min-height:44px!important;height:44px;font-size:17px!important}
+}
+
+/* ===== v30: theme-safe highlight text + toolbar docked above the keyboard (phone) ===== */
+html[data-theme="dark"] #body-editor [style*="background-color"]:not([style*="transparent"]){color:#1b1b1b}
+@media(max-width:600px){
+  #editor-content{scroll-padding-bottom:96px}
+  #toolbar-pinned button{min-width:38px!important;padding:0 6px!important}
+  body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar{
+    position:fixed!important;top:auto!important;left:0!important;right:0!important;
+    bottom:var(--yadno-keyboard-bottom,0px)!important;width:100%!important;margin:0!important;
+    border-radius:14px 14px 0 0!important;border-width:1px 0 0 0!important;
+    display:flex!important;flex-direction:column-reverse;z-index:170;
+    box-shadow:0 -4px 18px rgba(22,37,64,.16)!important;padding:5px 6px!important}
+  body.yadno-toolbar-docked #toolbar-secondary{border-top:0;border-bottom:1px solid var(--paper-line);margin:0 0 4px;padding:2px 4px 8px;max-height:28vh;overflow-y:auto;animation:none}
+  body.yadno-toolbar-docked #editor-content{padding-bottom:150px!important}
 }
 </style>
 </head>
@@ -885,40 +902,45 @@ html[data-theme="dark"] .reset-swatch,html[data-theme="dark"] .hl-none{backgroun
         </div>
         <div id="editor-toolbar">
           <div id="toolbar-primary">
-            <button class="b" data-cmd="bold" title="ضخیم">B</button>
-            <button class="i" data-cmd="italic" title="مورب">I</button>
-            <button class="u" data-cmd="underline" title="زیرخط">U</button>
-            <div class="sep"></div>
-            <div class="color-control">
-              <button id="text-color-btn" title="رنگ متن"><span id="text-color-swatch">A</span></button>
-              <div class="color-popover" id="text-color-popover">
-                <button class="color-swatch" data-color="#1D2B4F" style="background:#1D2B4F"></button>
-                <button class="color-swatch" data-color="#A83E32" style="background:#A83E32"></button>
-                <button class="color-swatch" data-color="#1B6B3A" style="background:#1B6B3A"></button>
-                <button class="color-swatch" data-color="#1B5FA8" style="background:#1B5FA8"></button>
-                <button class="color-swatch" data-color="#B8862E" style="background:#B8862E"></button>
-                <button class="color-swatch" data-color="#7A3FA0" style="background:#7A3FA0"></button>
-                <button class="color-swatch reset-swatch" data-color="inherit" title="پیش‌فرض">✕</button>
+            <div id="toolbar-scroll">
+              <button class="b" data-cmd="bold" title="ضخیم">B</button>
+              <button class="i" data-cmd="italic" title="مورب">I</button>
+              <button class="u" data-cmd="underline" title="زیرخط">U</button>
+              <div class="sep"></div>
+              <div class="color-control">
+                <button id="text-color-btn" title="رنگ متن"><span id="text-color-swatch">A</span></button>
+                <div class="color-popover" id="text-color-popover">
+                  <button class="color-swatch" data-color="#7A8291" style="background:#7A8291"></button>
+                  <button class="color-swatch" data-color="#E5484D" style="background:#E5484D"></button>
+                  <button class="color-swatch" data-color="#B7791F" style="background:#B7791F"></button>
+                  <button class="color-swatch" data-color="#25914F" style="background:#25914F"></button>
+                  <button class="color-swatch" data-color="#2F74E0" style="background:#2F74E0"></button>
+                  <button class="color-swatch" data-color="#A25BD6" style="background:#A25BD6"></button>
+                  <button class="color-swatch reset-swatch" data-color="reset" title="رنگ پیش‌فرض">✕</button>
+                </div>
               </div>
-            </div>
-            <div class="color-control">
-              <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon">🖊</span></button>
-              <div class="color-popover" id="highlight-group">
-                <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
-                <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
-                <button class="hl-swatch" data-color="#F8BBD0" style="background:#F8BBD0;"></button>
-                <button class="hl-swatch" data-color="#BBDEFB" style="background:#BBDEFB;"></button>
-                <button class="hl-swatch hl-none" data-color="transparent" title="حذف هایلات">✕</button>
+              <div class="color-control">
+                <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon">🖊</span></button>
+                <div class="color-popover" id="highlight-group">
+                  <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
+                  <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
+                  <button class="hl-swatch" data-color="#F8BBD0" style="background:#F8BBD0;"></button>
+                  <button class="hl-swatch" data-color="#BBDEFB" style="background:#BBDEFB;"></button>
+                  <button class="hl-swatch hl-none" data-color="transparent" title="حذف هایلات">✕</button>
+                </div>
               </div>
+              <div class="sep"></div>
+              <button data-cmd="insertUnorderedList" title="فهرست">•</button>
+              <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
+              <button id="checklist-btn" title="چک‌لیست">☑</button>
             </div>
-            <div class="sep"></div>
-            <button data-cmd="insertUnorderedList" title="فهرست">•</button>
-            <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
-            <button id="checklist-btn" title="چک‌لیست">☑</button>
-            <div class="sep" style="margin-inline-start:auto;"></div>
-            <button id="toolbar-more-btn" title="گزینه‌های بیشتر" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>
-            </button>
+            <div id="toolbar-pinned">
+              <button id="undo-btn" title="بازگشت (Undo)">↶</button>
+              <button id="redo-btn" title="جلو (Redo)">↷</button>
+              <button id="toolbar-more-btn" title="گزینه‌های بیشتر" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>
+              </button>
+            </div>
           </div>
           <div id="toolbar-secondary">
             <select id="font-select" title="فونت">
@@ -2081,37 +2103,71 @@ document.querySelectorAll('.hl-swatch').forEach((btn) => {
 });
 
 // ---------- Text color ----------
+// Palette is mid-tone so it stays readable on both the light and dark themes.
+// "Reset" removes the color again (so text follows the theme) instead of
+// forcing a fixed dark ink color, which was invisible in dark mode.
+const RESET_SENTINEL = '#010203';
+function resetTextColor() {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) return; // reset applies to selected text
+  document.execCommand('foreColor', false, RESET_SENTINEL);
+  const ed = $('body-editor');
+  ed.querySelectorAll('font[color]').forEach((f) => {
+    if ((f.getAttribute('color') || '').toLowerCase() === RESET_SENTINEL) f.removeAttribute('color');
+  });
+  ed.querySelectorAll('[style*="color"]').forEach((el) => {
+    if (el.style.color === 'rgb(1, 2, 3)') {
+      el.style.removeProperty('color');
+      if (!el.getAttribute('style')) el.removeAttribute('style');
+    }
+  });
+}
 document.querySelectorAll('#text-color-popover .color-swatch').forEach((btn) => {
   btn.addEventListener('click', () => {
     $('body-editor').focus();
     const color = btn.dataset.color;
-    document.execCommand('foreColor', false, color === 'inherit' ? '#1D2B4F' : color);
-    $('text-color-swatch').style.borderBottomColor = color === 'inherit' ? 'var(--ink)' : color;
+    if (color === 'reset') {
+      resetTextColor();
+      $('text-color-swatch').style.borderBottomColor = 'var(--ink)';
+    } else {
+      document.execCommand('foreColor', false, color);
+      $('text-color-swatch').style.borderBottomColor = color;
+    }
     scheduleSave();
-    $('text-color-popover').classList.remove('open');
+    closeAllColorPopovers();
   });
 });
 
-// ---------- Color popovers open/close ----------
+// ---------- Color popovers (fixed-position so the scrolling toolbar can't clip them) ----------
 function closeAllColorPopovers() {
   $('text-color-popover').classList.remove('open');
   $('highlight-group').classList.remove('open');
 }
-$('text-color-btn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const willOpen = !$('text-color-popover').classList.contains('open');
+function openColorPopover(pop, btn) {
   closeAllColorPopovers();
-  if (willOpen) $('text-color-popover').classList.add('open');
-});
-$('highlight-btn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const willOpen = !$('highlight-group').classList.contains('open');
+  pop.classList.add('open');
+  const b = btn.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  const docked = document.body.classList.contains('yadno-toolbar-docked');
+  let left = b.left + b.width / 2 - pw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+  let top = docked ? b.top - ph - 8 : b.bottom + 8;
+  top = Math.max(8, top);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+function toggleColorPopover(pop, btn) {
+  const willOpen = !pop.classList.contains('open');
   closeAllColorPopovers();
-  if (willOpen) $('highlight-group').classList.add('open');
-});
+  if (willOpen) openColorPopover(pop, btn);
+}
+$('text-color-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleColorPopover($('text-color-popover'), $('text-color-btn')); });
+$('highlight-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleColorPopover($('highlight-group'), $('highlight-btn')); });
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.color-control')) closeAllColorPopovers();
 });
+$('toolbar-scroll').addEventListener('scroll', closeAllColorPopovers, { passive: true });
+window.addEventListener('resize', closeAllColorPopovers);
 
 // ---------- Toolbar "more" panel ----------
 $('toolbar-more-btn').addEventListener('click', (e) => {
@@ -2120,6 +2176,20 @@ $('toolbar-more-btn').addEventListener('click', (e) => {
   const nowOpen = !panel.classList.contains('open');
   panel.classList.toggle('open', nowOpen);
   $('toolbar-more-btn').setAttribute('aria-expanded', String(nowOpen));
+});
+
+// ---------- Undo / Redo ----------
+// The browser keeps the editing history itself; these buttons just expose it
+// (phones have no Ctrl+Z).
+$('undo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('undo'); scheduleSave(); });
+$('redo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('redo'); scheduleSave(); });
+
+// ---------- Keep the on-screen keyboard open while using the toolbar ----------
+// Tapping a toolbar button normally moves focus out of the note (which hides
+// the keyboard). Cancelling mousedown keeps focus in the editor. <select>
+// must be excluded or its dropdown would never open.
+$('editor-toolbar').addEventListener('mousedown', (e) => {
+  if (e.target.closest('button') && !e.target.closest('select')) e.preventDefault();
 });
 
 function safeFileName(str) {
@@ -2791,15 +2861,30 @@ function escapeHtml(str) {
 function setupKeyboardAwareLayout(){
   const body=document.getElementById('body-editor');
   const title=document.getElementById('title-input');
-  if(!body||!title)return;
+  const toolbar=document.getElementById('editor-toolbar');
+  if(!body||!title||!toolbar)return;
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
   const vv=window.visualViewport;
+  const cls=document.body.classList;
+  // On phones, while the keyboard is open and you are editing the note body,
+  // the formatting toolbar is docked right above the keyboard
+  // (body.yadno-toolbar-docked). Otherwise it stays at the top of the page.
   function keyboardPosition(){
-    if(!phone()){document.documentElement.style.removeProperty('--yadno-keyboard-bottom');document.body.classList.remove('yadno-keyboard-open');return;}
+    if(!phone()){
+      document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
+      cls.remove('yadno-keyboard-open','yadno-toolbar-docked');
+      return;
+    }
     const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
     document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
-    const focused=document.activeElement===body||document.activeElement===title;
-    document.body.classList.toggle('yadno-keyboard-open',focused&&gap>100);
+    const active=document.activeElement;
+    const keyboardUp=gap>100;
+    cls.toggle('yadno-keyboard-open',keyboardUp&&(active===body||active===title));
+    const docked=keyboardUp&&(active===body||toolbar.contains(active));
+    if(docked!==cls.contains('yadno-toolbar-docked')){
+      cls.toggle('yadno-toolbar-docked',docked);
+      if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
+    }
   }
   if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
   window.addEventListener('resize',keyboardPosition);
