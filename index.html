@@ -942,6 +942,7 @@ body>.color-popover button{touch-action:manipulation}
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
         <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
         <button id="open-trash-btn">🗑️ سطل زباله</button>
+        <button id="offline-download-btn">📴 دانلود کامل برای آفلاین</button>
         <div id="backup-status"></div>
         <div class="divider"></div>
         <button id="signout-btn-menu" style="color:#A83E32;">خروج از حساب</button>
@@ -1158,7 +1159,7 @@ import {
   onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
-  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED,
   collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
   query, orderBy, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -1232,7 +1233,7 @@ function initFirebase(config) {
     auth = getAuth(firebaseApp);
     try {
       db = initializeFirestore(firebaseApp, {
-        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager()})
+        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager(),cacheSizeBytes:CACHE_SIZE_UNLIMITED})
       });
     } catch (e) {
       console.warn('Persistent Firestore cache unavailable:',e);
@@ -2455,6 +2456,57 @@ function setBackupStatus(msg) {
   el.textContent = msg;
   el.style.display = msg ? 'block' : 'none';
 }
+
+// ---------- Full offline download ----------
+// Firestore's own persistence only caches documents you actually opened.
+// This walks every notebook/section/note once (so Firestore pulls it all
+// into its local IndexedDB cache) and also fetches every file attachment
+// (which lives in Firebase Storage, not Firestore) into the Cache Storage
+// API the service worker reads from — so images/files open offline too.
+async function downloadEverythingForOffline() {
+  if (!currentUser) return;
+  if (!('caches' in window)) { setBackupStatus('این مرورگر از ذخیره‌ی آفلاین پشتیبانی نمی‌کند.'); return; }
+  // Match whatever cache the active service worker is actually using
+  // (named "yadno-shell-vN") instead of hardcoding a version number here,
+  // so this keeps working correctly across future service-worker updates.
+  const existingCacheKeys = await caches.keys();
+  const OFFLINE_CACHE = existingCacheKeys.find((k) => k.startsWith('yadno-shell-')) || 'yadno-shell-v4';
+  try {
+    setBackupStatus('در حال بررسی دفترها...');
+    const nbSnap = await getDocs(userCol('notebooks'));
+    const attachmentUrls = [];
+    let noteCount = 0;
+    for (const nbDoc of nbSnap.docs) {
+      const nbId = nbDoc.id;
+      await getDocs(userCol('notebooks', nbId, 'sectionGroups')).catch(() => {});
+      await getDocs(userCol('notebooks', nbId, 'sections')).catch(() => {});
+      const noteSnap = await getDocs(collection(db, 'users', currentUser.uid, 'notebooks', nbId, 'notes'));
+      noteSnap.docs.forEach((d) => {
+        noteCount++;
+        const data = d.data();
+        (data.attachments || []).forEach((a) => { if (a && a.url) attachmentUrls.push(a.url); });
+      });
+      setBackupStatus(`در حال آماده‌سازی یادداشت‌ها... (${noteCount})`);
+    }
+    const cache = await caches.open(OFFLINE_CACHE);
+    let done = 0;
+    for (const url of attachmentUrls) {
+      done++;
+      setBackupStatus(`در حال دانلود فایل‌های پیوست... (${done}/${attachmentUrls.length})`);
+      try {
+        const already = await cache.match(url);
+        if (already) continue;
+        const res = await fetch(url, { mode: 'cors' });
+        if (res && res.ok) await cache.put(url, res);
+      } catch (e) { /* one failed file shouldn't stop the rest */ }
+    }
+    setBackupStatus(`آماده شد: ${noteCount} یادداشت و ${attachmentUrls.length} فایل پیوست برای آفلاین ذخیره شد.`);
+  } catch (e) {
+    setBackupStatus('دانلود کامل با خطا مواجه شد: ' + (e?.message || e));
+  }
+  setTimeout(() => setBackupStatus(''), 6000);
+}
+$('offline-download-btn').addEventListener('click', () => { downloadEverythingForOffline(); });
 
 $('backup-export-btn').addEventListener('click', async () => {
   setBackupStatus('در حال آماده‌سازی پشتیبان...');
