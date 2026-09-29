@@ -24,7 +24,8 @@ const CDN_HOSTS = new Set([
   'www.gstatic.com',
   'cdnjs.cloudflare.com',
   'fonts.googleapis.com',
-  'fonts.gstatic.com'
+  'fonts.gstatic.com',
+  'firebasestorage.googleapis.com'
 ]);
 
 // ذخیره کتابخانه‌های Firebase و وابستگی‌های آن‌ها
