@@ -1135,6 +1135,8 @@ body>.color-popover button{touch-action:manipulation}
   window.__yadnoStarted=()=>{started=true;};
   function report(message){
     if(started)return;
+    if(report.shown)return; // a specific message already showed; don't overwrite it with a later generic one
+    report.shown=true;
     const screen=document.getElementById('loading-screen');
     if(!screen || getComputedStyle(screen).display==='none')return;
     let panel=document.getElementById('startup-recovery');
@@ -1150,7 +1152,10 @@ body>.color-popover button{touch-action:manipulation}
   window.__yadnoStartupError=e=>report(e?.message||String(e));
   window.addEventListener('error',e=>report('خطا در راه‌اندازی: '+(e.message||'یکی از فایل‌ها بارگذاری نشد.')));
   window.addEventListener('unhandledrejection',e=>report('خطا در راه‌اندازی: '+(e.reason?.message||'نامشخص')));
-  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),12000);
+  // Kept a bit more patient than the app's own staged auth-restore watchdog
+  // (up to ~20s offline on a cold start), so this generic fallback only ever
+  // fires for cases the more specific logic doesn't already cover.
+  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),23000);
 })();
 </script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -1241,18 +1246,34 @@ function initFirebase(config) {
     }
     try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
     let authResolved=false;
-    const authWatchdog=setTimeout(()=>{
+    // On a cold start (window/tab was fully closed and reopened) while
+    // offline, restoring the signed-in user from IndexedDB can occasionally
+    // take longer than a single short timeout — especially now that the
+    // "download everything for offline" feature means there's more cached
+    // data competing for the same IndexedDB. Instead of giving up after one
+    // fixed wait, check a few times over a longer window before showing the
+    // "not restored yet" message.
+    const authCheckDelays=[2000,5000,9000,14000,20000];
+    let authCheckIndex=0;
+    function checkAuthWatchdog(){
       if(authResolved)return;
       if(auth.currentUser){
         authResolved=true;
         currentUser=auth.currentUser;
         showScreen('app');startListening();
-      }else{
-        window.__yadnoStartupError?.(new Error(navigator.onLine
-          ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
-          : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+        return;
       }
-    },8000);
+      if(authCheckIndex<authCheckDelays.length){
+        setTimeout(checkAuthWatchdog,authCheckDelays[authCheckIndex]-(authCheckDelays[authCheckIndex-1]||0));
+        authCheckIndex++;
+        return;
+      }
+      window.__yadnoStartupError?.(new Error(navigator.onLine
+        ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
+        : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+    }
+    const authWatchdog=setTimeout(checkAuthWatchdog,authCheckDelays[0]);
+    authCheckIndex=1;
     onAuthStateChanged(auth, (user) => {
       clearTimeout(authWatchdog);
       authResolved=true;
