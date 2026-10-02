@@ -1189,7 +1189,7 @@ const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch((err) => console.error('Yadno: service worker registration failed', err));
   });
 }
 
@@ -1245,50 +1245,67 @@ function initFirebase(config) {
       db = getFirestore(firebaseApp);
     }
     try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
+
+    // ---------- Optimistic offline entry ----------
+    // navigator.onLine only reflects whether a network *interface* is up —
+    // it stays true on a flaky/VPN connection that can't actually reach
+    // Firebase's servers, which previously made the app wait (and
+    // eventually show a "taking too long" message) even though everything
+    // needed to show the user's own notes was already sitting in the local
+    // cache. Instead: if this device has previously signed in, enter the
+    // app immediately with that remembered account and start reading from
+    // the local Firestore cache right away — no network round trip
+    // required. onAuthStateChanged below still runs in the background and
+    // corrects course (a) once the real session confirms (harmless, same
+    // uid) or (b) if it turns out the person is genuinely signed out.
+    const LAST_UID_KEY = 'yadno_last_uid';
     let authResolved=false;
-    // On a cold start (window/tab was fully closed and reopened) while
-    // offline, restoring the signed-in user from IndexedDB can occasionally
-    // take longer than a single short timeout — especially now that the
-    // "download everything for offline" feature means there's more cached
-    // data competing for the same IndexedDB. Instead of giving up after one
-    // fixed wait, check a few times over a longer window before showing the
-    // "not restored yet" message.
-    const authCheckDelays=[2000,5000,9000,14000,20000];
-    let authCheckIndex=0;
-    function checkAuthWatchdog(){
-      if(authResolved)return;
-      if(auth.currentUser){
-        authResolved=true;
-        currentUser=auth.currentUser;
-        showScreen('app');startListening();
-        return;
-      }
-      if(authCheckIndex<authCheckDelays.length){
-        setTimeout(checkAuthWatchdog,authCheckDelays[authCheckIndex]-(authCheckDelays[authCheckIndex-1]||0));
-        authCheckIndex++;
-        return;
-      }
-      window.__yadnoStartupError?.(new Error(navigator.onLine
-        ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
-        : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+    const cachedUid = localStorage.getItem(LAST_UID_KEY);
+    if (cachedUid) {
+      authResolved = true; // optimistic — onAuthStateChanged reconciles below
+      currentUser = { uid: cachedUid };
+      showScreen('app');
+      startListening();
+    } else {
+      // No remembered session on this device at all — nothing to show
+      // without a real login, so wait (briefly, in stages) for Firebase
+      // before giving up.
+      const authCheckDelays=[3000,8000,15000];
+      let authCheckIndex=0;
+      const checkAuthWatchdog=()=>{
+        if(authResolved)return;
+        if(authCheckIndex<authCheckDelays.length){
+          setTimeout(checkAuthWatchdog,authCheckDelays[authCheckIndex]-(authCheckDelays[authCheckIndex-1]||0));
+          authCheckIndex++;
+          return;
+        }
+        window.__yadnoStartupError?.(new Error(navigator.onLine
+          ? 'ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
+          : 'برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+      };
+      setTimeout(checkAuthWatchdog,authCheckDelays[0]);
+      authCheckIndex=1;
     }
-    const authWatchdog=setTimeout(checkAuthWatchdog,authCheckDelays[0]);
-    authCheckIndex=1;
+
     onAuthStateChanged(auth, (user) => {
-      clearTimeout(authWatchdog);
       authResolved=true;
-      if(currentUser?.uid===user?.uid && user && unsubNotebooks)return;
-      currentUser = user;
       if (user) {
+        localStorage.setItem(LAST_UID_KEY, user.uid);
+        if(currentUser?.uid===user.uid && unsubNotebooks){ currentUser=user; return; } // already showing this account
+        currentUser = user;
         showScreen('app');
         startListening();
       } else {
+        // Genuinely no session (this check is local, not network-dependent,
+        // so it's trustworthy even offline) — including if we'd optimistically
+        // shown a remembered account that turned out to be signed out.
+        localStorage.removeItem(LAST_UID_KEY);
+        currentUser = null;
         stopListening();
         showScreen('auth');
       }
     }, (error)=>{
-      clearTimeout(authWatchdog);
-      window.__yadnoStartupError?.(error);
+      if (!currentUser) window.__yadnoStartupError?.(error);
     });
     return true;
   } catch (e) {
