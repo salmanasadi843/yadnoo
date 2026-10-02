@@ -98,12 +98,22 @@ self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
 
-    // ذخیره فایل اصلی
-    await cache.add(
-      new Request('./index.html', {
-        cache: 'reload'
-      })
-    );
+    // ذخیره فایل اصلی — اگر یک تلاش به هر دلیلی (مثلاً یک قطعی لحظه‌ای
+    // شبکه) ناموفق باشد، دوباره تلاش می‌کنیم؛ شکست کامل این مرحله باعث
+    // می‌شد کل نصب Service Worker لغو شود و آفلاین هیچ‌وقت فعال نشود.
+    let indexCached = false;
+    for (let attempt = 0; attempt < 2 && !indexCached; attempt++) {
+      try {
+        await cache.add(
+          new Request('./index.html', {
+            cache: 'reload'
+          })
+        );
+        indexCached = true;
+      } catch (error) {
+        console.warn('[Yadno offline] index.html precache attempt failed:', error);
+      }
+    }
 
     // ذخیره سایر فایل‌های برنامه
     await Promise.allSettled(
