@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۲۶)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۳۴)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -13,13 +13,9 @@
 <!-- jszip and html2pdf are now lazy-loaded on demand (see loadScriptOnce), only when the user actually exports a note -->
 <style>
   :root {
-    /* Consolidated theme (previously redeclared three times across the
-       file's history as "v9", "visual refresh", and "v21 OneNote purple"
-       layers — those redeclarations have been removed; these are the
-       values that were actually winning). */
     --paper: #faf9fc;
     --paper-line: #eae5f0;
-    --line: #eae5f0; /* alias of --paper-line: some rules (e.g. modal borders) reference --line specifically, and previously had no light-mode value at all */
+    --line: #eae5f0;
     --ink: #32263d;
     --ink-soft: #6c6076;
     --gold: #8a3cba;
@@ -159,11 +155,15 @@
   .pane-resizer{cursor:col-resize;background:transparent;position:relative;z-index:5;touch-action:none}
   .pane-resizer::after{content:'';position:absolute;top:10%;bottom:10%;left:2px;right:2px;border-radius:4px;background:transparent;transition:.15s}
   .pane-resizer:hover::after,.pane-resizer.dragging::after{background:#d9c7a0}
-  .pane.collapsed{padding:0!important;overflow:hidden!important}
+  /* v34 NEW: pane collapsed = narrow strip with clickable arrow */
+  .pane.collapsed{padding:0!important;overflow:hidden!important;background:var(--panel)!important;cursor:pointer}
   .pane.collapsed > *:not(.pane-header){display:none!important}
-  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent}
+  .pane.collapsed .pane-header{background:transparent;border-bottom-color:transparent;padding:8px 2px!important;justify-content:center!important;cursor:pointer;height:100%!important}
   .pane.collapsed .pane-header > span{display:none}
-  .pane.collapsed .pane-header .header-actions{margin-inline-start:auto}
+  .pane.collapsed .pane-header .header-actions{margin-inline-start:0!important;justify-content:center!important}
+  .pane.collapsed .pane-header .icon-btn:not(.pane-collapse){display:none!important}
+  .pane.collapsed .pane-collapse{font-size:18px!important;width:32px!important;height:32px!important;color:var(--gold)!important;background:var(--paper)!important;border:1px solid var(--paper-line)!important;border-radius:8px!important}
+  .pane.collapsed:hover .pane-collapse{background:var(--gold)!important;color:#fff!important}
   .pane-collapse{font-size:15px;line-height:1;width:28px;height:28px}
   .pane-header .header-actions{display:flex;align-items:center;gap:2px}
   #notebooks-pane.collapsed,#sections-pane.collapsed,#notes-pane.collapsed{min-width:0}
@@ -766,18 +766,94 @@ html[data-theme="dark"] #body-editor [style*="background-color"]:not([style*="tr
 /* Palettes live directly under body, outside horizontally scrolling toolbar */
 body>.color-popover{position:fixed!important;z-index:9999!important;max-width:calc(100vw - 16px);flex-wrap:wrap;box-shadow:0 7px 28px #25123440}
 body>.color-popover button{touch-action:manipulation}
-</style>
 
-<style id="library-export-v40-style">
-.library-export-option{border:1px solid var(--paper-line);background:var(--paper);border-radius:11px;padding:11px 12px;text-align:start;cursor:pointer;color:var(--ink)}
-.library-export-option:hover{border-color:#d5bd83}
-.library-export-option.active{border-color:#8a3cba;background:#f4eafa;box-shadow:0 0 0 2px rgba(138,60,186,.10)}
-.library-export-option strong{display:block;font-size:13px;margin-bottom:3px}
-.library-export-option small{display:block;color:var(--ink-soft);font-size:11px;line-height:1.7}
-@media(max-width:600px){#library-export-modal>div{padding:15px!important}#library-export-scope,#library-export-format{grid-template-columns:1fr!important}}
-</style>
+/* v27: reachable formatting controls in normal phone editing and focus mode */
+@media(max-width:600px){
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar,
+ #app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{
+   position:fixed!important;top:auto!important;left:0!important;right:0!important;
+   bottom:var(--yadno-toolbar-bottom,65px)!important;width:100%!important;
+   z-index:180!important;display:flex!important;flex-direction:column-reverse!important;
+   border-radius:13px 13px 0 0!important;margin:0!important;
+   box-shadow:0 -4px 20px rgba(22,37,64,.17)!important;
+   padding:5px 6px!important;max-height:min(45dvh,310px)!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #toolbar-secondary,
+ #app.focus-mode #toolbar-secondary{
+   border-top:0!important;border-bottom:1px solid var(--paper-line)!important;
+   margin:0 0 4px!important;padding:3px 4px 8px!important;
+   max-height:25dvh!important;overflow-y:auto!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-content{
+   padding-bottom:175px!important;scroll-padding-bottom:170px!important;
+ }
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{
+   scroll-padding-bottom:135px!important;padding-bottom:165px!important;
+ }
+ body.yadno-keyboard-open #phone-bottom-nav{display:none!important}
+}
 
-</head>
+/* v32: accessible, modern touch-sized mobile formatting controls */
+#editor-toolbar .yadno-tool-icon{display:block;width:23px;height:23px;flex:none;pointer-events:none}
+#editor-toolbar #highlight-swatch-icon{display:flex;align-items:center;justify-content:center}
+#editor-toolbar #highlight-swatch-icon::after{content:"";position:absolute;bottom:5px;width:22px;height:4px;border-radius:5px;background:#ffe56b}
+#editor-toolbar #highlight-btn{position:relative}
+@media(max-width:600px){
+ #editor-toolbar{padding:8px 7px!important;border-radius:17px 17px 0 0!important;box-shadow:0 -6px 24px rgba(21,38,76,.13)!important}
+ #toolbar-primary{gap:7px!important;align-items:center!important;min-height:54px!important}
+ #toolbar-scroll{gap:7px!important;align-items:center!important;scroll-snap-type:x proximity;scroll-padding-inline:5px}
+ #editor-toolbar #toolbar-scroll>button,#editor-toolbar #toolbar-scroll>.color-control>button,
+ #editor-toolbar #toolbar-pinned>button{box-sizing:border-box!important;min-width:50px!important;width:50px!important;min-height:50px!important;height:50px!important;padding:0!important;border-radius:13px!important;font-size:21px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:var(--panel,#fff)!important;border:1px solid var(--paper-line,#e5e7eb)!important;box-shadow:0 1px 3px rgba(20,35,65,.07)!important;scroll-snap-align:start}
+ #editor-toolbar #toolbar-scroll>.color-control{display:flex;align-items:center;flex:0 0 auto}
+ #editor-toolbar #toolbar-pinned{gap:5px!important;align-items:center!important;flex-shrink:0}
+ #editor-toolbar #toolbar-pinned>button{min-width:46px!important;width:46px!important}
+ #editor-toolbar .yadno-tool-icon{width:26px;height:26px}
+ #editor-toolbar #toolbar-more-btn svg{width:25px!important;height:25px!important}
+ #editor-toolbar #toolbar-scroll>button:active,#editor-toolbar #toolbar-pinned>button:active,#editor-toolbar .color-control>button:active{transform:scale(.94);background:var(--paper-line,#edf0f7)!important}
+ #editor-toolbar #toolbar-secondary{gap:8px!important;padding:10px 5px!important}
+ #editor-toolbar #toolbar-secondary>button{min-width:49px!important;min-height:49px!important;height:49px!important;padding:0 12px!important;border-radius:12px!important;display:inline-flex;align-items:center;justify-content:center}
+ #editor-toolbar #toolbar-secondary select{min-height:49px!important;height:49px!important;font-size:16px!important;border-radius:12px!important}
+ #editor-toolbar .color-popover button.color-swatch,#editor-toolbar .color-popover button.hl-swatch,body>.color-popover button{width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;border-radius:11px!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar,#app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{padding:8px 7px!important;max-height:min(52dvh,390px)!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-content{padding-bottom:195px!important;scroll-padding-bottom:195px!important}
+ body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{padding-bottom:185px!important;scroll-padding-bottom:185px!important}
+}
+@media(max-width:380px){#toolbar-primary{gap:4px!important}#toolbar-scroll{gap:5px!important}#editor-toolbar #toolbar-pinned>button{min-width:44px!important;width:44px!important}}
+
+/* ===== v33: fix mobile toolbar scroll + "more" panel access ===== */
+@media(max-width:600px){
+  #toolbar-primary{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;width:100%!important}
+  #toolbar-scroll{flex:1 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;padding-bottom:2px!important}
+  #toolbar-scroll::-webkit-scrollbar{display:none!important}
+  #toolbar-pinned{flex:0 0 auto!important;gap:3px!important;padding-inline-start:4px!important;border-inline-start:1px solid var(--paper-line)!important}
+  #toolbar-pinned>button{min-width:42px!important;width:42px!important;min-height:46px!important;height:46px!important;padding:0!important}
+  body.yadno-toolbar-docked #editor-toolbar,#app.focus-mode #editor-toolbar{flex-direction:column!important;max-height:min(60dvh,460px)!important;overflow:visible!important}
+  body.yadno-toolbar-docked #toolbar-secondary,#app.focus-mode #toolbar-secondary{order:-1!important;max-height:38dvh!important;overflow-y:auto!important;border-top:0!important;border-bottom:1px solid var(--paper-line)!important;margin:0 0 6px!important;padding:6px 4px 10px!important;flex-wrap:wrap!important}
+  body.yadno-toolbar-docked #toolbar-secondary.open,#app.focus-mode #toolbar-secondary.open{display:flex!important}
+}
+
+/* ===== v34: خوانایی و تمرکز در دسکتاپ ===== */
+#editor-pane.read-mode #attachments-box,
+#editor-pane.read-mode #tag-editor,
+#editor-pane.read-mode #reading-options{display:none!important}
+#editor-pane.read-mode #editor-toolbar{display:none!important}
+#editor-pane.read-mode #title-input{font-size:32px!important;font-weight:800!important;text-align:right!important;padding:28px 8px 16px!important;border-bottom:3px solid var(--active-book-color,#7719aa)!important;margin-bottom:20px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important;cursor:text!important}
+#editor-pane.read-mode #editor-content{max-width:720px!important;margin:0 auto!important;padding:20px 30px 100px!important}
+#editor-pane.read-mode #body-editor{font-size:var(--reader-font-size,19px)!important;line-height:2.2!important;text-align:right!important;padding:0 8px!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:auto!important;user-select:text!important;-webkit-user-select:text!important;cursor:text!important}
+#editor-pane.read-mode #attachments-box:has(#attachments-list .attach-progress:only-child){display:none!important}
+@media (min-width:861px){
+  #app.focus-mode #notebooks-pane,
+  #app.focus-mode #sections-pane,
+  #app.focus-mode #notes-pane,
+  #app.focus-mode .pane-resizer{display:none!important}
+  #app.focus-mode #main-grid{grid-template-columns:minmax(0,1fr)!important;background:#fff!important}
+  #app.focus-mode #editor-pane{grid-column:1/-1!important}
+  #app.focus-mode #topbar{height:48px!important;padding:4px 12px!important}
+}
+#app.focus-mode #editor-pane.read-mode #editor-content{max-width:680px!important;padding-top:40px!important}
+#reading-controls{padding:6px 10px!important;margin-bottom:16px!important}
+#reading-size-label{font-size:14px!important;font-weight:700!important;min-width:32px!important}
+</style></head>
 <body>
 
 <div id="loading-screen">
@@ -787,7 +863,6 @@ body>.color-popover button{touch-action:manipulation}
   <p>در حال بارگذاری یادنو...</p>
 </div>
 
-<!-- Firebase config screen: shown once, until user pastes their own Firebase project config -->
 <div id="config-screen">
   <div class="config-card">
     <h1>اتصال به Firebase</h1>
@@ -813,7 +888,6 @@ body>.color-popover button{touch-action:manipulation}
   </div>
 </div>
 
-<!-- Auth screen -->
 <div id="auth-screen">
   <div class="auth-card">
     <h1 id="auth-title">ورود به یادنو</h1>
@@ -842,8 +916,6 @@ body>.color-popover button{touch-action:manipulation}
   </div>
 </div>
 
-<!-- Main app -->
-<!-- v18: mobile-safe attachment opening/downloading -->
 <div id="app">
   <div id="topbar">
     <button id="menu-toggle" aria-label="منو">
@@ -869,8 +941,8 @@ body>.color-popover button{touch-action:manipulation}
         <button id="backup-export-btn">دانلود پشتیبان کامل (JSON)</button>
         <button id="backup-import-btn">بازیابی از فایل پشتیبان</button>
         <button id="onenote-import-btn">📥 وارد کردن از OneNote</button>
-        <button id="library-export-btn">📤 خروجی کتابخانه / دفتر / بخش</button>
         <button id="open-trash-btn">🗑️ سطل زباله</button>
+        <button id="offline-download-btn">📴 دانلود کامل برای آفلاین</button>
         <div id="backup-status"></div>
         <div class="divider"></div>
         <button id="signout-btn-menu" style="color:#A83E32;">خروج از حساب</button>
@@ -958,7 +1030,7 @@ body>.color-popover button{touch-action:manipulation}
                 </div>
               </div>
               <div class="color-control">
-                <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon">🖊</span></button>
+                <button id="highlight-btn" title="هایلات"><span id="highlight-swatch-icon"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l5-.8L20 8a2.1 2.1 0 0 0-3-3L6 16l-2 4Z"/><path d="M4 22h16"/></svg></span></button>
                 <div class="color-popover" id="highlight-group">
                   <button class="hl-swatch" data-color="#FFF59D" style="background:#FFF59D;"></button>
                   <button class="hl-swatch" data-color="#C8E6C9" style="background:#C8E6C9;"></button>
@@ -968,13 +1040,13 @@ body>.color-popover button{touch-action:manipulation}
                 </div>
               </div>
               <div class="sep"></div>
-              <button data-cmd="insertUnorderedList" title="فهرست">•</button>
-              <button data-cmd="insertOrderedList" title="فهرست شماره‌دار">☰</button>
-              <button id="checklist-btn" title="چک‌لیست">☑</button>
+              <button data-cmd="insertUnorderedList" title="فهرست" aria-label="فهرست نقطه‌ای"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/></svg></button>
+              <button data-cmd="insertOrderedList" title="فهرست شماره‌دار" aria-label="فهرست شماره‌دار"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h11M10 12h11M10 18h11M3 5h2v4M3 9h4M3 14c1-2 4-2 4 0 0 1-1 2-4 4h4"/></svg></button>
+              <button id="checklist-btn" title="چک‌لیست" aria-label="چک‌لیست"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m7 12 3 3 7-7"/></svg></button>
             </div>
             <div id="toolbar-pinned">
-              <button id="undo-btn" title="بازگشت (Undo)">↶</button>
-              <button id="redo-btn" title="جلو (Redo)">↷</button>
+              <button id="undo-btn" title="بازگشت (Undo)" aria-label="واگرد"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg></button>
+              <button id="redo-btn" title="جلو (Redo)" aria-label="بازانجام"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5m5 5H10a6 6 0 0 0 0 12h2"/></svg></button>
               <button id="toolbar-more-btn" title="گزینه‌های بیشتر" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>
               </button>
@@ -989,9 +1061,9 @@ body>.color-popover button{touch-action:manipulation}
               <option value="'Courier New'">Courier New</option>
             </select>
             <div class="sep"></div>
-            <button id="link-btn" title="درج لینک">🔗</button>
-            <button id="image-btn" title="درج عکس">🖼</button>
-            <button id="attachment-btn" title="افزودن فایل پیوست">📎</button>
+            <button id="link-btn" title="درج لینک"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 .4l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7-.4l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></button>
+            <button id="image-btn" title="درج عکس"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
+            <button id="attachment-btn" title="افزودن فایل پیوست"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11.5-8.5 8.5a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8-8"/></svg></button>
             <button id="section-btn" title="بخش‌بندی">§</button>
             <button id="add-section-group-toolbar" title="گروه بخش جدید">▣</button>
             <div class="sep"></div>
@@ -1037,42 +1109,6 @@ body>.color-popover button{touch-action:manipulation}
   </div>
 </div>
 
-
-<div id="library-export-modal" style="display:none;position:fixed;inset:0;z-index:130;background:rgba(29,43,79,.38);align-items:center;justify-content:center;padding:18px">
-  <div style="width:min(720px,96vw);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--paper-line);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.18);padding:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <strong style="font-size:16px">📤 خروجی یادنو — نسخه ۴۰</strong>
-      <button id="close-library-export-btn" class="icon-btn" title="بستن">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--ink-soft);line-height:1.8;margin-top:6px">
-      یک یادداشت، بخش، دفتر یا کل کتابخانه را با ساختار آن خروجی بگیر.
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px" id="library-export-scope">
-      <button type="button" class="library-export-option active" data-scope="note"><strong>📝 یادداشت جاری</strong><small>فقط یادداشت انتخاب‌شده</small></button>
-      <button type="button" class="library-export-option" data-scope="section"><strong>📑 بخش جاری</strong><small>همه یادداشت‌های بخش</small></button>
-      <button type="button" class="library-export-option" data-scope="notebook"><strong>📕 دفتر جاری</strong><small>همه بخش‌ها و یادداشت‌ها</small></button>
-      <button type="button" class="library-export-option" data-scope="library"><strong>📚 کل کتابخانه</strong><small>همه دفترها، بخش‌ها و یادداشت‌ها</small></button>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px" id="library-export-format">
-      <button type="button" class="library-export-option active" data-format="docx"><strong>📝 Word (.docx)</strong><small>قابل ویرایش</small></button>
-      <button type="button" class="library-export-option" data-format="pdf"><strong>📄 PDF (.pdf)</strong><small>A4</small></button>
-      <button type="button" class="library-export-option" data-format="html"><strong>🌐 HTML (.html)</strong><small>ساختار و قالب</small></button>
-      <button type="button" class="library-export-option" data-format="md"><strong>🔖 Markdown (.md)</strong><small>متن ساختاریافته</small></button>
-      <button type="button" class="library-export-option" data-format="txt"><strong>📃 متن ساده (.txt)</strong><small>بدون قالب</small></button>
-      <button type="button" class="library-export-option" data-format="json"><strong>🧩 JSON (.json)</strong><small>داده ساختاریافته</small></button>
-      <button type="button" class="library-export-option" data-format="zip"><strong>🗜️ ZIP (.zip)</strong><small>ساختار + پیوست‌ها</small></button>
-    </div>
-
-    <div id="library-export-status" style="margin-top:13px;min-height:22px;font-size:12px;color:var(--ink-soft);line-height:1.8"></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-      <button class="btn-secondary" id="cancel-library-export-btn">انصراف</button>
-      <button class="btn-primary" id="run-library-export-btn" style="width:auto;padding:10px 18px">خروجی بگیر</button>
-    </div>
-  </div>
-</div>
-
 <div id="onenote-modal" class="modal-overlay">
   <div class="modal-box" style="max-width:720px;">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
@@ -1094,12 +1130,13 @@ body>.color-popover button{touch-action:manipulation}
 </div>
 
 <script>
-// This guard also runs when an ES module fails to load before application code executes.
 (function(){
   let started=false;
   window.__yadnoStarted=()=>{started=true;};
   function report(message){
     if(started)return;
+    if(report.shown)return; // a specific message already showed; don't overwrite it with a later generic one
+    report.shown=true;
     const screen=document.getElementById('loading-screen');
     if(!screen || getComputedStyle(screen).display==='none')return;
     let panel=document.getElementById('startup-recovery');
@@ -1115,205 +1152,19 @@ body>.color-popover button{touch-action:manipulation}
   window.__yadnoStartupError=e=>report(e?.message||String(e));
   window.addEventListener('error',e=>report('خطا در راه‌اندازی: '+(e.message||'یکی از فایل‌ها بارگذاری نشد.')));
   window.addEventListener('unhandledrejection',e=>report('خطا در راه‌اندازی: '+(e.reason?.message||'نامشخص')));
-  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),12000);
+  // Kept a bit more patient than the app's own staged auth-restore watchdog
+  // (up to ~20s offline on a cold start), so this generic fallback only ever
+  // fires for cases the more specific logic doesn't already cover.
+  setTimeout(()=>report(navigator.onLine?'راه‌اندازی طول کشیده است. دوباره تلاش کنید.':'راه‌اندازی آفلاین ممکن نشد؛ احتمالاً فایل‌های ضروری قبلاً ذخیره نشده‌اند.'),23000);
 })();
-
-/* ---------- Library / notebook / section export v40 ---------- */
-let libraryExportScope = 'note';
-let libraryExportFormat = 'docx';
-
-function libraryExportStatus(msg){
-  const el = $('library-export-status');
-  if(el) el.textContent = msg || '';
-}
-function libraryExportOpen(){
-  const m = $('library-export-modal');
-  if(!m) return;
-  libraryExportScope='note';
-  libraryExportFormat='docx';
-  m.style.display='flex';
-  m.querySelectorAll('[data-scope]').forEach(b=>b.classList.toggle('active',b.dataset.scope==='note'));
-  m.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('active',b.dataset.format==='docx'));
-  libraryExportStatus('');
-}
-function libraryExportClose(){
-  const m=$('library-export-modal');
-  if(m) m.style.display='none';
-}
-function exportPlainTextV40(h){
-  const d=document.createElement('div');
-  d.innerHTML=h||'';
-  return d.textContent||d.innerText||'';
-}
-function exportSafeNameV40(s){
-  return safeFileName(String(s||'yadno-export')).replace(/\.+$/,'') || 'yadno-export';
-}
-function flattenExportV40(data){
-  const out=[];
-  data.forEach(nb=>(nb.sections||[]).forEach(sec=>(sec.notes||[]).forEach(note=>out.push({notebook:nb,section:sec,note}))));
-  return out;
-}
-async function collectExportV40(scope){
-  if(!currentUser) throw new Error('ابتدا وارد حساب شوید.');
-  const nbSnap=await getDocs(userCol('notebooks'));
-  const nbs=nbSnap.docs.map(d=>({id:d.id,...d.data()}));
-  const result=[];
-  for(const nb of nbs){
-    if(scope!=='library' && nb.id!==activeNotebookId) continue;
-    const secSnap=await getDocs(userCol('notebooks',nb.id,'sections'));
-    const secs=secSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const noteSnap=await getDocs(collection(db,'users',currentUser.uid,'notebooks',nb.id,'notes'));
-    const allNotes=noteSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const sections=[];
-    for(const sec of secs){
-      if(scope==='section' && sec.id!==activeSectionId) continue;
-      if(scope==='note' && sec.id!==activeSectionId) continue;
-      let ns=allNotes.filter(n=>n.sectionId===sec.id);
-      if(scope==='note') ns=ns.filter(n=>n.id===activeNoteId);
-      sections.push({...sec,notes:ns});
-    }
-    if(scope==='library' || scope==='notebook' || sections.length) result.push({...nb,sections});
-    if(scope==='section' || scope==='note') break;
-  }
-  if(scope==='note' && !flattenExportV40(result).length){
-    const live=notes.find(n=>n.id===activeNoteId);
-    if(live) return [{id:activeNotebookId,name:'دفتر جاری',sections:[{id:activeSectionId,name:'بخش جاری',notes:[live]}]}];
-  }
-  return result;
-}
-function exportHtmlV40(data){
-  let body='<h1>کتابخانه یادنو</h1>';
-  data.forEach(nb=>{
-    body+=`<h2>${escapeHtml(nb.name||'دفتر بدون نام')}</h2>`;
-    (nb.sections||[]).forEach(sec=>{
-      body+=`<h3>${escapeHtml(sec.name||'بخش بدون نام')}</h3>`;
-      (sec.notes||[]).forEach(n=>{
-        body+=`<article class="yadno-note"><h4>${escapeHtml(n.title||'بدون عنوان')}</h4><div class="yadno-tags">${(n.tags||[]).map(t=>'#'+escapeHtml(t)).join(' ')}</div><div>${n.body||''}</div></article>`;
-      });
-    });
-  });
-  return `<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>یادنو</title><style>
-body{direction:rtl;font-family:Tahoma,Vazirmatn,sans-serif;line-height:2;max-width:900px;margin:auto;padding:36px;color:#222}
-h1{font-size:28px;border-bottom:2px solid #ddd;padding-bottom:10px}h2{font-size:22px;margin-top:34px}
-h3{font-size:18px;margin-top:24px}h4{font-size:17px}.yadno-note{margin:18px 0 28px;padding-bottom:18px;border-bottom:1px solid #eee;page-break-inside:avoid}.yadno-note img{max-width:100%;height:auto}.yadno-tags{color:#777;font-size:12px}
-</style></head><body>${body}</body></html>`;
-}
-function exportMarkdownV40(data){
-  let s='# کتابخانه یادنو\n\n';
-  data.forEach(nb=>{
-    s+=`## ${nb.name||'دفتر بدون نام'}\n\n`;
-    (nb.sections||[]).forEach(sec=>{
-      s+=`### ${sec.name||'بخش بدون نام'}\n\n`;
-      (sec.notes||[]).forEach(n=>{
-        s+=`#### ${n.title||'بدون عنوان'}\n\n${exportPlainTextV40(n.body||'').trim()}\n\n`;
-        if((n.tags||[]).length) s+=`برچسب‌ها: ${n.tags.join('، ')}\n\n`;
-      });
-    });
-  });
-  return s;
-}
-function exportTextV40(data){
-  let s='کتابخانه یادنو\n\n';
-  data.forEach(nb=>{
-    s+=`===== ${nb.name||'دفتر بدون نام'} =====\n\n`;
-    (nb.sections||[]).forEach(sec=>{
-      s+=`--- ${sec.name||'بخش بدون نام'} ---\n\n`;
-      (sec.notes||[]).forEach(n=>s+=`${n.title||'بدون عنوان'}\n${exportPlainTextV40(n.body||'').trim()}\n\n`);
-    });
-  });
-  return s;
-}
-function exportJsonV40(data){
-  return JSON.stringify({app:'یادنو',version:40,exportedAt:new Date().toISOString(),data},(k,v)=>{
-    if((k==='createdAt'||k==='updatedAt') && v && typeof v.toDate==='function') return v.toDate().toISOString();
-    return v;
-  },2);
-}
-async function exportDocxV40(data,name){
-  await loadScriptOnce(JSZIP_URL);
-  const z=new JSZip();
-  const paras=[];
-  const add=(text,bold,size)=>paras.push({runs:[{text:String(text||''),bold}],size});
-  data.forEach(nb=>{
-    add(nb.name,true,32);
-    (nb.sections||[]).forEach(sec=>{
-      add(sec.name,true,26);
-      (sec.notes||[]).forEach(n=>{
-        add(n.title,true,22);
-        htmlToDocxParagraphs(n.body||'').forEach(p=>paras.push(p));
-      });
-    });
-  });
-  const run=r=>{
-    const props=['<w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/>','<w:rtl/>'];
-    if(r.bold) props.push('<w:b/>'); if(r.italic) props.push('<w:i/>'); if(r.underline) props.push('<w:u w:val="single"/>');
-    return `<w:r><w:rPr>${props.join('')}</w:rPr><w:t xml:space="preserve">${xmlEscape(r.text||'').replace(/\n/g,'&#10;')}</w:t></w:r>`;
-  };
-  const body=paras.map(p=>`<w:p><w:pPr><w:bidi/></w:pPr>${(p.runs||[{text:''}]).map(run).join('')}</w:p>`).join('');
-  const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417"/></w:sectPr></w:body></w:document>`;
-  z.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
-  z.folder('_rels').file('.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
-  z.folder('word').file('document.xml',xml);
-  downloadBlob(await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),exportSafeNameV40(name)+'.docx');
-}
-async function exportPdfV40(data,name){
-  await loadScriptOnce(HTML2PDF_URL);
-  const w=document.createElement('div'); w.style.cssText='direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;padding:24px;background:#fff;color:#222;line-height:2';
-  const h=exportHtmlV40(data),m=h.match(/<body>([\s\S]*)<\/body>/i); w.innerHTML=m?m[1]:h; document.body.appendChild(w);
-  try{await html2pdf().set({margin:10,filename:exportSafeNameV40(name)+'.pdf',html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(w).save();}finally{w.remove();}
-}
-async function exportZipV40(data,name){
-  await loadScriptOnce(JSZIP_URL);
-  const z=new JSZip(),root=z.folder(exportSafeNameV40(name));
-  root.file('index.html',exportHtmlV40(data)); root.file('library.md',exportMarkdownV40(data)); root.file('library.txt',exportTextV40(data)); root.file('library.json',exportJsonV40(data));
-  const flat=flattenExportV40(data);
-  for(let i=0;i<flat.length;i++){
-    const x=flat[i];
-    for(const a of (x.note.attachments||[])){
-      if(!a.url) continue;
-      try{
-        const res=await fetch(a.url,{mode:'cors'}); if(!res.ok) continue;
-        const blob=await res.blob();
-        root.folder('attachments').folder(exportSafeNameV40(x.notebook.name)).folder(exportSafeNameV40(x.section.name)).folder(exportSafeNameV40(x.note.title)).file(exportSafeNameV40(a.name||a.fileName||'attachment'),blob);
-      }catch(e){}
-    }
-  }
-  downloadBlob(await z.generateAsync({type:'blob',mimeType:'application/zip'}),exportSafeNameV40(name)+'.zip');
-}
-async function runLibraryExportV40(){
-  try{
-    libraryExportStatus('در حال جمع‌آوری اطلاعات...');
-    const data=await collectExportV40(libraryExportScope);
-    const count=flattenExportV40(data).length;
-    if(!count) throw new Error('برای این محدوده یادداشتی پیدا نشد.');
-    const name=data.length===1?(data[0].name||'یادنو-خروجی'):'کتابخانه-یادنو';
-    if(libraryExportFormat==='docx') await exportDocxV40(data,name);
-    else if(libraryExportFormat==='pdf') await exportPdfV40(data,name);
-    else if(libraryExportFormat==='html') downloadBlob(new Blob([exportHtmlV40(data)],{type:'text/html;charset=utf-8'}),exportSafeNameV40(name)+'.html');
-    else if(libraryExportFormat==='md') downloadBlob(new Blob([exportMarkdownV40(data)],{type:'text/markdown;charset=utf-8'}),exportSafeNameV40(name)+'.md');
-    else if(libraryExportFormat==='txt') downloadBlob(new Blob([exportTextV40(data)],{type:'text/plain;charset=utf-8'}),exportSafeNameV40(name)+'.txt');
-    else if(libraryExportFormat==='json') downloadBlob(new Blob([exportJsonV40(data)],{type:'application/json;charset=utf-8'}),exportSafeNameV40(name)+'.json');
-    else if(libraryExportFormat==='zip') await exportZipV40(data,name);
-    libraryExportStatus('خروجی آماده شد: '+count+' یادداشت.');
-  }catch(e){libraryExportStatus('خروجی انجام نشد: '+(e?.message||e));}
-}
-$('library-export-btn')?.addEventListener('click',libraryExportOpen);
-$('close-library-export-btn')?.addEventListener('click',libraryExportClose);
-$('cancel-library-export-btn')?.addEventListener('click',libraryExportClose);
-$('library-export-modal')?.addEventListener('click',e=>{if(e.target.id==='library-export-modal')libraryExportClose();});
-$('library-export-scope')?.addEventListener('click',e=>{const b=e.target.closest('[data-scope]');if(!b)return;libraryExportScope=b.dataset.scope;$('library-export-scope').querySelectorAll('[data-scope]').forEach(x=>x.classList.toggle('active',x===b));});
-$('library-export-format')?.addEventListener('click',e=>{const b=e.target.closest('[data-format]');if(!b)return;libraryExportFormat=b.dataset.format;$('library-export-format').querySelectorAll('[data-format]').forEach(x=>x.classList.toggle('active',x===b));});
-$('run-library-export-btn')?.addEventListener('click',runLibraryExportV40);
-
-</script>
-<script type="module">
+</script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
-  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED,
   collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
   query, orderBy, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -1321,10 +1172,6 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 
 const $ = (id) => document.getElementById(id);
 
-// ---------- Lazy-load heavy export libraries ----------
-// jszip and html2pdf together add ~400-500KB; most people never export a
-// note, so they're only fetched the first time an export/import feature
-// that actually needs them is used, not on every page load.
 const _loadedScripts = {};
 function loadScriptOnce(url) {
   if (_loadedScripts[url]) return _loadedScripts[url];
@@ -1340,14 +1187,12 @@ function loadScriptOnce(url) {
 const JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
-// ---------- Register service worker ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch((err) => console.error('Yadno: service worker registration failed', err));
   });
 }
 
-// ---------- Firebase config bootstrapping ----------
 const CONFIG_KEY = 'yadno_firebase_config';
 
 function getSavedConfig() {
@@ -1371,7 +1216,7 @@ let unsubSections = null;
 let unsubSectionGroups = null;
 let unsubNotes = null;
 let saveTimer = null;
-let authMode = 'login'; // or 'signup'
+let authMode = 'login';
 let draggedNoteId = null;
 let activeTags = [];
 let searchTimer = null;
@@ -1393,43 +1238,74 @@ function initFirebase(config) {
     auth = getAuth(firebaseApp);
     try {
       db = initializeFirestore(firebaseApp, {
-        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager()})
+        localCache: persistentLocalCache({tabManager:persistentMultipleTabManager(),cacheSizeBytes:CACHE_SIZE_UNLIMITED})
       });
     } catch (e) {
       console.warn('Persistent Firestore cache unavailable:',e);
       db = getFirestore(firebaseApp);
     }
     try { storage = getStorage(firebaseApp); } catch (e) { storage = null; }
+
+    // ---------- Optimistic offline entry ----------
+    // navigator.onLine only reflects whether a network *interface* is up —
+    // it stays true on a flaky/VPN connection that can't actually reach
+    // Firebase's servers, which previously made the app wait (and
+    // eventually show a "taking too long" message) even though everything
+    // needed to show the user's own notes was already sitting in the local
+    // cache. Instead: if this device has previously signed in, enter the
+    // app immediately with that remembered account and start reading from
+    // the local Firestore cache right away — no network round trip
+    // required. onAuthStateChanged below still runs in the background and
+    // corrects course (a) once the real session confirms (harmless, same
+    // uid) or (b) if it turns out the person is genuinely signed out.
+    const LAST_UID_KEY = 'yadno_last_uid';
     let authResolved=false;
-    const authWatchdog=setTimeout(()=>{
-      if(authResolved)return;
-      if(auth.currentUser){
-        // Only Firebase's actual restored user is allowed to access its cached documents.
-        authResolved=true;
-        currentUser=auth.currentUser;
-        showScreen('app');startListening();
-      }else{
+    const cachedUid = localStorage.getItem(LAST_UID_KEY);
+    if (cachedUid) {
+      authResolved = true; // optimistic — onAuthStateChanged reconciles below
+      currentUser = { uid: cachedUid };
+      showScreen('app');
+      startListening();
+    } else {
+      // No remembered session on this device at all — nothing to show
+      // without a real login, so wait (briefly, in stages) for Firebase
+      // before giving up.
+      const authCheckDelays=[3000,8000,15000];
+      let authCheckIndex=0;
+      const checkAuthWatchdog=()=>{
+        if(authResolved)return;
+        if(authCheckIndex<authCheckDelays.length){
+          setTimeout(checkAuthWatchdog,authCheckDelays[authCheckIndex]-(authCheckDelays[authCheckIndex-1]||0));
+          authCheckIndex++;
+          return;
+        }
         window.__yadnoStartupError?.(new Error(navigator.onLine
-          ? 'بازیابی ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
-          : 'حساب ذخیره‌شده هنوز بازیابی نشده است. برای ورود اولیه یک بار به اینترنت وصل شوید.'));
-      }
-    },8000);
+          ? 'ورود طول کشیده است. اتصال را بررسی کنید و دوباره تلاش کنید.'
+          : 'برای ورود اولیه یک بار به اینترنت وصل شوید.'));
+      };
+      setTimeout(checkAuthWatchdog,authCheckDelays[0]);
+      authCheckIndex=1;
+    }
+
     onAuthStateChanged(auth, (user) => {
-      clearTimeout(authWatchdog);
       authResolved=true;
-      // Avoid re-creating listeners when the watchdog already started this same user.
-      if(currentUser?.uid===user?.uid && user && unsubNotebooks)return;
-      currentUser = user;
       if (user) {
+        localStorage.setItem(LAST_UID_KEY, user.uid);
+        if(currentUser?.uid===user.uid && unsubNotebooks){ currentUser=user; return; } // already showing this account
+        currentUser = user;
         showScreen('app');
         startListening();
       } else {
+        // Genuinely no session (this check is local, not network-dependent,
+        // so it's trustworthy even offline) — including if we'd optimistically
+        // shown a remembered account that turned out to be signed out.
+        localStorage.removeItem(LAST_UID_KEY);
+        currentUser = null;
         stopListening();
         showScreen('auth');
       }
     }, (error)=>{
-      clearTimeout(authWatchdog);
-      window.__yadnoStartupError?.(error);
+      if (!currentUser) window.__yadnoStartupError?.(error);
     });
     return true;
   } catch (e) {
@@ -1460,10 +1336,6 @@ $('config-save-btn').addEventListener('click', () => {
   const errEl = $('config-error');
   errEl.style.display = 'none';
 
-  // Extract key: "value" pairs directly, regardless of braces, quote
-  // style, trailing commas, or line-wraps inserted by mobile copy/paste.
-  // Any accidental whitespace/newline inside a value (from word-wrap) is
-  // stripped, since no real Firebase config value contains whitespace.
   const parsed = {};
   const re = /([A-Za-z_]\w*)\s*:\s*["']([\s\S]*?)["']/g;
   let m;
@@ -1491,7 +1363,6 @@ $('reset-config-btn').addEventListener('click', () => {
   }
 });
 
-// ---------- Auth ----------
 function setAuthMode(mode) {
   authMode = mode;
   if (mode === 'login') {
@@ -1512,7 +1383,6 @@ function setAuthMode(mode) {
 }
 $('auth-switch-link').addEventListener('click', () => setAuthMode(authMode === 'login' ? 'signup' : 'login'));
 
-// Firebase sends the reset link. No password or reset token is stored in Yadno.
 $('forgot-password-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
   const error = $('auth-error');
@@ -1550,7 +1420,6 @@ $('forgot-password-btn').addEventListener('click', async () => {
     button.textContent = 'رمز عبور را فراموش کرده‌ام';
   }
 });
-
 
 $('auth-submit-btn').addEventListener('click', async () => {
   const email = $('auth-email').value.trim();
@@ -1594,7 +1463,6 @@ function translateAuthError(code) {
 
 $('signout-btn-menu').addEventListener('click', () => { signOut(auth); closeMoreMenu(); });
 
-// ---------- More menu dropdown ----------
 function closeMoreMenu() { $('more-menu-dropdown').classList.remove('open'); }
 $('more-menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
@@ -1605,7 +1473,6 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('global-search-input')?.focus();}});
 
-// ---------- Resizable / collapsible navigation panes ----------
 const FOCUS_KEY = 'yadno-focus-mode';
 function applyFocusMode(on){
   const app=$('app'); if(!app) return;
@@ -1630,36 +1497,35 @@ document.addEventListener('keydown',e=>{
 
 const paneDefaults = { 'notebooks-pane':190, 'sections-pane':190, 'notes-pane':260 };
 const paneCss = { 'notebooks-pane':'--nb-w', 'sections-pane':'--sec-w', 'notes-pane':'--notes-w' };
+/* v34 NEW: pane collapsed has 36px strip instead of 0px */
 function applyPaneState(){
   const grid=$('main-grid'); if(!grid) return;
-  // در موبایل، ستون‌ها به‌صورت کشویی باز می‌شن؛ حالت «جمع شده» دسکتاپ
-  // نباید روی کشوهای موبایل اعمال بشه وگرنه محتوای کشو مخفی می‌مونه و
-  // کاربر نمی‌تونه دفترها/بخش‌ها/یادداشت‌ها رو باز کنه.
   const mobile=window.innerWidth<=860;
   Object.keys(paneDefaults).forEach(id=>{
     const pane=$(id); if(!pane) return;
-    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id); // پاک‌سازی پرچم‌های قدیمی روی گوشی
+    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id);
     const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
     if(btn){ btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'باز کردن':'جمع کردن'; }
-    if(collapsed) grid.style.setProperty(paneCss[id],'0px');
-    else {
+    if(collapsed){
+      grid.style.setProperty(paneCss[id],'36px');
+    } else {
       const saved=parseInt(localStorage.getItem('yadno-pane-width-'+id)||paneDefaults[id],10);
       grid.style.setProperty(paneCss[id],Math.max(140,Math.min(420,saved))+'px');
     }
   });
 }
+/* v34 NEW: togglePane with resize event */
 function togglePane(id){
   const pane=$(id); if(!pane) return;
-  // در موبایل ستون‌ها به‌صورت کشویی باز می‌شن؛ جمع‌کردن دسکتاپ نباید روی کشو اثر بگذارد
   if(window.innerWidth<=860){ openMobilePane(null); return; }
   const collapsed=!pane.classList.contains('collapsed');
   localStorage.setItem('yadno-pane-collapsed-'+id,collapsed?'1':'0');
   applyPaneState();
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 }
 
-// اگر روی هدر یک ستونِ جمع‌شده کلیک شد (غیر از دکمه‌ها)، همان ستون باز شود
 Object.keys(paneCss).forEach(id=>{
   const pane=$(id); if(!pane) return;
   pane.querySelector('.pane-header')?.addEventListener('click',(e)=>{
@@ -1690,14 +1556,11 @@ window.addEventListener('resize',()=>{
 });
 applyFocusMode(localStorage.getItem(FOCUS_KEY)==='1');
 
-// ---------- Data: notebooks & notes ----------
 function userCol(...path) {
   return collection(db, 'users', currentUser.uid, ...path);
 }
 
 function startListening() {
-  // بدون orderBy: بعضی داده‌های قدیمی/واردشده ممکن است createdAt نداشته باشند.
-  // orderBy در Firestore چنین اسنادی را از نتیجه حذف می‌کند و در موبایل ممکن است لیست کاملاً خالی دیده شود.
   const nbQuery = query(userCol('notebooks'));
   unsubNotebooks = onSnapshot(nbQuery, (snap) => {
     notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -1723,7 +1586,6 @@ function startListening() {
 }
 
 async function ensureDefaultSection(notebookId) {
-  // Never block offline navigation on a network read.
   const sectionsRef=userCol('notebooks', notebookId, 'sections');
   let snap;
   if(navigator.onLine) snap=await getDocs(sectionsRef);
@@ -1757,8 +1619,6 @@ function listenToSections(notebookId) {
     sections=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
     if(!sections.length){
-      // A cache miss does not mean the remote notebook has no sections.
-      // Never create a default section merely because the device is offline.
       if(!snap.metadata.fromCache && navigator.onLine){
         try{activeSectionId=await ensureDefaultSection(notebookId);}catch(e){console.warn(e);activeSectionId=null;}
       }else{activeSectionId=null;}
@@ -1777,7 +1637,6 @@ function listenToNotes(notebookId, sectionId) {
   if(currentListenerSectionKey===key && unsubNotes)return;
   currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
-  // بدون orderBy تا یادداشت‌های قدیمی فاقد updatedAt هم نمایش داده شوند.
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
   unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
     notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -1813,7 +1672,6 @@ function setSyncStatus(state) {
 window.addEventListener('online',()=>setSyncStatus('pending'));
 window.addEventListener('offline',()=>setSyncStatus('offline'));
 
-// Notebook colors are presentation-only, saved on this device (no Firestore schema changes).
 const YADNO_BOOK_PALETTE=['#7719aa','#e32983','#43a832','#1685d5','#f39219','#18a9a5','#ed4747','#818996'];
 function yadnoBookColor(id){
   let saved=null;
@@ -1831,7 +1689,6 @@ function yadnoCycleBookColor(id){
   }catch(e){console.warn('Notebook color not saved',e)}
 }
 
-// ---------- Render: notebooks ----------
 function renderNotebooks() {
   const list = $('notebooks-list');
   if (!notebooks.length) {
@@ -1881,7 +1738,6 @@ $('add-notebook-btn').addEventListener('click', async () => {
   listenToSections(ref.id);
 });
 
-// ---------- Render: sections ----------
 function renderSections() {
   const list = $('sections-list');
   if (!activeNotebookId) { list.innerHTML = '<div class="empty-hint">یک دفتر انتخاب کن</div>'; return; }
@@ -1941,7 +1797,6 @@ $('add-section-btn').addEventListener('click', async () => {
   listenToNotes(activeNotebookId, activeSectionId);
 });
 
-// ---------- Render: notes ----------
 function renderNotes() {
   const list = $('notes-list');
   if (!activeNotebookId) {
@@ -2020,7 +1875,6 @@ $('add-note-btn').addEventListener('click', async () => {
   openMobilePane(null);
 });
 
-// ---------- Global search ----------
 let searchCache = [];
 let searchRequestId = 0;
 
@@ -2130,7 +1984,6 @@ $('close-search-btn').addEventListener('click',()=>$('search-modal').classList.r
 $('mobile-search-btn')?.addEventListener('click',()=>{ openSearch(); });
 $('search-modal').addEventListener('click',e=>{if(e.target.id==='search-modal')$('search-modal').classList.remove('open');});
 
-// ---------- Editor ----------
 function showEditorEmpty() {
   flushScheduledSave();
   $('editor-empty').style.display = 'flex';
@@ -2181,7 +2034,6 @@ function renderAttachments(items){
 }
 function formatBytes(n){ if(!n) return ''; const u=['B','KB','MB','GB']; let i=0,x=n; while(x>=1024&&i<3){x/=1024;i++;} return `${x.toFixed(x>=10||i===0?0:1)} ${u[i]}`; }
 
-// ---------- Attachment viewer: mobile-safe open/download ----------
 function openAttachment(a){
   const url=a && a.url;
   if(!url){alert('آدرس این فایل در دسترس نیست.');return;}
@@ -2221,8 +2073,6 @@ function flushScheduledSave(){
   clearTimeout(saveTimer);
   const draft=queuedSave;queuedSave=null;
   if(!draft||!currentUser||draft.uid!==currentUser.uid)return;
-  // Firestore writes are persisted in IndexedDB while offline when available.
-  // Do not await a server acknowledgement before allowing navigation.
   setDoc(doc(db,'users',draft.uid,'notebooks',draft.nbId,'notes',draft.noteId),{
     title:draft.title,body:draft.body,tags:draft.tags,updatedAt:serverTimestamp()
   },{merge:true}).then(()=>{
@@ -2303,7 +2153,6 @@ $('share-note-btn').addEventListener('click', async () => {
   } catch (e) {}
 });
 
-// ---------- Trash ----------
 $('open-trash-btn').addEventListener('click', async () => { closeMoreMenu(); await renderTrash(); $('trash-modal').classList.add('open'); });
 $('close-trash-btn').addEventListener('click', () => $('trash-modal').classList.remove('open'));
 $('trash-modal').addEventListener('click', e => { if (e.target.id === 'trash-modal') $('trash-modal').classList.remove('open'); });
@@ -2350,19 +2199,21 @@ $('delete-note-btn').addEventListener('click', async () => {
 
 document.querySelectorAll('#editor-toolbar [data-cmd]').forEach((btn) => {
   btn.addEventListener('click', () => {
+    yadnoRestoreSelection();
     document.execCommand(btn.dataset.cmd, false, null);
-    $('body-editor').focus();
+    $('body-editor').focus({preventScroll:true});
+    yadnoRememberSelection();
     scheduleSave();
   });
 });
 
 $('font-select').addEventListener('change', () => {
-  $('body-editor').focus();
+  yadnoRestoreSelection();
+  $('body-editor').focus({preventScroll:true});
   document.execCommand('fontName', false, $('font-select').value);
   scheduleSave();
 });
 
-// Preserve the selected range when the user taps a color palette on Android.
 let yadnoSavedRange = null;
 function yadnoRememberSelection(){
   const sel=window.getSelection(), ed=$('body-editor');
@@ -2382,7 +2233,6 @@ $('editor-toolbar').addEventListener('pointerdown',yadnoRememberSelection,{captu
 function yadnoApplyHighlight(color){
   if(!yadnoRestoreSelection())return;
   const ed=$('body-editor');
-  // execCommand preserves native undo where supported.
   let done=false;
   try{done=document.execCommand('hiliteColor',false,color);}catch(_){}
   if(!done){
@@ -2403,14 +2253,10 @@ document.querySelectorAll('.hl-swatch').forEach(btn=>{
   });
 });
 
-// ---------- Text color ----------
-// Palette is mid-tone so it stays readable on both the light and dark themes.
-// "Reset" removes the color again (so text follows the theme) instead of
-// forcing a fixed dark ink color, which was invisible in dark mode.
 const RESET_SENTINEL = '#010203';
 function resetTextColor() {
   const sel = window.getSelection();
-  if (!sel || sel.isCollapsed) return; // reset applies to selected text
+  if (!sel || sel.isCollapsed) return;
   document.execCommand('foreColor', false, RESET_SENTINEL);
   const ed = $('body-editor');
   ed.querySelectorAll('font[color]').forEach((f) => {
@@ -2441,7 +2287,6 @@ document.querySelectorAll('#text-color-popover .color-swatch').forEach((btn) => 
   });
 });
 
-// ---------- Color popovers (fixed-position so the scrolling toolbar can't clip them) ----------
 function closeAllColorPopovers() {
   $('text-color-popover').classList.remove('open');
   $('highlight-group').classList.remove('open');
@@ -2477,7 +2322,6 @@ document.addEventListener('click', (e) => {
 $('toolbar-scroll').addEventListener('scroll', closeAllColorPopovers, { passive: true });
 window.addEventListener('resize', closeAllColorPopovers);
 
-// ---------- Toolbar "more" panel ----------
 $('toolbar-more-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   const panel = $('toolbar-secondary');
@@ -2486,16 +2330,9 @@ $('toolbar-more-btn').addEventListener('click', (e) => {
   $('toolbar-more-btn').setAttribute('aria-expanded', String(nowOpen));
 });
 
-// ---------- Undo / Redo ----------
-// The browser keeps the editing history itself; these buttons just expose it
-// (phones have no Ctrl+Z).
 $('undo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('undo'); scheduleSave(); });
 $('redo-btn').addEventListener('click', () => { $('body-editor').focus(); document.execCommand('redo'); scheduleSave(); });
 
-// ---------- Keep the on-screen keyboard open while using the toolbar ----------
-// Tapping a toolbar button normally moves focus out of the note (which hides
-// the keyboard). Cancelling mousedown keeps focus in the editor. <select>
-// must be excluded or its dropdown would never open.
 $('editor-toolbar').addEventListener('mousedown', (e) => {
   if (e.target.closest('button') && !e.target.closest('select')) e.preventDefault();
 });
@@ -2512,10 +2349,6 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
-// ---------- Export: Word (.docx) ----------
-// Hand-builds a minimal, valid .docx (Office Open XML zipped with JSZip),
-// converting the note's simple rich-text HTML (bold/italic/underline/lists)
-// into Word paragraphs. Renders right-to-left for Persian text.
 function xmlEscape(str) {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -2625,7 +2458,6 @@ async function exportNoteAsDocx(note) {
   downloadBlob(blob, safeFileName(note.title) + '.docx');
 }
 
-// ---------- Export: PDF ----------
 async function exportNoteAsPdf(note) {
   await loadScriptOnce(HTML2PDF_URL);
   const wrapper = document.createElement('div');
@@ -2657,12 +2489,62 @@ $('export-pdf-btn').addEventListener('click', () => {
   exportNoteAsPdf(note);
 });
 
-// ---------- Full backup: export & import ----------
 function setBackupStatus(msg) {
   const el = $('backup-status');
   el.textContent = msg;
   el.style.display = msg ? 'block' : 'none';
 }
+
+// ---------- Full offline download ----------
+// Firestore's own persistence only caches documents you actually opened.
+// This walks every notebook/section/note once (so Firestore pulls it all
+// into its local IndexedDB cache) and also fetches every file attachment
+// (which lives in Firebase Storage, not Firestore) into the Cache Storage
+// API the service worker reads from — so images/files open offline too.
+async function downloadEverythingForOffline() {
+  if (!currentUser) return;
+  if (!('caches' in window)) { setBackupStatus('این مرورگر از ذخیره‌ی آفلاین پشتیبانی نمی‌کند.'); return; }
+  // Match whatever cache the active service worker is actually using
+  // (named "yadno-shell-vN") instead of hardcoding a version number here,
+  // so this keeps working correctly across future service-worker updates.
+  const existingCacheKeys = await caches.keys();
+  const OFFLINE_CACHE = existingCacheKeys.find((k) => k.startsWith('yadno-shell-')) || 'yadno-shell-v4';
+  try {
+    setBackupStatus('در حال بررسی دفترها...');
+    const nbSnap = await getDocs(userCol('notebooks'));
+    const attachmentUrls = [];
+    let noteCount = 0;
+    for (const nbDoc of nbSnap.docs) {
+      const nbId = nbDoc.id;
+      await getDocs(userCol('notebooks', nbId, 'sectionGroups')).catch(() => {});
+      await getDocs(userCol('notebooks', nbId, 'sections')).catch(() => {});
+      const noteSnap = await getDocs(collection(db, 'users', currentUser.uid, 'notebooks', nbId, 'notes'));
+      noteSnap.docs.forEach((d) => {
+        noteCount++;
+        const data = d.data();
+        (data.attachments || []).forEach((a) => { if (a && a.url) attachmentUrls.push(a.url); });
+      });
+      setBackupStatus(`در حال آماده‌سازی یادداشت‌ها... (${noteCount})`);
+    }
+    const cache = await caches.open(OFFLINE_CACHE);
+    let done = 0;
+    for (const url of attachmentUrls) {
+      done++;
+      setBackupStatus(`در حال دانلود فایل‌های پیوست... (${done}/${attachmentUrls.length})`);
+      try {
+        const already = await cache.match(url);
+        if (already) continue;
+        const res = await fetch(url, { mode: 'cors' });
+        if (res && res.ok) await cache.put(url, res);
+      } catch (e) { /* one failed file shouldn't stop the rest */ }
+    }
+    setBackupStatus(`آماده شد: ${noteCount} یادداشت و ${attachmentUrls.length} فایل پیوست برای آفلاین ذخیره شد.`);
+  } catch (e) {
+    setBackupStatus('دانلود کامل با خطا مواجه شد: ' + (e?.message || e));
+  }
+  setTimeout(() => setBackupStatus(''), 6000);
+}
+$('offline-download-btn').addEventListener('click', () => { downloadEverythingForOffline(); });
 
 $('backup-export-btn').addEventListener('click', async () => {
   setBackupStatus('در حال آماده‌سازی پشتیبان...');
@@ -2712,8 +2594,6 @@ $('backup-file-input').addEventListener('change', async (e) => {
   setTimeout(() => setBackupStatus(''), 4000);
 });
 
-
-// ---------- OneNote importer: structural package bridge ----------
 let oneNoteImportData = null;
 let oneNoteImportName = '';
 const oneNoteModal = $('onenote-modal');
@@ -2736,17 +2616,6 @@ $('close-onenote-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-cancel-btn').addEventListener('click',closeOneNoteModal);
 $('onenote-choose-btn').addEventListener('click',()=>oneNoteInput.click());
 
-// NOTE ON .one / .onepkg / .onetoc2 FILES:
-// These use Microsoft's proprietary binary "revision store" format
-// (MS-ONESTORE). There is no real, working browser library that parses
-// this format — an earlier version of this importer pointed at a
-// package ("@mdgate/onenote") that does not actually exist on npm, so
-// importing raw .one/.onepkg/.onetoc2 files always silently failed.
-// Rather than pretend to support them, we now fail fast with a clear
-// message and point people at the one format that reliably works:
-// HTML/MHT exported directly from OneNote (File → Export → "Page as
-// Single File Web Page" or a folder of pages), which the importer below
-// parses for real via the browser's own HTML parser.
 async function importNativeOne(file, meta = {}) {
   throw new Error('فایل‌های .one / .onepkg / .onetoc2 مستقیماً پشتیبانی نمی‌شن (فرمت باینری اختصاصی مایکروسافته). توی OneNote، روی صفحه یا بخش راست‌کلیک کن → Export → گزینه‌ی "Single File Web Page (*.mht)" یا HTML رو انتخاب کن، و همون فایل رو اینجا وارد کن.');
 }
@@ -2789,13 +2658,7 @@ async function importZipContainer(file){
   if(!pages.length) throw new Error('داخل بسته، فایل OneNote یا صفحه HTML پیدا نشد.');
   return pages;
 }
-// ---------- MHTML (.mht) decoding ----------
-// OneNote's "Single File Web Page" export is a MIME multipart message.
-// Text parts are almost always quoted-printable encoded (so every non-ASCII
-// byte of Persian text shows up as literal "=D8=B9" sequences if left
-// undecoded), and embedded images are separate base64/quoted-printable
-// parts referenced by Content-Location or Content-ID. This decodes both
-// properly before the HTML ever reaches the DOM parser.
+
 function qpToBytes(str) {
   const s = str.replace(/=\r\n/g, '').replace(/=\n/g, '');
   const bytes = [];
@@ -2840,7 +2703,7 @@ function parseMhtml(raw) {
     const headerText = part.slice(0, headerEnd);
     const body = part.slice(headerEnd).replace(/^\r?\n/, '');
     const typeMatch = headerText.match(/Content-Type:\s*([^\r\n;]+)/i);
-    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n;]+)/i);
+    const cteMatch = headerText.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/i);
     const locMatch = headerText.match(/Content-Location:\s*([^\r\n]+)/i);
     const cidMatch = headerText.match(/Content-ID:\s*<([^>]+)>/i);
     const type = (typeMatch ? typeMatch[1] : '').trim().toLowerCase();
@@ -2873,18 +2736,10 @@ async function sanitizeImportedHtml(root){
   root.querySelectorAll('*').forEach(el=>{[...el.attributes].forEach(a=>{if(/^on/i.test(a.name))el.removeAttribute(a.name);});});
 }
 
-// تشخیص خروجی چندصفحه‌ای OneNote: وقتی کل یک بخش به‌صورت
-// "Single File Web Page (.mht)" خروجی گرفته می‌شود، همه‌ی صفحه‌ها در
-// یک سند HTML واحد می‌آیند؛ صفحه‌ها با <hr> از هم جدا شده‌اند و تیتر هر
-// صفحه یک <h1> است. این تابع آن سند را به قطعات صفحه‌به‌صفحه تقسیم می‌کند.
 function splitOneNoteHtmlDocument(doc){
   const body=doc.body||doc.documentElement;
   if(!body) return null;
 
-  // ── الگوی OneNote 15 (خروجی «Single File Web Page» از OneNote 2013/2016):
-  // هر صفحه داخل یک <div style="direction:rtl;border-width:100%"> قرار می‌گیرد
-  // و تیتر صفحه اولین <p> با font-size:20pt است؛ بلاک تاریخ/ساعت هم با رنگ
-  // خاکستری (color:#767676) مشخص است. این فایل‌ها نه <hr> دارند نه <h1>.
   const markers=[...body.children].filter(el=>
     el.tagName==='DIV' && /border-width\s*:\s*100%/.test(el.getAttribute('style')||''));
   if(markers.length>=2){
@@ -2894,15 +2749,12 @@ function splitOneNoteHtmlDocument(doc){
       const from=all.indexOf(markers[i]);
       const to=(i+1<markers.length)?all.indexOf(markers[i+1]):all.length;
       const seg=all.slice(from,to);
-      // حذف پاراگراف‌های خالیِ جداکننده بین صفحه‌ها (از ته هر قطعه)
       while(seg.length && !((seg[seg.length-1].textContent||'').replace(/\u00a0/g,' ').trim())) seg.pop();
       if(seg.length) segments.push(seg);
     }
     if(segments.length>=2) return {segments,mode:'onenote15'};
   }
 
-  // ── الگوی عمومی‌تر (بعضی خروجی‌ها): صفحه‌ها با <hr> جدا شده‌اند و هر
-  // صفحه با <h1> شروع می‌شود
   const hrs=body.querySelectorAll('hr');
   const h1s=body.querySelectorAll('h1');
   if(hrs.length&&h1s.length>=2){
@@ -2923,14 +2775,12 @@ async function parseOneNoteHtml(html,name,groupName=''){
   const parser=new DOMParser(),docx=parser.parseFromString(decodedHtml,'text/html');
   const split=splitOneNoteHtmlDocument(docx);
   if(split){
-    // خروجی چندصفحه‌ای: هر قطعه یک یادداشت جدا می‌شود
     return split.segments.map((nodes,i)=>{
       const wrap=document.createElement('div');
       nodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
       sanitizeImportedHtml(wrap);
       let titleEl=null;
       if(split.mode==='onenote15'){
-        // تیتر صفحه = اولین <p> با font-size:20pt
         titleEl=[...wrap.querySelectorAll('p')].find(p=>/font-size\s*:\s*20/.test(p.getAttribute('style')||''));
       }else{
         titleEl=wrap.querySelector('h1,h2,h3');
@@ -2958,17 +2808,11 @@ oneNoteInput.addEventListener('change',async e=>{
       const ext=file.name.toLowerCase().split('.').pop();
       const relPath=file.webkitRelativePath||file.name;
       const info=pathInfo(relPath);
-      // When files come from a real folder structure, the top folder is the
-      // notebook. When several loose files are picked directly (no folder
-      // structure), each file is its own notebook — that's the fix for
-      // "multiple notebooks were merging into one".
       const standaloneNotebookName=info.notebookHint||file.name.replace(/\.(one|onetoc2|onepkg|zip|html?|mht|mhtml)$/i,'');
       if(ext==='onepkg'||ext==='zip') pages.push(...await importZipContainer(file));
       else if(ext==='one'){
         pages.push(...(await importNativeOne(file,{sectionName:info.section,groupName:info.groupName,sourcePath:relPath})).map(pg=>({...pg,notebookName:standaloneNotebookName})));
       }else if(ext==='onetoc2'){
-        // TOC is structural metadata; keep it as a manifest item rather than
-        // pretending it is a page. Section files are imported separately.
         pages.push({title:info.section||file.name,body:'<p>فایل فهرست OneNote شناسایی شد؛ برای ورود محتوای صفحات، فایل‌های بخش‌های مربوط نیز لازم است.</p>',sectionName:info.section,groupName:info.groupName,sourcePath:file.name,notebookName:standaloneNotebookName,manifestOnly:true});
       }else if(['html','htm','mht','mhtml'].includes(ext)){
         (await parseOneNoteHtml(await file.text(),info.file,info.groupName)).forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:relPath,notebookName:standaloneNotebookName}));
@@ -2992,12 +2836,7 @@ oneNoteInput.addEventListener('change',async e=>{
   e.target.value='';
 });
 
-// Firestore caps a document at ~1MiB. OneNote pages with embedded images
-// can easily exceed that once images are inlined as base64. Rather than
-// letting one oversized page abort the whole import (losing everything
-// already written), we degrade gracefully: strip images first, then
-// truncate the text as a last resort, and say so on the note itself.
-const FIRESTORE_DOC_SAFE_BYTES = 900000; // leaves headroom for the other fields
+const FIRESTORE_DOC_SAFE_BYTES = 900000;
 function byteSize(str) { return new Blob([str || '']).size; }
 async function addNoteWithSizeGuard(notebookId, sectionId, p) {
   let title = p.title || 'بدون عنوان';
@@ -3066,7 +2905,6 @@ $('onenote-import-confirm-btn').addEventListener('click',async()=>{
   }catch(e){setOneNoteStatus('ورود انجام نشد: '+(e?.message||e),true);}
 });
 
-// ---------- Mobile panes ----------
 function openMobilePane(which) {
   $('notebooks-pane').classList.toggle('open', which === 'notebooks');
   $('sections-pane').classList.toggle('open', which === 'sections');
@@ -3082,8 +2920,6 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-
-// ---------- v16 phone navigation ----------
 (function setupPhoneNavigation(){
   const nav=document.createElement('nav'); nav.id='phone-bottom-nav'; nav.setAttribute('aria-label','ناوبری موبایل');
   nav.innerHTML=`
@@ -3111,8 +2947,6 @@ function escapeHtml(str) {
   syncActive();
 })();
 
-
-// ---------- v19: reading mode and compact editing toolbar ----------
 (function setupReadingMode(){
   const pane=$('editor-pane'), body=$('body-editor'), title=$('title-input');
   const readButton=$('reading-toggle'), readLabel=$('reading-toggle-label');
@@ -3132,7 +2966,6 @@ function escapeHtml(str) {
   updateSize();
   function setReading(on){
     if(on && $('editor-content').style.display==='none')return;
-    // Ensure the current editor is blurred before disabling edits.
     if(on && document.activeElement===body)body.blur();
     if(on && document.activeElement===title)title.blur();
     pane.classList.toggle('read-mode',on);
@@ -3151,9 +2984,6 @@ function escapeHtml(str) {
   });
   $('reading-smaller').addEventListener('click',()=>{size=Math.max(16,size-1);updateSize();});
   $('reading-larger').addEventListener('click',()=>{size=Math.min(28,size+1);updateSize();});
-  // Avoid observing and rewriting contenteditable: that caused a mutation loop
-  // on some mobile browsers and froze the reading and font-size buttons.
-  // When a different note opens, preserve the current reading/editing state.
   document.addEventListener('yadno:note-opened',()=>{
     const reading=pane.classList.contains('read-mode');
     body.contentEditable=reading?'false':'true';
@@ -3161,11 +2991,6 @@ function escapeHtml(str) {
   });
 })();
 
-
-// Keyboard-aware layout: hides the bottom nav and adjusts positioning while
-// the on-screen keyboard is open on mobile. (The old toolbar-injecting
-// "format drawer" that used to live here was removed — the toolbar is now
-// always visible via the v25 single-row design above.)
 function setupKeyboardAwareLayout(){
   const body=document.getElementById('body-editor');
   const title=document.getElementById('title-input');
@@ -3174,9 +2999,6 @@ function setupKeyboardAwareLayout(){
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
   const vv=window.visualViewport;
   const cls=document.body.classList;
-  // On phones, while the keyboard is open and you are editing the note body,
-  // the formatting toolbar is docked right above the keyboard
-  // (body.yadno-toolbar-docked). Otherwise it stays at the top of the page.
   function keyboardPosition(){
     if(!phone()){
       document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
@@ -3186,9 +3008,15 @@ function setupKeyboardAwareLayout(){
     const gap=vv?Math.max(0,window.innerHeight-vv.height-vv.offsetTop):0;
     document.documentElement.style.setProperty('--yadno-keyboard-bottom',gap+'px');
     const active=document.activeElement;
-    const keyboardUp=gap>100;
-    cls.toggle('yadno-keyboard-open',keyboardUp&&(active===body||active===title));
-    const docked=(keyboardUp&&(active===body||toolbar.contains(active))) || (phone()&&$('app')?.classList.contains('focus-mode'));
+    const keyboardUp=gap>100 && (active===body||active===title||toolbar.contains(active));
+    const focus=$('app')?.classList.contains('focus-mode');
+    const editing=$('editor-content')?.style.display!=='none' &&
+      !$('editor-pane')?.classList.contains('read-mode');
+    const navHeight=focus?0:65;
+    document.documentElement.style.setProperty('--yadno-toolbar-bottom',
+      (keyboardUp?gap:navHeight)+'px');
+    cls.toggle('yadno-keyboard-open',keyboardUp);
+    const docked=!!editing;
     if(docked!==cls.contains('yadno-toolbar-docked')){
       cls.toggle('yadno-toolbar-docked',docked);
       if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
@@ -3198,6 +3026,12 @@ function setupKeyboardAwareLayout(){
   window.addEventListener('resize',keyboardPosition);
   document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
   document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
+  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(keyboardPosition));
+  document.getElementById('reading-toggle')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
+  document.getElementById('focus-mode-btn')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
+  document.addEventListener('selectionchange',()=>{
+    if(phone() && document.activeElement===body)requestAnimationFrame(keyboardPosition);
+  });
   keyboardPosition();
 }
 
