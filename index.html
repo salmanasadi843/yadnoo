@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۳۴)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۴۰)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -275,6 +275,15 @@
   .export-btn:hover { background: var(--paper-line); color: var(--ink); }
   .export-btn svg { width: 14px; height: 14px; }
   .export-btn:disabled { opacity: .5; }
+  .yadno-export-wrap{position:relative;display:inline-flex;align-items:center}
+  #yadno-export-menu{display:none;position:absolute;top:calc(100% + 7px);inset-inline-end:0;min-width:245px;background:var(--panel);border:1px solid var(--paper-line);border-radius:11px;box-shadow:0 12px 32px rgba(20,30,50,.16);padding:5px;z-index:80}
+  #yadno-export-menu.open{display:block}
+  #yadno-export-menu button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;color:var(--ink);padding:9px 11px;border-radius:8px;text-align:start;font:inherit;font-size:12.5px;cursor:pointer}
+  #yadno-export-menu button:hover{background:var(--paper-line)}
+  #yadno-export-menu .export-menu-title{padding:7px 11px 5px;font-size:11px;color:var(--ink-soft);font-weight:700}
+  #yadno-export-menu .export-menu-divider{height:1px;background:var(--paper-line);margin:4px 0}
+  #yadno-export-menu .export-menu-status{display:none;padding:6px 10px;font-size:11px;color:var(--ink-soft);line-height:1.7}
+  @media(max-width:600px){#yadno-export-menu{position:fixed;top:auto;bottom:82px;inset-inline:10px;min-width:0;max-height:65dvh;overflow:auto;border-radius:14px}#yadno-export-menu button{min-height:44px;font-size:13px}}
 
   /* ---------- Top-bar more menu ---------- */
   #more-menu-wrap { position: relative; }
@@ -348,9 +357,9 @@
   #tag-input:focus{border-color:#bfa05f;box-shadow:0 0 0 3px rgba(184,134,46,.08)}
   #global-search-wrap{position:relative;flex:1;max-width:420px;margin-inline:14px}
   #search-modal-input-row{position:relative;margin-bottom:12px}
-  #search-modal-input{width:100%;height:44px;border:1px solid var(--line,#3a3a3a);background:var(--panel-2,rgba(0,0,0,.04));border-radius:999px;padding:0 42px 0 16px;font-size:15px;outline:none}
+  #search-modal-input{width:100%;height:44px;border:1px solid var(--line,#3a3a3a);background:var(--panel-2,rgba(0,0,0,.04));border-radius:999px;padding:0 16px 0 42px;font-size:15px;outline:none}
   #search-modal-input:focus{border-color:#d4b46c}
-  #search-modal-input-icon{position:absolute;inset-inline-end:16px;top:50%;transform:translateY(-50%);opacity:.6;pointer-events:none}
+  #search-modal-input-icon{position:absolute;inset-inline-start:16px;top:50%;transform:translateY(-50%);opacity:.6;pointer-events:none}
   @media(min-width:861px){#search-modal-input-row{display:none}}
   .mobile-search-btn{display:none;border:0;background:transparent;color:#f7f4ec;font-size:23px;padding:6px 8px}
   #global-search-input{width:100%;height:36px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:0 40px 0 14px;outline:none}
@@ -443,7 +452,7 @@
   .hl-swatch{width:30px;height:30px;min-width:30px!important;min-height:30px!important}
   #body-editor{min-height:calc(100dvh - 265px);padding:18px 15px 84px;font-size:18px;line-height:2.15;border-radius:12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
   #body-editor img{max-width:100%;height:auto}
-  #body-editor h2{font-size:23px}.body-editor h3{font-size:20px}
+  #body-editor h2{font-size:23px}#body-editor h3{font-size:20px}
   .tag-editor{margin:7px 0 10px;overflow-x:auto;flex-wrap:nowrap;padding:5px 1px;scrollbar-width:none}
   .tag-editor::-webkit-scrollbar{display:none}
   .tag-chip,#tag-input{min-height:40px;flex:0 0 auto;font-size:14px}
@@ -949,7 +958,7 @@ body>.color-popover button{touch-action:manipulation}
       </div>
     </div>
     <input type="file" id="backup-file-input" accept="application/json">
-    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.onepkg,.mht,.mhtml,.one,.onetoc2" multiple style="display:none">
+    <input type="file" id="onenote-file-input" accept=".html,.htm,.zip,.onepkg,.mht,.mhtml" multiple style="display:none">
   </div>
 
   <div id="main-grid">
@@ -1074,6 +1083,22 @@ body>.color-popover button{touch-action:manipulation}
             <button class="export-btn" id="export-pdf-btn" title="خروجی PDF">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
+            <div class="yadno-export-wrap">
+              <button class="export-btn" id="yadno-export-more-btn" title="خروجی‌های بیشتر" aria-expanded="false">⇩ بیشتر</button>
+              <div id="yadno-export-menu" role="menu" aria-label="خروجی‌های یادنو">
+                <div class="export-menu-title">خروجی یادداشت / بخش / دفتر / کتابخانه</div>
+                <button type="button" data-yadno-export="note:txt">📄 یادداشت فعلی — TXT</button>
+                <button type="button" data-yadno-export="note:md">📝 یادداشت فعلی — Markdown</button>
+                <button type="button" data-yadno-export="note:html">🌐 یادداشت فعلی — HTML</button>
+                <button type="button" data-yadno-export="note:json">{} یادداشت فعلی — JSON</button>
+                <button type="button" data-yadno-export="note:zip">🗜️ یادداشت فعلی — ZIP</button>
+                <div class="export-menu-divider"></div>
+                <button type="button" data-yadno-export="section:zip">🗂️ بخش فعلی — ZIP</button>
+                <button type="button" data-yadno-export="notebook:zip">📚 دفتر فعلی — ZIP</button>
+                <button type="button" data-yadno-export="library:zip">🗃️ کل کتابخانه — ZIP</button>
+                <div id="yadno-export-status" class="export-menu-status" role="status" aria-live="polite"></div>
+              </div>
+            </div>
             <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
           </div>
         </div>
@@ -1166,7 +1191,7 @@ import {
 import {
   getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED,
   collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, getDocs, getDocsFromCache, writeBatch
+  query, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
@@ -1503,7 +1528,6 @@ function applyPaneState(){
   const mobile=window.innerWidth<=860;
   Object.keys(paneDefaults).forEach(id=>{
     const pane=$(id); if(!pane) return;
-    if(mobile) localStorage.removeItem('yadno-pane-collapsed-'+id);
     const collapsed=!mobile && localStorage.getItem('yadno-pane-collapsed-'+id)==='1';
     pane.classList.toggle('collapsed',collapsed);
     const btn=pane.querySelector('.pane-collapse');
@@ -1587,12 +1611,16 @@ function startListening() {
 
 async function ensureDefaultSection(notebookId) {
   const sectionsRef=userCol('notebooks', notebookId, 'sections');
-  let snap;
-  if(navigator.onLine) snap=await getDocs(sectionsRef);
-  else { snap=await getDocsFromCache(sectionsRef); if(snap.empty) throw new Error('No cached sections'); }
-  const live = snap.docs.filter(d => !d.data().deletedAt);
+  let snap=null;
+  if(navigator.onLine){
+    snap=await getDocs(sectionsRef);
+  }else{
+    try{snap=await getDocsFromCache(sectionsRef);}catch(_){snap=null;}
+  }
+  const live = snap ? snap.docs.filter(d => !d.data().deletedAt) : [];
   if (live.length) return live.sort((a,b) => (a.data().position||0)-(b.data().position||0))[0].id;
-  const ref = await addDoc(userCol('notebooks', notebookId, 'sections'), {
+  // addDoc is queued by Firestore's persistent cache when offline.
+  const ref = await addDoc(sectionsRef, {
     name: 'عمومی', createdAt: serverTimestamp(), position: 1
   });
   return ref.id;
@@ -1619,9 +1647,14 @@ function listenToSections(notebookId) {
     sections=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
     if(!sections.length){
-      if(!snap.metadata.fromCache && navigator.onLine){
-        try{activeSectionId=await ensureDefaultSection(notebookId);}catch(e){console.warn(e);activeSectionId=null;}
-      }else{activeSectionId=null;}
+      try{
+        // Firestore persistentLocalCache can queue this write while offline.
+        // This keeps a brand-new/offline notebook usable instead of leaving the editor without a section.
+        activeSectionId=await ensureDefaultSection(notebookId);
+      }catch(e){
+        console.warn('Yadno: default section unavailable',e);
+        activeSectionId=null;
+      }
     }else if(!activeSectionId||!sections.some(s=>s.id===activeSectionId)){
       activeSectionId=sections[0].id;
     }
@@ -1655,6 +1688,7 @@ function stopListening() {
   unsubNotebooks=unsubSections=unsubSectionGroups=unsubNotes=null;
   currentListenerNotebookId=currentListenerSectionKey=null;
   notebooks = []; sectionGroups = []; sections = []; notes = []; activeNotebookId = null; activeSectionId = null; activeNoteId = null;
+  searchCache = []; searchRequestId++;
 }
 
 function updateSnapshotStatus(snap){
@@ -1943,7 +1977,16 @@ async function openSearchResult(n){
   $('search-modal').classList.remove('open');
   renderNotebooks();
   listenToSections(n.notebookId);
-  setTimeout(()=>{openNoteInEditor(n);openMobilePane(null);},300);
+  // The listener will select the requested section asynchronously; retry briefly until the editor can open the result.
+  let tries=0;
+  const openWhenReady=()=>{
+    if(currentListenerNotebookId===n.notebookId && (!n.sectionId || activeSectionId===n.sectionId || sections.some(s=>s.id===n.sectionId))){
+      activeSectionId=n.sectionId; openNoteInEditor(n); openMobilePane(null); return;
+    }
+    if(++tries<20) setTimeout(openWhenReady,100);
+    else { activeSectionId=n.sectionId; openNoteInEditor(n); openMobilePane(null); }
+  };
+  openWhenReady();
 }
 async function loadSearchIndex(){
   const id=++searchRequestId;
@@ -2359,52 +2402,85 @@ function htmlToDocxParagraphs(html) {
   container.innerHTML = html || '';
   const paragraphs = [];
 
-function rgbToHex(rgbStr) {
-  const m = (rgbStr || '').match(/\d+/g);
-  if (!m || m.length < 3) return null;
-  return m.slice(0, 3).map((n) => (+n).toString(16).padStart(2, '0')).join('').toUpperCase();
-}
+  function rgbToHexLocal(value) {
+    const m = String(value || '').match(/\d+/g);
+    if (!m || m.length < 3) return null;
+    return m.slice(0, 3).map(n => (+n).toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
 
-function collectRuns(node, fmt, runs) {
-  node.childNodes.forEach((child) => {
-    if (child.nodeType === Node.TEXT_NODE) {
-      if (child.textContent) runs.push({ text: child.textContent, ...fmt });
-    } else if (child.nodeType === Node.ELEMENT_NODE) {
+  function collectRunsLocal(node, fmt, runs) {
+    node.childNodes.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        if (child.textContent) runs.push({ text: child.textContent, ...fmt });
+        return;
+      }
+      if (child.nodeType !== Node.ELEMENT_NODE) return;
       const tag = child.tagName.toLowerCase();
       const nextFmt = { ...fmt };
       if (tag === 'b' || tag === 'strong') nextFmt.bold = true;
       if (tag === 'i' || tag === 'em') nextFmt.italic = true;
       if (tag === 'u') nextFmt.underline = true;
       if (tag === 'font' && child.getAttribute('face')) nextFmt.font = child.getAttribute('face');
-      const bg = child.style && child.style.backgroundColor;
-      if (bg && bg !== 'transparent') { const hex = rgbToHex(bg); if (hex) nextFmt.highlight = hex; }
+      const style = child.style || {};
+      const color = style.color || child.getAttribute('color');
+      const colorHex = rgbToHexLocal(color);
+      if (colorHex) nextFmt.color = colorHex;
+      const bg = style.backgroundColor;
+      const bgHex = rgbToHexLocal(bg);
+      if (bgHex) nextFmt.highlight = bgHex;
       if (tag === 'br') { runs.push({ text: '\n', ...fmt }); return; }
-      collectRuns(child, nextFmt, runs);
-    }
-  });
-}
+      collectRunsLocal(child, nextFmt, runs);
+    });
+  }
 
   function pushParagraph(el, listType) {
     const runs = [];
-    collectRuns(el, {}, runs);
+    collectRunsLocal(el, {}, runs);
     if (!runs.length) runs.push({ text: '' });
     paragraphs.push({ runs, listType: listType || null });
   }
 
-  const blocks = container.children.length ? Array.from(container.children) : [container];
-  blocks.forEach((block) => {
-    const tag = block.tagName ? block.tagName.toLowerCase() : 'div';
-    if (tag === 'ul' || tag === 'ol') {
-      let n = 1;
-      Array.from(block.children).forEach((li) => {
-        pushParagraph(li, tag === 'ul' ? 'bullet' : String(n++) + '.');
-      });
-    } else if (tag === 'div' || tag === 'p') {
-      pushParagraph(block, null);
-    } else {
-      pushParagraph(container, null);
+  function walkBlocks(parent, inheritedListType = null) {
+    const children = Array.from(parent.children || []);
+    if (!children.length) {
+      const text = parent.textContent || '';
+      if (text || parent === container) pushParagraph(parent, inheritedListType);
+      return;
     }
-  });
+    let hadBlock = false;
+    children.forEach(child => {
+      const tag = child.tagName.toLowerCase();
+      if (tag === 'ul' || tag === 'ol') {
+        hadBlock = true;
+        let n = 1;
+        Array.from(child.children).forEach(li => {
+          if (li.tagName.toLowerCase() === 'li') {
+            pushParagraph(li, tag === 'ul' ? 'bullet' : String(n++) + '.');
+            // Preserve nested lists instead of losing them.
+            Array.from(li.children).filter(x => ['ul','ol'].includes(x.tagName.toLowerCase())).forEach(nested => walkBlocks(nested));
+          }
+        });
+      } else if (['p','div','h1','h2','h3','h4','h5','h6','blockquote','pre','table','hr'].includes(tag)) {
+        hadBlock = true;
+        if (tag === 'table') {
+          Array.from(child.querySelectorAll('tr')).forEach(tr => pushParagraph(tr, null));
+        } else if (tag === 'hr') {
+          pushParagraph(child, null);
+        } else if (['div','p'].includes(tag) && Array.from(child.children).some(x => ['div','p','ul','ol'].includes(x.tagName.toLowerCase()))) {
+          // A wrapper div/p can contain multiple block elements; recurse into them.
+          walkBlocks(child);
+        } else {
+          pushParagraph(child, null);
+        }
+      } else if (tag === 'br') {
+        hadBlock = true;
+        pushParagraph(child, null);
+      }
+    });
+    if (!hadBlock && (parent.textContent || '').trim()) pushParagraph(parent, inheritedListType);
+  }
+
+  walkBlocks(container);
   return paragraphs.length ? paragraphs : [{ runs: [{ text: '' }], listType: null }];
 }
 
@@ -2419,6 +2495,7 @@ function buildDocxXml(title, bodyHtml) {
     if (run.italic) props.push('<w:i/>');
     if (run.underline) props.push('<w:u w:val="single"/>');
     if (run.highlight) props.push(`<w:shd w:val="clear" w:fill="${run.highlight}"/>`);
+    if (run.color) props.push(`<w:color w:val="${run.color}"/>`);
     const text = xmlEscape(run.text).replace(/\n/g, '</w:t></w:r><w:r><w:rPr>' + props.join('') + '</w:rPr><w:t xml:space="preserve">');
     return `<w:r><w:rPr>${props.join('')}</w:rPr><w:t xml:space="preserve">${text}</w:t></w:r>`;
   }
@@ -2476,6 +2553,148 @@ async function exportNoteAsPdf(note) {
     wrapper.remove();
   }
 }
+
+/* ---------- v40 multi-format export ---------- */
+function yadnoNoteSnapshot(noteOverride = null){
+  const note = noteOverride || notes.find(n => n.id === activeNoteId) || {};
+  return {
+    id: note.id || activeNoteId || null,
+    title: note.id === activeNoteId ? ($('title-input')?.value ?? note.title ?? '') : (note.title || ''),
+    body: note.id === activeNoteId ? ($('body-editor')?.innerHTML ?? note.body ?? '') : (note.body || ''),
+    sectionId: note.sectionId || activeSectionId || null,
+    notebookId: note.notebookId || activeNotebookId || null,
+    tags: Array.isArray(note.id === activeNoteId ? activeTags : note.tags) ? (note.id === activeNoteId ? [...activeTags] : [...note.tags]) : [],
+    pinned: !!note.pinned,
+    attachments: Array.isArray(note.attachments) ? note.attachments : [],
+    createdAt: note.createdAt?.toDate ? note.createdAt.toDate().toISOString() : null,
+    updatedAt: note.updatedAt?.toDate ? note.updatedAt.toDate().toISOString() : null
+  };
+}
+function yadnoPlain(html){
+  const d=document.createElement('div'); d.innerHTML=html||'';
+  d.querySelectorAll('br').forEach(x=>x.replaceWith('\n'));
+  d.querySelectorAll('li').forEach(x=>x.insertBefore(document.createTextNode('• '),x.firstChild));
+  return (d.textContent||'').replace(/\u00a0/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function yadnoMarkdown(html){
+  const d=document.createElement('div'); d.innerHTML=html||'';
+  function inline(node){
+    let out='';
+    node.childNodes.forEach(ch=>{
+      if(ch.nodeType===Node.TEXT_NODE){out+=ch.textContent.replace(/\\/g,'\\\\');return;}
+      if(ch.nodeType!==Node.ELEMENT_NODE)return;
+      const tag=ch.tagName.toLowerCase();
+      if(tag==='br'){out+='\n';return;}
+      if(tag==='a'){const href=ch.getAttribute('href')||'';out+=`[${inline(ch)}](${href})`;return;}
+      const inner=inline(ch);
+      if(tag==='strong'||tag==='b')out+=`**${inner}**`;
+      else if(tag==='em'||tag==='i')out+=`*${inner}*`;
+      else if(tag==='u')out+=`<u>${inner}</u>`;
+      else out+=inner;
+    });
+    return out;
+  }
+  function blocks(root){
+    const out=[];
+    root.childNodes.forEach(ch=>{
+      if(ch.nodeType===Node.TEXT_NODE){if(ch.textContent.trim())out.push(ch.textContent.trim());return;}
+      if(ch.nodeType!==Node.ELEMENT_NODE)return;
+      const tag=ch.tagName.toLowerCase();
+      if(/^h[1-6]$/.test(tag)){const level=+tag[1];out.push('#'.repeat(level)+' '+inline(ch).trim());}
+      else if(tag==='ul'||tag==='ol'){
+        let i=1;Array.from(ch.children).forEach(li=>{out.push(`${tag==='ol'?i++: '-'} ${inline(li).trim()}`);});
+      }else if(tag==='blockquote'){out.push(inline(ch).split('\n').map(x=>'> '+x).join('\n'));}
+      else if(tag==='hr')out.push('---');
+      else if(tag==='p'||tag==='div'||tag==='pre'){const v=inline(ch).trim();if(v)out.push(v);}
+      else {const v=inline(ch).trim();if(v)out.push(v);}
+    });
+    return out;
+  }
+  return blocks(d).join('\n\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function yadnoSafeName2(str){return safeFileName(str||'یادنو').replace(/\s+/g,'-')||'یادنو';}
+function yadnoHtmlDocument(note){
+  const title=escapeHtml(note.title||'بدون عنوان');
+  return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:Vazirmatn,Tahoma,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;line-height:2;color:#222;direction:rtl}h1{font-size:28px;border-bottom:1px solid #ddd;padding-bottom:12px}img{max-width:100%;height:auto}a{color:#5b3c91}</style></head><body><h1>${title}</h1><div>${note.body||''}</div></body></html>`;
+}
+function yadnoDownloadText(text,filename,type='text/plain;charset=utf-8'){downloadBlob(new Blob(['\uFEFF',text],{type}),filename);}
+function yadnoExportStatus(msg,error=false){const el=$('yadno-export-status');if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none';el.style.color=error?'#A83E32':'var(--ink-soft)';}
+function yadnoCurrentContext(){return {notebook:notebooks.find(n=>n.id===activeNotebookId)||null,section:sections.find(s=>s.id===activeSectionId)||null};}
+async function yadnoGetExportScope(scope){
+  if(!currentUser)throw new Error('ابتدا وارد حساب شوید.');
+  const result={scope,exportedAt:new Date().toISOString(),notebook:null,section:null,notes:[]};
+  const ctx=yadnoCurrentContext();
+  if(scope==='note'){
+    if(!activeNoteId)throw new Error('ابتدا یک یادداشت را باز کنید.');
+    const n=yadnoNoteSnapshot();
+    result.notebook=ctx.notebook?{id:ctx.notebook.id,name:ctx.notebook.name||'دفتر'}:null;
+    result.section=ctx.section?{id:ctx.section.id,name:ctx.section.name||'بخش'}:null;
+    result.notes=[n]; return result;
+  }
+  if(scope==='section'){
+    if(!activeNotebookId||!activeSectionId)throw new Error('ابتدا یک بخش را انتخاب کنید.');
+    result.notebook=ctx.notebook?{id:ctx.notebook.id,name:ctx.notebook.name||'دفتر'}:null;
+    result.section=ctx.section?{id:ctx.section.id,name:ctx.section.name||'بخش'}:null;
+    const snap=await getDocs(userCol('notebooks',activeNotebookId,'notes'));
+    result.notes=snap.docs.map(d=>({id:d.id,...d.data()})).filter(n=>!n.deletedAt&&(n.sectionId||activeSectionId)===activeSectionId).map(yadnoNoteSnapshot);
+    return result;
+  }
+  if(scope==='notebook'){
+    if(!activeNotebookId)throw new Error('ابتدا یک دفتر را انتخاب کنید.');
+    result.notebook=ctx.notebook?{id:ctx.notebook.id,name:ctx.notebook.name||'دفتر'}:null;
+    const secSnap=await getDocs(userCol('notebooks',activeNotebookId,'sections'));
+    const secMap=new Map(secSnap.docs.filter(d=>!d.data().deletedAt).map(d=>[d.id,{id:d.id,name:d.data().name||'بخش'}]));
+    result.sections=[...secMap.values()];
+    const noteSnap=await getDocs(userCol('notebooks',activeNotebookId,'notes'));
+    result.notes=noteSnap.docs.map(d=>({id:d.id,...d.data()})).filter(n=>!n.deletedAt).map(n=>({...yadnoNoteSnapshot(n),sectionName:secMap.get(n.sectionId)?.name||'بخش'}));
+    return result;
+  }
+  if(scope==='library'){
+    const nbSnap=await getDocs(userCol('notebooks')); const nbs=nbSnap.docs.filter(d=>!d.data().deletedAt);
+    result.notebooks=[];
+    for(const nbDoc of nbs){
+      const secSnap=await getDocs(userCol('notebooks',nbDoc.id,'sections'));
+      const secMap=new Map(secSnap.docs.filter(d=>!d.data().deletedAt).map(d=>[d.id,{id:d.id,name:d.data().name||'بخش'}]));
+      const noteSnap=await getDocs(userCol('notebooks',nbDoc.id,'notes'));
+      const notesForNb=noteSnap.docs.map(d=>({id:d.id,...d.data()})).filter(n=>!n.deletedAt).map(n=>({...yadnoNoteSnapshot({...n,notebookId:nbDoc.id}),sectionName:secMap.get(n.sectionId)?.name||'بخش'}));
+      result.notebooks.push({id:nbDoc.id,name:nbDoc.data().name||'دفتر',sections:[...secMap.values()],notes:notesForNb});
+      result.notes.push(...notesForNb);
+    }
+    return result;
+  }
+  throw new Error('نوع خروجی ناشناخته است.');
+}
+function yadnoNoteManifest(n){return {id:n.id,title:n.title,sectionId:n.sectionId,notebookId:n.notebookId,tags:n.tags||[],pinned:!!n.pinned,attachments:n.attachments||[],createdAt:n.createdAt,updatedAt:n.updatedAt};}
+async function yadnoExport(scope,format){
+  const scopeData=await yadnoGetExportScope(scope);
+  if(format!=='zip' && scope!=='note')throw new Error('این قالب برای خروجی گسترده مناسب نیست؛ ZIP را انتخاب کنید.');
+  if(scope==='note'){
+    const n=scopeData.notes[0]; const base=yadnoSafeName2(n.title);
+    if(format==='txt')return yadnoDownloadText(`${n.title||'بدون عنوان'}\n\n${yadnoPlain(n.body)}`,base+'.txt');
+    if(format==='md')return yadnoDownloadText(`# ${n.title||'بدون عنوان'}\n\n${yadnoMarkdown(n.body)}`,base+'.md','text/markdown;charset=utf-8');
+    if(format==='html')return yadnoDownloadText(yadnoHtmlDocument(n),base+'.html','text/html;charset=utf-8');
+    if(format==='json')return yadnoDownloadText(JSON.stringify({...n,manifest:yadnoNoteManifest(n)},null,2),base+'.json','application/json;charset=utf-8');
+  }
+  await loadScriptOnce(JSZIP_URL);
+  const zip=new JSZip();
+  const manifest={format:'yadno-export-v1',scope,exportedAt:scopeData.exportedAt,notebook:scopeData.notebook,section:scopeData.section};
+  if(scope==='note'){
+    const n=scopeData.notes[0], folder=yadnoSafeName2(n.title);zip.file(`${folder}/manifest.json`,JSON.stringify(yadnoNoteManifest(n),null,2));zip.file(`${folder}/note.json`,JSON.stringify(n,null,2));zip.file(`${folder}/note.txt`,`${n.title||'بدون عنوان'}\n\n${yadnoPlain(n.body)}`);zip.file(`${folder}/note.md`,`# ${n.title||'بدون عنوان'}\n\n${yadnoMarkdown(n.body)}`);zip.file(`${folder}/note.html`,yadnoHtmlDocument(n));manifest.notes=[yadnoNoteManifest(n)];
+  }else if(scope==='section'||scope==='notebook'){
+    manifest.notes=scopeData.notes.map(yadnoNoteManifest); zip.file('manifest.json',JSON.stringify(manifest,null,2));
+    for(const n of scopeData.notes){const folder=yadnoSafeName2((n.sectionName?n.sectionName+' - ':'')+(n.title||'بدون عنوان'));zip.file(`${folder}.txt`,`${n.title||'بدون عنوان'}\n\n${yadnoPlain(n.body)}`);zip.file(`${folder}.md`,`# ${n.title||'بدون عنوان'}\n\n${yadnoMarkdown(n.body)}`);zip.file(`${folder}.html`,yadnoHtmlDocument(n));zip.file(`${folder}.json`,JSON.stringify(n,null,2));}
+  }else if(scope==='library'){
+    manifest.notebooks=scopeData.notebooks.map(nb=>({id:nb.id,name:nb.name,sections:nb.sections,notes:nb.notes.map(yadnoNoteManifest)})); zip.file('manifest.json',JSON.stringify(manifest,null,2));
+    for(const nb of scopeData.notebooks){const nbFolder=yadnoSafeName2(nb.name);for(const n of nb.notes){const sec=yadnoSafeName2(n.sectionName||'بخش');const folder=`${nbFolder}/${sec}/${yadnoSafeName2(n.title||'بدون عنوان')}`;zip.file(`${folder}/note.txt`,`${n.title||'بدون عنوان'}\n\n${yadnoPlain(n.body)}`);zip.file(`${folder}/note.md`,`# ${n.title||'بدون عنوان'}\n\n${yadnoMarkdown(n.body)}`);zip.file(`${folder}/note.html`,yadnoHtmlDocument(n));zip.file(`${folder}/note.json`,JSON.stringify(n,null,2));}}
+  }
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+  const name=scope==='note'?yadnoSafeName2(scopeData.notes[0]?.title||'یادداشت'):scope==='section'?yadnoSafeName2(scopeData.section?.name||'بخش'):scope==='notebook'?yadnoSafeName2(scopeData.notebook?.name||'دفتر'): 'یادنو-کتابخانه';
+  downloadBlob(blob,`${name}-${scope}.zip`);
+}
+const yadnoExportBtn=$('yadno-export-more-btn'), yadnoExportMenu=$('yadno-export-menu');
+yadnoExportBtn?.addEventListener('click',e=>{e.stopPropagation();const open=yadnoExportMenu.classList.toggle('open');yadnoExportBtn.setAttribute('aria-expanded',String(open));});
+yadnoExportMenu?.addEventListener('click',async e=>{const btn=e.target.closest('[data-yadno-export]');if(!btn)return;e.preventDefault();const [scope,format]=btn.dataset.yadnoExport.split(':');try{yadnoExportStatus('در حال آماده‌سازی خروجی…');await yadnoExport(scope,format);yadnoExportStatus('خروجی آماده شد.');setTimeout(()=>yadnoExportStatus(''),2500);}catch(err){console.error('Yadno export:',err);yadnoExportStatus('خطا: '+(err?.message||String(err)),true);setTimeout(()=>yadnoExportStatus(''),5000);}});
+document.addEventListener('click',e=>{if(!e.target.closest('.yadno-export-wrap')){yadnoExportMenu?.classList.remove('open');yadnoExportBtn?.setAttribute('aria-expanded','false');}});
 
 $('export-docx-btn').addEventListener('click', () => {
   if (!activeNoteId) return;
@@ -2636,7 +2855,19 @@ async function importZipContainer(file){
   const htmlEntries=all.filter(x=>/\.(html?|xhtml|mht|mhtml)$/i.test(x.name));
   const zipBaseName=file.name.replace(/\.(zip|onepkg)$/i,'');
   const pages=[];
-  if(oneEntries.length){
+  if(htmlEntries.length){
+    // Prefer importable HTML/MHT pages. A mixed package may also contain binary .one files;
+    // those are intentionally ignored so one unsupported entry cannot invalidate usable pages.
+    for(const entry of htmlEntries.slice(0,500)){
+      const info=pathInfo(entry.name);
+      const notebookName=info.notebookHint||zipBaseName;
+      const html=await entry.async('text');
+      const parsedPages=await parseOneNoteHtml(html,info.file,info.groupName);
+      parsedPages.forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:entry.name,notebookName}));
+    }
+  }else if(oneEntries.length){
+    // There are only binary OneNote files. Keep the explicit unsupported-format explanation,
+    // but contain it per entry rather than throwing out the whole ZIP operation.
     for(const entry of oneEntries){
       if(/\.onetoc2$/i.test(entry.name)) continue;
       const info=pathInfo(entry.name);
@@ -2644,15 +2875,7 @@ async function importZipContainer(file){
       const blob=await entry.async('blob');
       const f=new File([blob],info.file,{type:'application/octet-stream'});
       try{pages.push(...(await importNativeOne(f,{sectionName:info.section,groupName:info.groupName,sourcePath:entry.name})).map(pg=>({...pg,notebookName})));}
-      catch(e){ pages.push({title:info.section,body:`<p><b>خطا در تبدیل این بخش:</b> ${escapeHtml(e.message||String(e))}</p>`,sectionName:info.section,groupName:info.groupName,sourcePath:entry.name,notebookName,importError:true}); }
-    }
-  }else{
-    for(const entry of htmlEntries.slice(0,500)){
-      const info=pathInfo(entry.name);
-      const notebookName=info.notebookHint||zipBaseName;
-      const html=await entry.async('text');
-      const parsedPages=await parseOneNoteHtml(html,info.file,info.groupName);
-      parsedPages.forEach(pg=>pages.push({...pg,sectionName:pg.sectionName||info.section,groupName:pg.groupName||info.groupName,sourcePath:entry.name,notebookName}));
+      catch(e){ pages.push({title:info.section,body:`<p><b>این بخش قابل تبدیل نیست:</b> ${escapeHtml(e.message||String(e))}</p>`,sectionName:info.section,groupName:info.groupName,sourcePath:entry.name,notebookName,importError:true}); }
     }
   }
   if(!pages.length) throw new Error('داخل بسته، فایل OneNote یا صفحه HTML پیدا نشد.');
