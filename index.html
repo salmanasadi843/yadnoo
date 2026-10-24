@@ -896,6 +896,90 @@ body>.color-popover button{touch-action:manipulation}
 #app.focus-mode #editor-pane.read-mode #editor-content{max-width:680px!important;padding-top:40px!important}
 #reading-controls{padding:6px 10px!important;margin-bottom:16px!important}
 #reading-size-label{font-size:14px!important;font-weight:700!important;min-width:32px!important}
+
+/* v35: consistent, compact secondary toolbar across phone sizes */
+#toolbar-secondary{
+  display:none;
+  flex-wrap:wrap;
+  align-items:center;
+  align-content:flex-start;
+  gap:6px;
+  padding:8px;
+  margin-top:6px;
+  border-top:1px solid var(--paper-line);
+  box-sizing:border-box;
+}
+#toolbar-secondary.open{display:flex}
+#toolbar-secondary>button,
+#toolbar-secondary>.yadno-export-wrap>button{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 10px!important;
+  border:1px solid var(--paper-line)!important;
+  border-radius:9px!important;
+  background:var(--paper)!important;
+  color:var(--ink)!important;
+  box-shadow:0 1px 2px rgba(20,35,65,.05)!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+  flex:0 0 auto!important;
+}
+#toolbar-secondary>button:active,
+#toolbar-secondary>.yadno-export-wrap>button:active{background:var(--paper-line)!important}
+#toolbar-secondary select{
+  box-sizing:border-box!important;
+  height:38px!important;
+  min-height:38px!important;
+  min-width:88px!important;
+  max-width:160px!important;
+  padding:0 10px!important;
+  border:1px solid var(--paper-line)!important;
+  border-radius:9px!important;
+  background:var(--paper)!important;
+  color:var(--ink)!important;
+  font-size:13px!important;
+  flex:0 1 auto!important;
+}
+#toolbar-secondary #font-select{flex:1 1 125px!important;min-width:115px!important;max-width:180px!important}
+#toolbar-secondary #font-size-select{flex:0 0 70px!important;min-width:70px!important;max-width:78px!important}
+#toolbar-secondary .sep{display:none!important}
+#toolbar-secondary svg{width:19px!important;height:19px!important;flex:0 0 auto!important}
+#toolbar-secondary .yadno-export-wrap{display:flex;align-items:center;flex:0 0 auto;min-width:0}
+@media(max-width:600px){
+  #toolbar-secondary{
+    gap:6px!important;
+    padding:8px 6px!important;
+    margin:0!important;
+    max-height:34dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    align-content:flex-start!important;
+  }
+  #toolbar-secondary>button,
+  #toolbar-secondary>.yadno-export-wrap>button{
+    min-height:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    padding:0 10px!important;
+    border-radius:10px!important;
+    font-size:13px!important;
+  }
+  #toolbar-secondary select{
+    height:42px!important;
+    min-height:42px!important;
+    font-size:14px!important;
+    border-radius:10px!important;
+  }
+  #toolbar-secondary #font-select{min-width:120px!important;flex:1 1 120px!important}
+  #toolbar-secondary #font-size-select{min-width:72px!important;max-width:78px!important;flex:0 0 72px!important}
+}
+
 </style></head>
 <body>
 
