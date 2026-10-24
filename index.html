@@ -1896,7 +1896,7 @@ function renderSections() {
   $('sections-pane-title').textContent = `بخش‌ها (${sections.length})`;
 }
 
-async async function addSectionGroup() {
+async function addSectionGroup() {
   if (!activeNotebookId) { alert('اول یک دفتر انتخاب کن.'); return; }
   const name = prompt('نام گروه بخش جدید:');
   if (!name || !name.trim()) return;
