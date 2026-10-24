@@ -1279,6 +1279,10 @@ let currentListenerNotebookId=null;
 let currentListenerSectionKey=null;
 let pendingWrites=false;
 let latestSnapshotFromCache=true;
+// An empty local Firestore cache is not proof that the account has no data.
+// Keep loading states distinct from a genuinely empty notebook/section.
+let notebooksAwaitingServer=false;
+let notesAwaitingServer=false;
 
 function showScreen(name) {
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
@@ -1615,27 +1619,50 @@ function userCol(...path) {
 }
 
 function startListening() {
+  notebooksAwaitingServer = true;
+  notesAwaitingServer = true;
+  const notebookList = $('notebooks-list');
+  if (notebookList && !notebooks.length) {
+    notebookList.innerHTML = '<div class="empty-hint">در حال بازیابی دفترها از حافظهٔ محلی یا Firebase…</div>';
+  }
   const nbQuery = query(userCol('notebooks'));
-  unsubNotebooks = onSnapshot(nbQuery, (snap) => {
-    notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  unsubNotebooks = onSnapshot(nbQuery, { includeMetadataChanges: true }, (snap) => {
+    const incoming = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt)
       .sort((a,b) => {
         const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.position || 0);
         const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.position || 0);
         return ta - tb;
       });
+
+    // A cache-only empty snapshot can happen before Firestore has fetched the
+    // server copy. Do not mislead the user into thinking their notebooks vanished.
+    if (!incoming.length && snap.metadata.fromCache) {
+      notebooksAwaitingServer = true;
+      if (!notebooks.length) renderNotebooks();
+      updateSnapshotStatus(snap);
+      return;
+    }
+
+    notebooksAwaitingServer = false;
+    notebooks = incoming;
     if (!activeNotebookId || !notebooks.some(n => n.id === activeNotebookId)) {
       activeNotebookId = notebooks.length ? notebooks[0].id : null;
     }
     renderNotebooks();
     if (activeNotebookId && currentListenerNotebookId!==activeNotebookId) listenToSections(activeNotebookId);
-    else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }
+    else if (!activeNotebookId) {
+      sections = []; sectionGroups = []; notes = [];
+      notesAwaitingServer = false;
+      renderSections(); renderNotes(); showEditorEmpty();
+    }
     updateSnapshotStatus(snap);
   }, (err) => {
     console.error('Yadno notebooks listener error:', err);
+    notebooksAwaitingServer = false;
     setSyncStatus('offline');
     const list = $('notebooks-list');
-    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">ارتباط با Firebase برقرار نیست یا دسترسی Firestore مشکل دارد.<br><small>تنظیمات Firebase و قوانین Firestore را بررسی کنید.</small></div>';
+    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">دفترها بارگذاری نشدند؛ اتصال و مجوزهای Firestore را بررسی کن. اگر اتصال قطع است، پس از وصل‌شدن دوباره تلاش کن.</div>';
   });
 }
 
@@ -1700,14 +1727,34 @@ function listenToNotes(notebookId, sectionId) {
   if(currentListenerSectionKey===key && unsubNotes)return;
   currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
+  notes = [];
+  notesAwaitingServer = true;
+  renderNotes();
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
   unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
-    notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    const incoming = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt && (n.sectionId || sectionId) === sectionId);
+
+    // Don't show the "empty" message until the server has confirmed it.
+    if (!incoming.length && snap.metadata.fromCache) {
+      notesAwaitingServer = true;
+      renderNotes();
+      updateSnapshotStatus(snap);
+      return;
+    }
+
+    notesAwaitingServer = false;
+    notes = incoming;
     notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || ((b.updatedAt?.toDate ? b.updatedAt.toDate().getTime() : 0) - (a.updatedAt?.toDate ? a.updatedAt.toDate().getTime() : 0)));
     renderNotes();
     updateSnapshotStatus(snap);
-  }, (err) => { console.error('Yadno notes listener error:', err); setSyncStatus('offline'); });
+  }, (err) => {
+    console.error('Yadno notes listener error:', err);
+    notesAwaitingServer = false;
+    const list = $('notes-list');
+    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">یادداشت‌ها بارگذاری نشدند؛ اتصال یا مجوزهای Firestore را بررسی کن.</div>';
+    setSyncStatus('offline');
+  });
 }
 
 function stopListening() {
@@ -1718,6 +1765,7 @@ function stopListening() {
   unsubNotebooks=unsubSections=unsubSectionGroups=unsubNotes=null;
   currentListenerNotebookId=currentListenerSectionKey=null;
   notebooks = []; sectionGroups = []; sections = []; notes = []; activeNotebookId = null; activeSectionId = null; activeNoteId = null;
+  notebooksAwaitingServer = false; notesAwaitingServer = false;
   searchCache = []; searchRequestId++;
 }
 
@@ -1756,7 +1804,9 @@ function yadnoCycleBookColor(id){
 function renderNotebooks() {
   const list = $('notebooks-list');
   if (!notebooks.length) {
-    list.innerHTML = '<div class="empty-hint">هنوز دفتری نساختی. با دکمه‌ی + یکی بساز.</div>';
+    list.innerHTML = notebooksAwaitingServer
+      ? '<div class="empty-hint">در حال بازیابی دفترها… اگر اینترنت ضعیف است، کمی صبر کن؛ هنوز مشخص نیست دفترها خالی باشند.</div>'
+      : '<div class="empty-hint">هنوز دفتری نساختی. با دکمه‌ی + یکی بساز.</div>';
     return;
   }
   list.innerHTML = '';
@@ -1965,7 +2015,9 @@ function renderNotes() {
     return;
   }
   if (!notes.length) {
-    list.innerHTML = '<div class="empty-hint">این دفتر خالیه. با + یادداشت بساز.</div>';
+    list.innerHTML = notesAwaitingServer
+      ? '<div class="empty-hint">در حال بازیابی یادداشت‌ها… هنوز خالی‌بودن این بخش تأیید نشده است.</div>'
+      : '<div class="empty-hint">این دفتر خالیه. با + یادداشت بساز.</div>';
     return;
   }
   list.innerHTML = '';
