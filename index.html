@@ -238,6 +238,27 @@
   #editor-toolbar button.i { font-style: italic; }
   #editor-toolbar button.u { text-decoration: underline; }
   #editor-toolbar .sep { width: 1px; height: 18px; background: var(--paper-line); margin: 0 4px; }
+
+  /* یادنو: نوار ابزار فشرده و مدیریت سادهٔ بخش‌ها */
+  #editor-toolbar{padding:5px!important;border-radius:11px!important}
+  #toolbar-scroll,#toolbar-pinned{gap:2px!important}
+  #editor-toolbar button,#editor-toolbar select{
+    min-width:34px!important;min-height:34px!important;height:34px!important;
+    padding:0 7px!important;border-radius:7px!important;font-size:14px!important
+  }
+  #editor-toolbar select{min-width:82px!important;max-width:118px!important;font-size:12px!important}
+  #editor-toolbar .sep{margin:0 2px!important}
+  .section-group-header,.section-row{display:flex;align-items:center;gap:5px;min-width:0}
+  .section-item-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .section-item-actions{display:flex;align-items:center;gap:1px;flex:0 0 auto;margin-inline-start:auto}
+  .section-action-btn{border:0;background:transparent;color:var(--ink-soft);border-radius:6px;min-width:28px;min-height:28px;padding:2px 5px;cursor:pointer;font:inherit;line-height:1}
+  .section-action-btn:hover,.section-action-btn:focus-visible{background:var(--paper-line);color:var(--ink);outline-offset:1px}
+  @media(max-width:600px){
+    #editor-toolbar{padding:4px!important}
+    #editor-toolbar button,#editor-toolbar select{min-width:32px!important;min-height:32px!important;height:32px!important;padding:0 6px!important}
+    #editor-toolbar select{min-width:70px!important;max-width:96px!important}
+    .section-action-btn{min-width:27px;min-height:27px}
+  }
   #font-select {
     border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
     color: var(--ink-soft); background: var(--panel); outline: none;
@@ -1814,7 +1835,12 @@ async function deleteSectionItem(sec) {
   const fallback = sections.find(s => s.id !== sec.id);
   if (!fallback) return;
   const notesSnap = await getDocs(userCol('notebooks', activeNotebookId, 'notes'));
-  const attached = notesSnap.docs.filter(d => d.data().sectionId === sec.id);
+  // Legacy notes without sectionId were shown in whichever section was active;
+  // when deleting a section, attach those notes to the fallback to avoid orphaned/duplicated display.
+  const attached = notesSnap.docs.filter(d => {
+    const data = d.data();
+    return !data.deletedAt && (!data.sectionId || data.sectionId === sec.id);
+  });
   const message = attached.length
     ? `این بخش ${attached.length} یادداشت دارد. با حذف بخش، یادداشت‌ها به «${fallback.name || 'بخش دیگر'}» منتقل می‌شوند. ادامه می‌دهی؟`
     : 'این بخش حذف شود؟ یادداشت‌های دفتر حذف نخواهند شد.';
@@ -2767,27 +2793,6 @@ function yadnoSafeName2(str){return safeFileName(str||'یادنو').replace(/\s+
 function yadnoHtmlDocument(note){
   const title=escapeHtml(note.title||'بدون عنوان');
   return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:Vazirmatn,Tahoma,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;line-height:2;color:#222;direction:rtl}h1{font-size:28px;border-bottom:1px solid #ddd;padding-bottom:12px}img{max-width:100%;height:auto}a{color:#5b3c91}
-  /* یادنو: نوار ابزار فشرده و مدیریت سادهٔ بخش‌ها */
-  #editor-toolbar{padding:5px!important;border-radius:11px!important}
-  #toolbar-scroll,#toolbar-pinned{gap:2px!important}
-  #editor-toolbar button,#editor-toolbar select{
-    min-width:34px!important;min-height:34px!important;height:34px!important;
-    padding:0 7px!important;border-radius:7px!important;font-size:14px!important
-  }
-  #editor-toolbar select{min-width:82px!important;max-width:118px!important;font-size:12px!important}
-  #editor-toolbar .sep{margin:0 2px!important}
-  .section-group-header,.section-row{display:flex;align-items:center;gap:5px;min-width:0}
-  .section-item-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .section-item-actions{display:flex;align-items:center;gap:1px;flex:0 0 auto;margin-inline-start:auto}
-  .section-action-btn{border:0;background:transparent;color:var(--ink-soft);border-radius:6px;min-width:28px;min-height:28px;padding:2px 5px;cursor:pointer;font:inherit;line-height:1}
-  .section-action-btn:hover,.section-action-btn:focus-visible{background:var(--paper-line);color:var(--ink);outline-offset:1px}
-  @media(max-width:600px){
-    #editor-toolbar{top:4px;padding:4px!important}
-    #editor-toolbar button,#editor-toolbar select{min-width:32px!important;min-height:32px!important;height:32px!important;padding:0 6px!important}
-    #editor-toolbar select{min-width:70px!important;max-width:96px!important}
-    .section-action-btn{min-width:27px;min-height:27px}
-  }
-
 </style></head><body><h1>${title}</h1><div>${note.body||''}</div></body></html>`;
 }
 function yadnoDownloadText(text,filename,type='text/plain;charset=utf-8'){downloadBlob(new Blob(['\uFEFF',text],{type}),filename);}
