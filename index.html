@@ -1828,18 +1828,21 @@ async function renameSectionItem(item, kind) {
 
 async function deleteSectionItem(sec) {
   if (!activeNotebookId || !currentUser) return;
+  const notebookId = activeNotebookId;
+  const userId = currentUser.uid;
+  const sectionId = sec.id;
   if (sections.length <= 1) {
     alert('هر دفتر باید دست‌کم یک بخش داشته باشد. ابتدا بخش دیگری بساز.');
     return;
   }
-  const fallback = sections.find(s => s.id !== sec.id);
+  const fallback = sections.find(s => s.id !== sectionId);
   if (!fallback) return;
-  const notesSnap = await getDocs(userCol('notebooks', activeNotebookId, 'notes'));
+  const notesSnap = await getDocs(userCol('notebooks', notebookId, 'notes'));
   // Legacy notes without sectionId were shown in whichever section was active;
   // when deleting a section, attach those notes to the fallback to avoid orphaned/duplicated display.
   const attached = notesSnap.docs.filter(d => {
     const data = d.data();
-    return !data.deletedAt && (!data.sectionId || data.sectionId === sec.id);
+    return !data.deletedAt && (!data.sectionId || data.sectionId === sectionId);
   });
   const message = attached.length
     ? `این بخش ${attached.length} یادداشت دارد. با حذف بخش، یادداشت‌ها به «${fallback.name || 'بخش دیگر'}» منتقل می‌شوند. ادامه می‌دهی؟`
@@ -1848,29 +1851,34 @@ async function deleteSectionItem(sec) {
   for (const noteDoc of attached) {
     await updateDoc(noteDoc.ref, { sectionId: fallback.id, updatedAt: serverTimestamp() });
   }
-  await deleteDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'sections', sec.id));
-  if (activeSectionId === sec.id) {
+  await deleteDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sections', sectionId));
+  // The user may have switched notebooks while the Firestore read was pending.
+  // Never apply the old operation's navigation changes to a different notebook.
+  if (activeNotebookId === notebookId && activeSectionId === sectionId) {
     activeSectionId = fallback.id;
     activeNoteId = null;
     $('notes-pane-title').textContent = fallback.name || 'یادداشت‌ها';
-    listenToNotes(activeNotebookId, fallback.id);
+    listenToNotes(notebookId, fallback.id);
     showEditorEmpty();
   }
 }
 
 async function deleteSectionGroup(group) {
   if (!activeNotebookId || !currentUser) return;
-  const children = sections.filter(sec => (sec.groupId || null) === group.id);
+  const notebookId = activeNotebookId;
+  const userId = currentUser.uid;
+  const groupId = group.id;
+  const children = sections.filter(sec => (sec.groupId || null) === groupId);
   const message = children.length
     ? `حذف گروه «${group.name}»؟ ${children.length} بخش آن به «بخش‌های اصلی» منتقل می‌شود؛ یادداشت‌ها حذف نمی‌شوند.`
     : `گروه «${group.name}» حذف شود؟`;
   if (!confirm(message)) return;
   for (const sec of children) {
-    await updateDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'sections', sec.id), {
+    await updateDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sections', sec.id), {
       groupId: null, updatedAt: serverTimestamp()
     });
   }
-  await deleteDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, 'sectionGroups', group.id));
+  await deleteDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sectionGroups', groupId));
 }
 
 function renderSections() {
