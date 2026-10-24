@@ -273,10 +273,17 @@
     align-items: center; justify-content: center;
   }
   #title-input {
-    border: none; outline: none; background: transparent; font-size: 24px; font-weight: 700;
-    padding: 22px 24px 6px; color: var(--ink); font-family: inherit;
+    display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+    border:none;outline:none;background:transparent;font-size:clamp(18px,1.7vw,22px);font-weight:700;
+    padding:12px 16px 8px;color:var(--ink);font-family:inherit;line-height:1.55;
   }
   #title-input::placeholder { color: #C9C4B2; }
+  #title-input{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #body-editor,#title-input,#tag-input{spellcheck:false}
+  .notebook-item[data-reorder-kind],.section-group-header[data-reorder-kind],.section-row[data-reorder-kind],.note-item[data-reorder-kind]{touch-action:pan-y}
+  .long-press-reorder-ready{outline:2px dashed var(--gold);outline-offset:-3px}
+  .long-press-reordering{opacity:.5;transform:scale(.985)}
+  .reorder-hint{font-size:11px;color:var(--ink-soft);padding:4px 8px;text-align:center}
   #body-editor {
     flex: 1; overflow-y: auto; padding: 0 24px 24px; font-size: 15px; line-height: 2;
     outline: none;
@@ -284,6 +291,9 @@
   #body-editor:empty:before {
     content: attr(data-placeholder); color: #C9C4B2;
   }
+  /* Browser spell-check underlines are distracting for Persian study notes. */
+  #title-input,#body-editor,#tag-input{-webkit-text-decoration-skip:ink}
+  #body-editor[spellcheck="false"]{text-decoration:none}
 
   #mobile-overlay {
     display: none; position: fixed; inset: 0; background: rgba(29,43,79,.3); z-index: 15;
@@ -467,7 +477,7 @@
   #editor-pane{position:absolute;inset:0;width:100%;height:100%;z-index:1}
   #editor-content{height:100%;padding:10px 12px 84px;max-width:none}
   #editor-empty{padding:24px;text-align:center}
-  #title-input{font-size:30px;padding:12px 5px 14px;line-height:1.5;min-height:58px;font-weight:800}
+  #title-input{font-size:21px;padding:8px 5px 10px;line-height:1.45;min-height:44px;font-weight:750;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
   #editor-toolbar{position:sticky;top:0;z-index:8;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;white-space:nowrap;padding:9px 6px;border-radius:11px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   #editor-toolbar::-webkit-scrollbar{display:none}
   #editor-toolbar button,#editor-toolbar select{min-width:50px;min-height:48px;flex:0 0 auto;padding:9px 14px;font-size:16.5px;font-weight:600}
@@ -1135,10 +1145,10 @@ body>.color-popover button{touch-action:manipulation}
             <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
           </div>
         </div>
-        <input id="title-input" type="text" placeholder="عنوان یادداشت">
+        <input id="title-input" type="text" spellcheck="false" autocomplete="off" placeholder="عنوان یادداشت">
         <div id="attachments-box"><div id="attachments-header"><span>📎 فایل‌های پیوست</span><span id="attachments-status" class="attach-progress"></span></div><div id="attachments-list"></div></div>
-        <div id="tag-editor" class="tag-editor"><span style="font-size:12px;color:#81796f;font-weight:700">برچسب:</span><div id="tag-chips"></div><input id="tag-input" placeholder="مثلاً مهم، مطالعه + Enter"></div>
-        <div id="body-editor" contenteditable="true" data-placeholder="بنویس..."></div>
+        <div id="tag-editor" class="tag-editor"><span style="font-size:12px;color:#81796f;font-weight:700">برچسب:</span><div id="tag-chips"></div><input id="tag-input" spellcheck="false" placeholder="مثلاً مهم، مطالعه + Enter"></div>
+        <div id="body-editor" contenteditable="true" spellcheck="false" data-placeholder="بنویس..."></div>
       </div>
     </div>
   </div>
@@ -1650,9 +1660,9 @@ function startListening() {
     const incoming = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt)
       .sort((a,b) => {
-        const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.position || 0);
-        const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.position || 0);
-        return ta - tb;
+        const orderA = a.position ?? (a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0);
+        const orderB = b.position ?? (b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0);
+        return orderA - orderB;
       });
 
     // A cache-only empty snapshot can happen before Firestore has fetched the
@@ -1845,6 +1855,7 @@ function renderNotebooks() {
   notebooks.forEach((nb) => {
     const el = document.createElement('div');
     el.className = 'notebook-item' + (nb.id === activeNotebookId ? ' active' : '');
+    el.dataset.reorderKind='notebook';el.dataset.reorderId=nb.id;
     el.style.setProperty('--book-color', yadnoBookColor(nb.id));
     el.innerHTML = `<span class="dot-icon"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(nb.name)}</span>
       <button class="book-color-picker" title="تغییر رنگ دفتر" aria-label="تغییر رنگ دفتر"><span class="swatch" style="background:${yadnoBookColor(nb.id)}"></span></button>
@@ -1973,6 +1984,7 @@ function renderSections() {
     const wrap = document.createElement('div');
     const header = document.createElement('div');
     header.className = 'notebook-item section-group-header';
+    if(group.id){header.dataset.reorderKind='group';header.dataset.reorderId=group.id;}
     header.innerHTML = `<span class="dot-icon" style="border-radius:3px;background:var(--ink)"></span><b class="section-item-name">${escapeHtml(group.name)}</b>`;
     if (group.id) {
       const actions = document.createElement('div');
@@ -1989,6 +2001,7 @@ function renderSections() {
     children.forEach(sec => {
       const el = document.createElement('div');
       el.className = 'notebook-item section-row' + (sec.id === activeSectionId ? ' active' : '');
+      el.dataset.reorderKind='section';el.dataset.reorderId=sec.id;el.dataset.groupId=sec.groupId||'';
       el.style.paddingInlineStart = '28px';
       el.innerHTML = `<span class="dot-icon" style="border-radius:50%;background:var(--sage)"></span><span class="section-item-name">${escapeHtml(sec.name || 'بخش بدون نام')}</span>`;
       el.addEventListener('click', () => {
@@ -2056,6 +2069,7 @@ function renderNotes() {
   notes.forEach((n) => {
     const el = document.createElement('div');
     el.className = 'note-item' + (n.id === activeNoteId ? ' active' : '');
+    el.dataset.reorderKind='note';el.dataset.reorderId=n.id;
     el.draggable = true;
     const preview = (n.body || '').replace(/<[^>]+>/g, ' ').trim().slice(0, 60);
     const timeStr = n.updatedAt?.toDate ? formatTime(n.updatedAt.toDate()) : '';
@@ -3404,9 +3418,99 @@ function openMobilePane(which) {
   $('notes-pane').classList.toggle('open', which === 'notes');
   $('mobile-overlay').classList.toggle('show', !!which);
 }
+ 
+// Keep Android/browser Back inside Yadno first: close transient UI and return
+// to the note list instead of immediately closing the whole app.
+(function setupBackButtonNavigation(){
+  let guardArmed=false;
+  const arm=()=>{if(!guardArmed){history.pushState({yadnoBackGuard:true},'');guardArmed=true;}};
+  const closeTransientUi=()=>{
+    if($('search-modal')?.classList.contains('open')){$('search-modal').classList.remove('open');return true;}
+    if($('yadno-export-menu')?.classList.contains('open')){$('yadno-export-menu').classList.remove('open');return true;}
+    if($('more-menu-dropdown')?.classList.contains('open')){$('more-menu-dropdown').classList.remove('open');return true;}
+    if(document.querySelector('.pane.open')){openMobilePane(null);return true;}
+    if($('app')?.classList.contains('focus-mode')){applyFocusMode(false);return true;}
+    if($('app')?.style.display==='grid'&&activeNoteId){flushScheduledSave();showEditorEmpty();activeNoteId=null;renderNotes();return true;}
+    return false;
+  };
+  window.addEventListener('popstate',()=>{
+    if($('app')?.style.display==='grid'){
+      closeTransientUi();
+      guardArmed=false;
+      arm();
+    }else{guardArmed=false;}
+  });
+  const originalShowScreen=showScreen;
+  showScreen=function(name){originalShowScreen(name);if(name==='app')arm();else guardArmed=false;};
+})();
 $('menu-toggle').addEventListener('click', () => openMobilePane('notebooks'));
 $('mobile-overlay').addEventListener('click', () => openMobilePane(null));
 
+// Long-press any list item for a moment, then release over another item to
+// persist its display priority. This works on touch screens where HTML drag is unreliable.
+let longPressReorderState=null;
+let longPressReorderTimer=null;
+let suppressNextReorderClick=false;
+document.addEventListener('pointerdown',e=>{
+  const item=e.target.closest('[data-reorder-kind][data-reorder-id]');
+  if(!item||e.button!==0||e.target.closest('button,input,a'))return;
+  clearTimeout(longPressReorderTimer);
+  longPressReorderState={item,startX:e.clientX,startY:e.clientY,activated:false};
+  longPressReorderTimer=setTimeout(()=>{
+    if(!longPressReorderState)return;
+    longPressReorderState.activated=true;
+    item.classList.add('long-press-reorder-ready');
+    if(navigator.vibrate)try{navigator.vibrate(25)}catch(_){}
+  },520);
+});
+document.addEventListener('pointermove',e=>{
+  if(!longPressReorderState||longPressReorderState.activated)return;
+  if(Math.abs(e.clientX-longPressReorderState.startX)>12||Math.abs(e.clientY-longPressReorderState.startY)>12){
+    clearTimeout(longPressReorderTimer);longPressReorderState=null;
+  }
+},{passive:true});
+document.addEventListener('pointerup',async e=>{
+  clearTimeout(longPressReorderTimer);
+  const state=longPressReorderState;longPressReorderState=null;
+  if(!state)return;
+  state.item.classList.remove('long-press-reorder-ready');
+  if(!state.activated)return;
+  suppressNextReorderClick=true;
+  const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-reorder-kind][data-reorder-id]');
+  if(!target||target===state.item||target.dataset.reorderKind!==state.item.dataset.reorderKind)return;
+  try{await reorderYadnoItems(state.item.dataset.reorderKind,state.item.dataset.reorderId,target.dataset.reorderId,state.item.dataset.groupId||'',target.dataset.groupId||'');}
+  catch(err){console.error('Reorder failed:',err);alert('تغییر ترتیب ذخیره نشد؛ اتصال را بررسی کن.');}
+  setTimeout(()=>{suppressNextReorderClick=false;},0);
+});
+document.addEventListener('pointercancel',()=>{clearTimeout(longPressReorderTimer);longPressReorderState?.item?.classList.remove('long-press-reorder-ready');longPressReorderState=null;});
+document.addEventListener('click',e=>{if(suppressNextReorderClick){e.preventDefault();e.stopPropagation();suppressNextReorderClick=false;}},true);
+
+async function reorderYadnoItems(kind,fromId,toId,fromGroup='',toGroup=''){
+  if(!currentUser||!activeNotebookId)return;
+  let items=[],collectionPath=[];
+  if(kind==='notebook'){items=[...notebooks];collectionPath=['notebooks'];}
+  else if(kind==='group'){items=[...sectionGroups];collectionPath=['notebooks',activeNotebookId,'sectionGroups'];}
+  else if(kind==='section'){
+    if(fromGroup!==toGroup)return;
+    items=sections.filter(x=>(x.groupId||'')===fromGroup);collectionPath=['notebooks',activeNotebookId,'sections'];
+  }else if(kind==='note'){
+    const from=notes.find(x=>x.id===fromId),to=notes.find(x=>x.id===toId);
+    if(!from||!to||!!from.pinned!==!!to.pinned)return;
+    items=notes.filter(x=>!!x.pinned===!!from.pinned);collectionPath=['notebooks',activeNotebookId,'notes'];
+  }else return;
+  const from=items.findIndex(x=>x.id===fromId),to=items.findIndex(x=>x.id===toId);
+  if(from<0||to<0)return;
+  const moved=[...items];const [item]=moved.splice(from,1);moved.splice(to,0,item);
+  const batch=writeBatch(db);
+  moved.forEach((entry,index)=>{
+    const ref=doc(db,'users',currentUser.uid,...collectionPath,entry.id);
+    const patch={position:(index+1)*100};
+    if(kind==='notebook'&&entry.position===undefined)patch.position=(index+1)*100;
+    batch.set(ref,patch,{merge:true});
+  });
+  await batch.commit();
+}
+ 
 function escapeHtml(str) {
   const d = document.createElement('div');
   d.textContent = str || '';
