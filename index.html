@@ -2350,23 +2350,46 @@ $('font-select').addEventListener('change', () => {
 });
 
 $('font-size-select').addEventListener('change', () => {
-  const size = Number($('font-size-select').value);
+  const select = $('font-size-select');
+  const size = Number(select.value);
   if (!Number.isFinite(size) || size < 10 || size > 40) return;
+
+  const editor = $('body-editor');
   if (!yadnoRestoreSelection()) {
     alert('ابتدا بخشی از متن را انتخاب کن، سپس اندازهٔ آن را تغییر بده.');
-    $('font-size-select').value = '16';
+    select.value = '16';
     return;
   }
-  const editor = $('body-editor');
-  document.execCommand('fontSize', false, '7');
-  editor.querySelectorAll('font[size="7"]').forEach(font => {
-    const span = document.createElement('span');
-    span.style.fontSize = size + 'px';
-    while (font.firstChild) span.appendChild(font.firstChild);
-    font.replaceWith(span);
-  });
-  yadnoRememberSelection();
-  scheduleSave();
+
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount || selection.isCollapsed) {
+    select.value = '16';
+    return;
+  }
+
+  const range = selection.getRangeAt(0);
+  if (!editor.contains(range.commonAncestorContainer)) {
+    select.value = '16';
+    return;
+  }
+
+  // Wrap the selected fragment directly; this avoids deprecated fontSize markup
+  // and preserves inline formatting contained in a multi-node selection.
+  const span = document.createElement('span');
+  span.style.fontSize = size + 'px';
+  try {
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    selection.removeAllRanges();
+    const updatedRange = document.createRange();
+    updatedRange.selectNodeContents(span);
+    selection.addRange(updatedRange);
+    yadnoRememberSelection();
+    scheduleSave();
+  } catch (error) {
+    console.error('تغییر اندازهٔ قلم انجام نشد:', error);
+    alert('تغییر اندازهٔ قلم انجام نشد. دوباره متن را انتخاب کن.');
+  }
 });
 
 let yadnoSavedRange = null;
