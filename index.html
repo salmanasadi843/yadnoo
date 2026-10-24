@@ -1351,6 +1351,9 @@ function initFirebase(config) {
       if (user) {
         localStorage.setItem(LAST_UID_KEY, user.uid);
         if(currentUser?.uid===user.uid && unsubNotebooks){ currentUser=user; return; } // already showing this account
+        // Never leave the previous account's listeners or cached UI active
+        // if Firebase switches directly between two signed-in users.
+        if(currentUser?.uid && currentUser.uid!==user.uid) stopListening();
         currentUser = user;
         showScreen('app');
         startListening();
@@ -1701,8 +1704,15 @@ function listenToSections(notebookId) {
   const sectionsQuery=query(userCol('notebooks',notebookId,'sections'));
   unsubSections=onSnapshot(sectionsQuery,{includeMetadataChanges:true},async snap=>{
     if(currentListenerNotebookId!==notebookId)return;
-    sections=snap.docs.map(d=>({id:d.id,...d.data()}))
+    const incomingSections=snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(s=>!s.deletedAt).sort((a,b)=>(a.position??0)-(b.position??0));
+    // An empty cache snapshot is not authoritative. Do not create a default
+    // section until the server confirms the notebook truly has no live sections.
+    if(!incomingSections.length && snap.metadata.fromCache){
+      updateSnapshotStatus(snap);
+      return;
+    }
+    sections=incomingSections;
     if(!sections.length){
       try{
         // Firestore persistentLocalCache can queue this write while offline.
