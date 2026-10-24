@@ -1,0 +1,107 @@
+name: Validate Yadnoo
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "ux/fix-toolbar-sections-font-size"]
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check HTML IDs and inline JavaScript syntax
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import collections
+          import sys
+
+          class PageParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=False)
+                  self.ids = []
+                  self.scripts = []
+                  self.current_script = None
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if "id" in attrs:
+                      self.ids.append(attrs["id"])
+                  if tag.lower() == "script":
+                      self.current_script = {
+                          "type": attrs.get("type", "").lower(),
+                          "src": attrs.get("src"),
+                          "body": []
+                      }
+
+              def handle_data(self, data):
+                  if self.current_script is not None:
+                      self.current_script["body"].append(data)
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.current_script is not None:
+                      self.scripts.append(self.current_script)
+                      self.current_script = None
+
+          path = Path("index.html")
+          if not path.exists():
+              print("ERROR: index.html was not found")
+              sys.exit(1)
+
+          source = path.read_text(encoding="utf-8")
+          parser = PageParser()
+          parser.feed(source)
+          counts = collections.Counter(parser.ids)
+          duplicates = sorted(k for k, v in counts.items() if v > 1)
+          if duplicates:
+              print("ERROR: duplicate HTML IDs:", ", ".join(duplicates))
+              sys.exit(1)
+
+          # Regression guards for the reported missing-notebooks/notes issue.
+          # Empty cache snapshots must not be treated as proof that server data is gone.
+          if source.count("if (!incoming.length && snap.metadata.fromCache)") < 2:
+              print("ERROR: missing cache-empty guards for notebooks and notes.")
+              sys.exit(1)
+          # A notebook metadata/data update must not clear sections when the active
+          # notebook is unchanged; only clear them when no notebook is selected.
+          unsafe_reset = "else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }"
+          if unsafe_reset in source:
+              print("ERROR: unsafe notebook snapshot branch clears active section and notes.")
+              sys.exit(1)
+
+          checked = 0
+          for index, script in enumerate(parser.scripts):
+              if script["src"] or not "".join(script["body"]).strip():
+                  continue
+              extension = ".mjs" if script["type"] == "module" else ".js"
+              temp = Path("/tmp") / f"yadnoo-inline-{index}{extension}"
+              temp.write_text("".join(script["body"]), encoding="utf-8")
+              checked += 1
+
+          print(f"HTML check passed: {len(parser.ids)} IDs, no duplicates.")
+          print(f"Extracted {checked} inline JavaScript blocks for syntax validation.")
+          PY
+
+          for file in /tmp/yadnoo-inline-*; do
+            [ -f "$file" ] || continue
+            echo "Checking $file"
+            node --check "$file"
+          done

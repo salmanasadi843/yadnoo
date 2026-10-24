@@ -238,6 +238,27 @@
   #editor-toolbar button.i { font-style: italic; }
   #editor-toolbar button.u { text-decoration: underline; }
   #editor-toolbar .sep { width: 1px; height: 18px; background: var(--paper-line); margin: 0 4px; }
+
+  /* یادنو: نوار ابزار فشرده و مدیریت سادهٔ بخش‌ها */
+  #editor-toolbar{padding:5px!important;border-radius:11px!important}
+  #toolbar-scroll,#toolbar-pinned{gap:2px!important}
+  #editor-toolbar button,#editor-toolbar select{
+    min-width:34px!important;min-height:34px!important;height:34px!important;
+    padding:0 7px!important;border-radius:7px!important;font-size:14px!important
+  }
+  #editor-toolbar select{min-width:82px!important;max-width:118px!important;font-size:12px!important}
+  #editor-toolbar .sep{margin:0 2px!important}
+  .section-group-header,.section-row{display:flex;align-items:center;gap:5px;min-width:0}
+  .section-item-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .section-item-actions{display:flex;align-items:center;gap:1px;flex:0 0 auto;margin-inline-start:auto}
+  .section-action-btn{border:0;background:transparent;color:var(--ink-soft);border-radius:6px;min-width:28px;min-height:28px;padding:2px 5px;cursor:pointer;font:inherit;line-height:1}
+  .section-action-btn:hover,.section-action-btn:focus-visible{background:var(--paper-line);color:var(--ink);outline-offset:1px}
+  @media(max-width:600px){
+    #editor-toolbar{padding:4px!important}
+    #editor-toolbar button,#editor-toolbar select{min-width:32px!important;min-height:32px!important;height:32px!important;padding:0 6px!important}
+    #editor-toolbar select{min-width:70px!important;max-width:96px!important}
+    .section-action-btn{min-width:27px;min-height:27px}
+  }
   #font-select {
     border: 1px solid var(--paper-line); border-radius: 6px; padding: 6px 8px; font-size: 12.5px;
     color: var(--ink-soft); background: var(--panel); outline: none;
@@ -1069,6 +1090,15 @@ body>.color-popover button{touch-action:manipulation}
               <option value="Georgia">Georgia</option>
               <option value="'Courier New'">Courier New</option>
             </select>
+            <select id="font-size-select" title="اندازهٔ متن انتخاب‌شده" aria-label="اندازهٔ متن انتخاب‌شده">
+              <option value="12">۱۲</option>
+              <option value="14">۱۴</option>
+              <option value="16" selected>۱۶</option>
+              <option value="18">۱۸</option>
+              <option value="20">۲۰</option>
+              <option value="24">۲۴</option>
+              <option value="28">۲۸</option>
+            </select>
             <div class="sep"></div>
             <button id="link-btn" title="درج لینک"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 .4l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7-.4l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></button>
             <button id="image-btn" title="درج عکس"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
@@ -1190,7 +1220,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED,
-  collection, doc, setDoc, addDoc, deleteDoc, onSnapshot,
+  collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot,
   query, serverTimestamp, getDocs, getDocsFromCache, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
@@ -1249,6 +1279,10 @@ let currentListenerNotebookId=null;
 let currentListenerSectionKey=null;
 let pendingWrites=false;
 let latestSnapshotFromCache=true;
+// An empty local Firestore cache is not proof that the account has no data.
+// Keep loading states distinct from a genuinely empty notebook/section.
+let notebooksAwaitingServer=false;
+let notesAwaitingServer=false;
 
 function showScreen(name) {
   $('loading-screen').style.display = name === 'loading' ? 'flex' : 'none';
@@ -1585,27 +1619,50 @@ function userCol(...path) {
 }
 
 function startListening() {
+  notebooksAwaitingServer = true;
+  notesAwaitingServer = true;
+  const notebookList = $('notebooks-list');
+  if (notebookList && !notebooks.length) {
+    notebookList.innerHTML = '<div class="empty-hint">در حال بازیابی دفترها از حافظهٔ محلی یا Firebase…</div>';
+  }
   const nbQuery = query(userCol('notebooks'));
-  unsubNotebooks = onSnapshot(nbQuery, (snap) => {
-    notebooks = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  unsubNotebooks = onSnapshot(nbQuery, { includeMetadataChanges: true }, (snap) => {
+    const incoming = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt)
       .sort((a,b) => {
         const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : (a.position || 0);
         const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : (b.position || 0);
         return ta - tb;
       });
+
+    // A cache-only empty snapshot can happen before Firestore has fetched the
+    // server copy. Do not mislead the user into thinking their notebooks vanished.
+    if (!incoming.length && snap.metadata.fromCache) {
+      notebooksAwaitingServer = true;
+      if (!notebooks.length) renderNotebooks();
+      updateSnapshotStatus(snap);
+      return;
+    }
+
+    notebooksAwaitingServer = false;
+    notebooks = incoming;
     if (!activeNotebookId || !notebooks.some(n => n.id === activeNotebookId)) {
       activeNotebookId = notebooks.length ? notebooks[0].id : null;
     }
     renderNotebooks();
     if (activeNotebookId && currentListenerNotebookId!==activeNotebookId) listenToSections(activeNotebookId);
-    else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }
+    else if (!activeNotebookId) {
+      sections = []; sectionGroups = []; notes = [];
+      notesAwaitingServer = false;
+      renderSections(); renderNotes(); showEditorEmpty();
+    }
     updateSnapshotStatus(snap);
   }, (err) => {
     console.error('Yadno notebooks listener error:', err);
+    notebooksAwaitingServer = false;
     setSyncStatus('offline');
     const list = $('notebooks-list');
-    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">ارتباط با Firebase برقرار نیست یا دسترسی Firestore مشکل دارد.<br><small>تنظیمات Firebase و قوانین Firestore را بررسی کنید.</small></div>';
+    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">دفترها بارگذاری نشدند؛ اتصال و مجوزهای Firestore را بررسی کن. اگر اتصال قطع است، پس از وصل‌شدن دوباره تلاش کن.</div>';
   });
 }
 
@@ -1670,14 +1727,34 @@ function listenToNotes(notebookId, sectionId) {
   if(currentListenerSectionKey===key && unsubNotes)return;
   currentListenerSectionKey=key;
   if (unsubNotes) unsubNotes();
+  notes = [];
+  notesAwaitingServer = true;
+  renderNotes();
   const nQuery = query(userCol('notebooks', notebookId, 'notes'));
   unsubNotes = onSnapshot(nQuery, {includeMetadataChanges:true}, (snap) => {
-    notes = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    const incoming = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       .filter(n => !n.deletedAt && (n.sectionId || sectionId) === sectionId);
+
+    // Don't show the "empty" message until the server has confirmed it.
+    if (!incoming.length && snap.metadata.fromCache) {
+      notesAwaitingServer = true;
+      renderNotes();
+      updateSnapshotStatus(snap);
+      return;
+    }
+
+    notesAwaitingServer = false;
+    notes = incoming;
     notes.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || ((a.position ?? 0) - (b.position ?? 0)) || ((b.updatedAt?.toDate ? b.updatedAt.toDate().getTime() : 0) - (a.updatedAt?.toDate ? a.updatedAt.toDate().getTime() : 0)));
     renderNotes();
     updateSnapshotStatus(snap);
-  }, (err) => { console.error('Yadno notes listener error:', err); setSyncStatus('offline'); });
+  }, (err) => {
+    console.error('Yadno notes listener error:', err);
+    notesAwaitingServer = false;
+    const list = $('notes-list');
+    if (list) list.innerHTML = '<div class="empty-hint" style="color:#b33">یادداشت‌ها بارگذاری نشدند؛ اتصال یا مجوزهای Firestore را بررسی کن.</div>';
+    setSyncStatus('offline');
+  });
 }
 
 function stopListening() {
@@ -1688,6 +1765,7 @@ function stopListening() {
   unsubNotebooks=unsubSections=unsubSectionGroups=unsubNotes=null;
   currentListenerNotebookId=currentListenerSectionKey=null;
   notebooks = []; sectionGroups = []; sections = []; notes = []; activeNotebookId = null; activeSectionId = null; activeNoteId = null;
+  notebooksAwaitingServer = false; notesAwaitingServer = false;
   searchCache = []; searchRequestId++;
 }
 
@@ -1726,7 +1804,9 @@ function yadnoCycleBookColor(id){
 function renderNotebooks() {
   const list = $('notebooks-list');
   if (!notebooks.length) {
-    list.innerHTML = '<div class="empty-hint">هنوز دفتری نساختی. با دکمه‌ی + یکی بساز.</div>';
+    list.innerHTML = notebooksAwaitingServer
+      ? '<div class="empty-hint">در حال بازیابی دفترها… اگر اینترنت ضعیف است، کمی صبر کن؛ هنوز مشخص نیست دفترها خالی باشند.</div>'
+      : '<div class="empty-hint">هنوز دفتری نساختی. با دکمه‌ی + یکی بساز.</div>';
     return;
   }
   list.innerHTML = '';
@@ -1772,6 +1852,85 @@ $('add-notebook-btn').addEventListener('click', async () => {
   listenToSections(ref.id);
 });
 
+function makeSectionActionButton(label, title) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'section-action-btn';
+  button.textContent = label;
+  button.title = title;
+  button.setAttribute('aria-label', title);
+  return button;
+}
+
+async function renameSectionItem(item, kind) {
+  if (!activeNotebookId || !currentUser) return;
+  const label = kind === 'group' ? 'گروه' : 'بخش';
+  const name = prompt(`نام جدید ${label}:`, item.name || '');
+  if (name === null || !name.trim()) return;
+  const collectionName = kind === 'group' ? 'sectionGroups' : 'sections';
+  await updateDoc(doc(db, 'users', currentUser.uid, 'notebooks', activeNotebookId, collectionName, item.id), {
+    name: name.trim(), updatedAt: serverTimestamp()
+  });
+  if (kind === 'section' && item.id === activeSectionId) {
+    $('notes-pane-title').textContent = name.trim();
+  }
+}
+
+async function deleteSectionItem(sec) {
+  if (!activeNotebookId || !currentUser) return;
+  const notebookId = activeNotebookId;
+  const userId = currentUser.uid;
+  const sectionId = sec.id;
+  if (sections.length <= 1) {
+    alert('هر دفتر باید دست‌کم یک بخش داشته باشد. ابتدا بخش دیگری بساز.');
+    return;
+  }
+  const fallback = sections.find(s => s.id !== sectionId);
+  if (!fallback) return;
+  const notesSnap = await getDocs(userCol('notebooks', notebookId, 'notes'));
+  // Legacy notes without sectionId were shown in whichever section was active;
+  // when deleting a section, attach those notes to the fallback to avoid orphaned/duplicated display.
+  const attached = notesSnap.docs.filter(d => {
+    const data = d.data();
+    return !data.deletedAt && (!data.sectionId || data.sectionId === sectionId);
+  });
+  const message = attached.length
+    ? `این بخش ${attached.length} یادداشت دارد. با حذف بخش، یادداشت‌ها به «${fallback.name || 'بخش دیگر'}» منتقل می‌شوند. ادامه می‌دهی؟`
+    : 'این بخش حذف شود؟ یادداشت‌های دفتر حذف نخواهند شد.';
+  if (!confirm(message)) return;
+  for (const noteDoc of attached) {
+    await updateDoc(noteDoc.ref, { sectionId: fallback.id, updatedAt: serverTimestamp() });
+  }
+  await deleteDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sections', sectionId));
+  // The user may have switched notebooks while the Firestore read was pending.
+  // Never apply the old operation's navigation changes to a different notebook.
+  if (activeNotebookId === notebookId && activeSectionId === sectionId) {
+    activeSectionId = fallback.id;
+    activeNoteId = null;
+    $('notes-pane-title').textContent = fallback.name || 'یادداشت‌ها';
+    listenToNotes(notebookId, fallback.id);
+    showEditorEmpty();
+  }
+}
+
+async function deleteSectionGroup(group) {
+  if (!activeNotebookId || !currentUser) return;
+  const notebookId = activeNotebookId;
+  const userId = currentUser.uid;
+  const groupId = group.id;
+  const children = sections.filter(sec => (sec.groupId || null) === groupId);
+  const message = children.length
+    ? `حذف گروه «${group.name}»؟ ${children.length} بخش آن به «بخش‌های اصلی» منتقل می‌شود؛ یادداشت‌ها حذف نمی‌شوند.`
+    : `گروه «${group.name}» حذف شود؟`;
+  if (!confirm(message)) return;
+  for (const sec of children) {
+    await updateDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sections', sec.id), {
+      groupId: null, updatedAt: serverTimestamp()
+    });
+  }
+  await deleteDoc(doc(db, 'users', userId, 'notebooks', notebookId, 'sectionGroups', groupId));
+}
+
 function renderSections() {
   const list = $('sections-list');
   if (!activeNotebookId) { list.innerHTML = '<div class="empty-hint">یک دفتر انتخاب کن</div>'; return; }
@@ -1781,21 +1940,39 @@ function renderSections() {
   groups.forEach(group => {
     const wrap = document.createElement('div');
     const header = document.createElement('div');
-    header.className = 'notebook-item';
-    header.innerHTML = `<span class="dot-icon" style="border-radius:3px;background:var(--ink)"></span><b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escapeHtml(group.name)}</b>`;
+    header.className = 'notebook-item section-group-header';
+    header.innerHTML = `<span class="dot-icon" style="border-radius:3px;background:var(--ink)"></span><b class="section-item-name">${escapeHtml(group.name)}</b>`;
+    if (group.id) {
+      const actions = document.createElement('div');
+      actions.className = 'section-item-actions';
+      const rename = makeSectionActionButton('✎', 'تغییر نام گروه');
+      rename.addEventListener('click', e => { e.stopPropagation(); renameSectionItem(group, 'group').catch(err => { console.error(err); alert('تغییر نام گروه انجام نشد.'); }); });
+      const remove = makeSectionActionButton('×', 'حذف گروه');
+      remove.addEventListener('click', e => { e.stopPropagation(); deleteSectionGroup(group).catch(err => { console.error(err); alert('حذف گروه انجام نشد.'); }); });
+      actions.append(rename, remove);
+      header.appendChild(actions);
+    }
     wrap.appendChild(header);
     const children = sections.filter(sec => (sec.groupId || null) === group.id);
-    children.forEach((sec) => {
+    children.forEach(sec => {
       const el = document.createElement('div');
-      el.className = 'notebook-item' + (sec.id === activeSectionId ? ' active' : '');
+      el.className = 'notebook-item section-row' + (sec.id === activeSectionId ? ' active' : '');
       el.style.paddingInlineStart = '28px';
-      el.innerHTML = `<span class="dot-icon" style="border-radius:50%;background:var(--sage)"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escapeHtml(sec.name || 'بخش بدون نام')}</span>`;
+      el.innerHTML = `<span class="dot-icon" style="border-radius:50%;background:var(--sage)"></span><span class="section-item-name">${escapeHtml(sec.name || 'بخش بدون نام')}</span>`;
       el.addEventListener('click', () => {
         activeSectionId = sec.id; activeNoteId = null; renderSections(); renderNotes(); showEditorEmpty();
         $('notes-pane-title').textContent = sec.name || 'یادداشت‌ها';
         listenToNotes(activeNotebookId, activeSectionId);
         openMobilePane('notes');
       });
+      const actions = document.createElement('div');
+      actions.className = 'section-item-actions';
+      const rename = makeSectionActionButton('✎', 'تغییر نام بخش');
+      rename.addEventListener('click', e => { e.stopPropagation(); renameSectionItem(sec, 'section').catch(err => { console.error(err); alert('تغییر نام بخش انجام نشد.'); }); });
+      const remove = makeSectionActionButton('×', 'حذف بخش');
+      remove.addEventListener('click', e => { e.stopPropagation(); deleteSectionItem(sec).catch(err => { console.error(err); alert('حذف بخش انجام نشد.'); }); });
+      actions.append(rename, remove);
+      el.appendChild(actions);
       wrap.appendChild(el);
     });
     if (children.length || group.id===null) list.appendChild(wrap);
@@ -1838,7 +2015,9 @@ function renderNotes() {
     return;
   }
   if (!notes.length) {
-    list.innerHTML = '<div class="empty-hint">این دفتر خالیه. با + یادداشت بساز.</div>';
+    list.innerHTML = notesAwaitingServer
+      ? '<div class="empty-hint">در حال بازیابی یادداشت‌ها… هنوز خالی‌بودن این بخش تأیید نشده است.</div>'
+      : '<div class="empty-hint">این دفتر خالیه. با + یادداشت بساز.</div>';
     return;
   }
   list.innerHTML = '';
@@ -2251,10 +2430,68 @@ document.querySelectorAll('#editor-toolbar [data-cmd]').forEach((btn) => {
 });
 
 $('font-select').addEventListener('change', () => {
-  yadnoRestoreSelection();
-  $('body-editor').focus({preventScroll:true});
+  if (!yadnoRestoreSelection()) { $('font-select').value = 'Vazirmatn'; return; }
   document.execCommand('fontName', false, $('font-select').value);
   scheduleSave();
+});
+
+$('font-size-select').addEventListener('change', () => {
+  const select = $('font-size-select');
+  const size = Number(select.value);
+  if (!Number.isFinite(size) || size < 10 || size > 40) return;
+
+  const editor = $('body-editor');
+  if (!yadnoRestoreSelection()) {
+    alert('ابتدا بخشی از متن را انتخاب کن، سپس اندازهٔ آن را تغییر بده.');
+    select.value = '16';
+    return;
+  }
+
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount || selection.isCollapsed) {
+    select.value = '16';
+    return;
+  }
+
+  const range = selection.getRangeAt(0);
+  if (!editor.contains(range.commonAncestorContainer)) {
+    select.value = '16';
+    return;
+  }
+
+  try {
+    const selectedFragment = range.cloneContents();
+    const containsBlock = selectedFragment.querySelector &&
+      selectedFragment.querySelector('p,div,li,h1,h2,h3,blockquote,ul,ol,pre,table');
+
+    if (containsBlock) {
+      // Keep paragraph/list structure intact for selections spanning blocks.
+      const existingFonts = new Set(editor.querySelectorAll('font[size="7"]'));
+      document.execCommand('fontSize', false, '7');
+      editor.querySelectorAll('font[size="7"]').forEach(font => {
+        if (existingFonts.has(font)) return;
+        const span = document.createElement('span');
+        span.style.fontSize = size + 'px';
+        while (font.firstChild) span.appendChild(font.firstChild);
+        font.replaceWith(span);
+      });
+    } else {
+      // Inline selections can be wrapped directly without changing block structure.
+      const span = document.createElement('span');
+      span.style.fontSize = size + 'px';
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+      selection.removeAllRanges();
+      const updatedRange = document.createRange();
+      updatedRange.selectNodeContents(span);
+      selection.addRange(updatedRange);
+    }
+    yadnoRememberSelection();
+    scheduleSave();
+  } catch (error) {
+    console.error('تغییر اندازهٔ قلم انجام نشد:', error);
+    alert('تغییر اندازهٔ قلم انجام نشد. دوباره متن را انتخاب کن.');
+  }
 });
 
 let yadnoSavedRange = null;
@@ -2615,7 +2852,8 @@ function yadnoMarkdown(html){
 function yadnoSafeName2(str){return safeFileName(str||'یادنو').replace(/\s+/g,'-')||'یادنو';}
 function yadnoHtmlDocument(note){
   const title=escapeHtml(note.title||'بدون عنوان');
-  return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:Vazirmatn,Tahoma,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;line-height:2;color:#222;direction:rtl}h1{font-size:28px;border-bottom:1px solid #ddd;padding-bottom:12px}img{max-width:100%;height:auto}a{color:#5b3c91}</style></head><body><h1>${title}</h1><div>${note.body||''}</div></body></html>`;
+  return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:Vazirmatn,Tahoma,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;line-height:2;color:#222;direction:rtl}h1{font-size:28px;border-bottom:1px solid #ddd;padding-bottom:12px}img{max-width:100%;height:auto}a{color:#5b3c91}
+</style></head><body><h1>${title}</h1><div>${note.body||''}</div></body></html>`;
 }
 function yadnoDownloadText(text,filename,type='text/plain;charset=utf-8'){downloadBlob(new Blob(['\uFEFF',text],{type}),filename);}
 function yadnoExportStatus(msg,error=false){const el=$('yadno-export-status');if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none';el.style.color=error?'#A83E32':'var(--ink-soft)';}
