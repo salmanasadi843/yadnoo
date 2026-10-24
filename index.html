@@ -980,6 +980,13 @@ body>.color-popover button{touch-action:manipulation}
   #toolbar-secondary #font-size-select{min-width:72px!important;max-width:78px!important;flex:0 0 72px!important}
 }
 
+
+/* v42: matching outlined icon language for the expanded toolbar */
+#toolbar-secondary .yadno-tool-icon{width:21px;height:21px;display:block;flex:none;pointer-events:none}
+#toolbar-secondary #yadno-export-more-btn{gap:5px!important}
+#toolbar-secondary #yadno-export-more-btn span{font-size:12px;font-weight:600;white-space:nowrap}
+#toolbar-secondary #delete-note-btn{color:#A83E32!important}
+#toolbar-secondary button:focus-visible{outline:2px solid var(--onenote-purple);outline-offset:2px}
 </style></head>
 <body>
 
@@ -1200,10 +1207,10 @@ body>.color-popover button{touch-action:manipulation}
             <button id="link-btn" title="درج لینک"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 .4l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7-.4l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></button>
             <button id="image-btn" title="درج عکس"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
             <button id="attachment-btn" title="افزودن فایل پیوست"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11.5-8.5 8.5a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8-8"/></svg></button>
-            <button id="section-btn" title="بخش‌بندی">§</button>
-            <button id="add-section-group-toolbar" title="گروه بخش جدید">▣</button>
+            <button id="section-btn" title="بخش‌بندی" aria-label="بخش‌بندی"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h5M8 16h8"/></svg></button>
+            <button id="add-section-group-toolbar" title="گروه بخش جدید" aria-label="گروه بخش جدید"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="15" rx="2.2"/><path d="M7 3h12a2 2 0 0 1 2 2v12M8 11h4M10 9v4"/></svg></button>
             <div class="sep"></div>
-            <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری">↗</button>
+            <button class="export-btn" id="share-note-btn" title="اشتراک‌گذاری" aria-label="اشتراک‌گذاری"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2M8.7 13.4l6.6 4.2"/></svg></button>
             <button class="export-btn" id="export-docx-btn" title="خروجی Word">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
@@ -1211,7 +1218,7 @@ body>.color-popover button{touch-action:manipulation}
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div class="yadno-export-wrap">
-              <button class="export-btn" id="yadno-export-more-btn" title="خروجی‌های بیشتر" aria-expanded="false">⇩ بیشتر</button>
+              <button class="export-btn" id="yadno-export-more-btn" title="خروجی‌های بیشتر" aria-label="خروجی‌های بیشتر" aria-expanded="false"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/></svg><span>بیشتر</span></button>
               <div id="yadno-export-menu" role="menu" aria-label="خروجی‌های یادنو">
                 <div class="export-menu-title">خروجی یادداشت / بخش / دفتر / کتابخانه</div>
                 <button type="button" data-yadno-export="note:txt">📄 یادداشت فعلی — TXT</button>
@@ -1226,7 +1233,7 @@ body>.color-popover button{touch-action:manipulation}
                 <div id="yadno-export-status" class="export-menu-status" role="status" aria-live="polite"></div>
               </div>
             </div>
-            <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
+            <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت" aria-label="حذف یادداشت"><svg class="yadno-tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>
           </div>
         </div>
         <input id="title-input" type="text" spellcheck="false" autocomplete="off" placeholder="عنوان یادداشت">
