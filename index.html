@@ -2373,17 +2373,33 @@ $('font-size-select').addEventListener('change', () => {
     return;
   }
 
-  // Wrap the selected fragment directly; this avoids deprecated fontSize markup
-  // and preserves inline formatting contained in a multi-node selection.
-  const span = document.createElement('span');
-  span.style.fontSize = size + 'px';
   try {
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-    selection.removeAllRanges();
-    const updatedRange = document.createRange();
-    updatedRange.selectNodeContents(span);
-    selection.addRange(updatedRange);
+    const selectedFragment = range.cloneContents();
+    const containsBlock = selectedFragment.querySelector &&
+      selectedFragment.querySelector('p,div,li,h1,h2,h3,blockquote,ul,ol,pre,table');
+
+    if (containsBlock) {
+      // Keep paragraph/list structure intact for selections spanning blocks.
+      const existingFonts = new Set(editor.querySelectorAll('font[size="7"]'));
+      document.execCommand('fontSize', false, '7');
+      editor.querySelectorAll('font[size="7"]').forEach(font => {
+        if (existingFonts.has(font)) return;
+        const span = document.createElement('span');
+        span.style.fontSize = size + 'px';
+        while (font.firstChild) span.appendChild(font.firstChild);
+        font.replaceWith(span);
+      });
+    } else {
+      // Inline selections can be wrapped directly without changing block structure.
+      const span = document.createElement('span');
+      span.style.fontSize = size + 'px';
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+      selection.removeAllRanges();
+      const updatedRange = document.createRange();
+      updatedRange.selectNodeContents(span);
+      selection.addRange(updatedRange);
+    }
     yadnoRememberSelection();
     scheduleSave();
   } catch (error) {
