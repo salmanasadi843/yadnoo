@@ -66,12 +66,25 @@ jobs:
               print("ERROR: index.html was not found")
               sys.exit(1)
 
+          source = path.read_text(encoding="utf-8")
           parser = PageParser()
-          parser.feed(path.read_text(encoding="utf-8"))
+          parser.feed(source)
           counts = collections.Counter(parser.ids)
           duplicates = sorted(k for k, v in counts.items() if v > 1)
           if duplicates:
               print("ERROR: duplicate HTML IDs:", ", ".join(duplicates))
+              sys.exit(1)
+
+          # Regression guards for the reported missing-notebooks/notes issue.
+          # Empty cache snapshots must not be treated as proof that server data is gone.
+          if source.count("if (!incoming.length && snap.metadata.fromCache)") < 2:
+              print("ERROR: missing cache-empty guards for notebooks and notes.")
+              sys.exit(1)
+          # A notebook metadata/data update must not clear sections when the active
+          # notebook is unchanged; only clear them when no notebook is selected.
+          unsafe_reset = "else { sections = []; notes = []; renderSections(); renderNotes(); showEditorEmpty(); }"
+          if unsafe_reset in source:
+              print("ERROR: unsafe notebook snapshot branch clears active section and notes.")
               sys.exit(1)
 
           checked = 0
