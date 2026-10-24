@@ -1145,10 +1145,10 @@ body>.color-popover button{touch-action:manipulation}
             <button id="delete-note-btn" style="color:#A83E32;" title="حذف یادداشت">🗑</button>
           </div>
         </div>
-        <input id="title-input" type="text" placeholder="عنوان یادداشت">
+        <input id="title-input" type="text" spellcheck="false" autocomplete="off" placeholder="عنوان یادداشت">
         <div id="attachments-box"><div id="attachments-header"><span>📎 فایل‌های پیوست</span><span id="attachments-status" class="attach-progress"></span></div><div id="attachments-list"></div></div>
-        <div id="tag-editor" class="tag-editor"><span style="font-size:12px;color:#81796f;font-weight:700">برچسب:</span><div id="tag-chips"></div><input id="tag-input" placeholder="مثلاً مهم، مطالعه + Enter"></div>
-        <div id="body-editor" contenteditable="true" data-placeholder="بنویس..."></div>
+        <div id="tag-editor" class="tag-editor"><span style="font-size:12px;color:#81796f;font-weight:700">برچسب:</span><div id="tag-chips"></div><input id="tag-input" spellcheck="false" placeholder="مثلاً مهم، مطالعه + Enter"></div>
+        <div id="body-editor" contenteditable="true" spellcheck="false" data-placeholder="بنویس..."></div>
       </div>
     </div>
   </div>
@@ -3436,6 +3436,7 @@ function openMobilePane(which) {
   window.addEventListener('popstate',()=>{
     if($('app')?.style.display==='grid'){
       closeTransientUi();
+      guardArmed=false;
       arm();
     }else{guardArmed=false;}
   });
