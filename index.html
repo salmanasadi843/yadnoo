@@ -1013,6 +1013,26 @@ body>.color-popover button{touch-action:manipulation}
   #app.focus-mode #body-editor{padding-bottom:20px!important}
 }
 
+
+  /* v43: reclaim the unused blank area below the writing surface */
+  @media(max-width:600px){
+    body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-content{
+      padding-bottom:0!important;
+      min-height:0!important;
+    }
+    body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{
+      padding-bottom:18px!important;
+      scroll-padding-bottom:110px!important;
+    }
+    #app.focus-mode #editor-content{
+      padding-bottom:0!important;
+    }
+    #app.focus-mode #body-editor{
+      padding-bottom:18px!important;
+      scroll-padding-bottom:70px!important;
+    }
+  }
+
 </style></head>
 <body>
 
