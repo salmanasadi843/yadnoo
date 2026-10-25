@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>یادنو — دفترچه یادداشت (نسخه ۴۱)</title>
+<title>یادنو — دفترچه یادداشت (نسخه ۴۲)</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7719aa">
 <link rel="icon" href="icon-192.png">
@@ -987,6 +987,32 @@ body>.color-popover button{touch-action:manipulation}
 #toolbar-secondary #yadno-export-more-btn span{font-size:12px;font-weight:600;white-space:nowrap}
 #toolbar-secondary #delete-note-btn{color:#A83E32!important}
 #toolbar-secondary button:focus-visible{outline:2px solid var(--onenote-purple);outline-offset:2px}
+
+/* v42: Unified focus/reading workspace and reliable mobile writing area */
+#reading-controls{display:none!important}
+#editor-content{min-height:0;min-width:0}
+#body-editor{min-height:0;min-width:0;flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain}
+#editor-pane{min-height:0;min-width:0}
+@media(max-width:600px){
+  #main-grid{min-height:0}
+  #editor-pane{height:100%;min-height:0}
+  #editor-content{display:flex!important;flex:1 1 auto;height:100%;min-height:0;overflow:hidden!important;padding:5px 9px 72px!important;gap:0}
+  #title-input{flex:0 0 auto;min-height:42px;max-height:76px;padding:8px 4px!important;line-height:1.45!important}
+  #editor-toolbar{flex:0 0 auto;max-height:86px!important;margin:0 0 5px!important;padding:3px!important}
+  #body-editor{display:block;flex:1 1 0%;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;padding:8px 8px 28px!important;line-height:1.9!important;-webkit-overflow-scrolling:touch;scroll-padding-bottom:24px}
+  #tag-editor{flex:0 0 auto;max-height:48px;overflow-x:auto}
+  #attachments-box{flex:0 0 auto;max-height:100px;overflow:auto;margin:4px 0!important;padding:6px!important}
+  body.yadno-keyboard-open #editor-content{padding:2px 7px 2px!important}
+  body.yadno-keyboard-open #title-input{font-size:20px!important;min-height:36px;padding:3px 4px!important}
+  body.yadno-keyboard-open #editor-toolbar{max-height:42px!important;overflow-x:auto!important;margin-bottom:2px!important}
+  body.yadno-keyboard-open #editor-toolbar button,body.yadno-keyboard-open #editor-toolbar select{min-height:32px!important;height:32px!important}
+  body.yadno-keyboard-open #body-editor{padding:4px 7px 18px!important;font-size:17px!important;line-height:1.8!important}
+  body.yadno-keyboard-open #phone-bottom-nav{display:none!important}
+  #app.focus-mode #editor-content{padding:4px 8px 6px!important}
+  #app.focus-mode #editor-toolbar{bottom:var(--yadno-keyboard-bottom,0px)!important;max-height:42px!important}
+  #app.focus-mode #body-editor{padding-bottom:20px!important}
+}
+
 </style></head>
 <body>
 
@@ -1642,11 +1668,12 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLower
 const FOCUS_KEY = 'yadno-focus-mode';
 function applyFocusMode(on){
   const app=$('app'); if(!app) return;
-  if(on && $('editor-pane').classList.contains('read-mode')) $('reading-toggle')?.click();
+  if(on && $('editor-pane').classList.contains('read-mode')) { $('editor-pane').classList.remove('read-mode'); $('body-editor').setAttribute('contenteditable','true'); $('title-input').readOnly=false; }
   app.classList.toggle('focus-mode',!!on);
   try{localStorage.setItem(FOCUS_KEY,on?'1':'0');}catch(_){}
   const b=$('focus-mode-btn');
-  if(b){b.setAttribute('aria-pressed',String(!!on));b.title=on?'خروج از تمرکز':'حالت تمرکز';}
+  if(b){b.setAttribute('aria-pressed',String(!!on));b.title=on?'خروج از حالت خلوت':'حالت خلوت برای مطالعه و نوشتن';
+  const label=b.querySelector('.focus-label'); if(label) label.textContent=on?'خروج':'حالت خلوت';}
   if(on){
     document.querySelectorAll('.pane.open').forEach(p=>p.classList.remove('open'));
     $('mobile-overlay')?.classList.remove('show');
