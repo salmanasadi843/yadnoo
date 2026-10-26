@@ -1021,8 +1021,12 @@ body>.color-popover button{touch-action:manipulation}
       min-height:0!important;
     }
     body.yadno-toolbar-docked #editor-pane:not(.read-mode) #body-editor{
-      padding-bottom:18px!important;
-      scroll-padding-bottom:110px!important;
+      padding-bottom:64px!important;
+      scroll-padding-bottom:64px!important;
+    }
+    body.yadno-keyboard-open #editor-pane:not(.read-mode) #body-editor{
+      padding-bottom:64px!important;
+      scroll-padding-bottom:64px!important;
     }
     #app.focus-mode #editor-content{
       padding-bottom:0!important;
@@ -3756,14 +3760,9 @@ function setupKeyboardAwareLayout(){
         marker.remove();
       }
       const area=body.getBoundingClientRect();
-      const viewportBottom=vv?vv.offsetTop+vv.height:window.innerHeight;
-      const toolbarTop=toolbar.getBoundingClientRect().top;
-      /* The real writing boundary is above both the keyboard and the docked toolbar. */
-      const visibleBottom=Math.min(area.bottom,viewportBottom,
-        cls.contains('yadno-toolbar-docked')?toolbarTop:viewportBottom);
-      const margin=18;
-      if(rect.bottom>visibleBottom-margin){
-        body.scrollTop+=rect.bottom-visibleBottom+margin;
+      const margin=14;
+      if(rect.bottom>area.bottom-margin){
+        body.scrollTop+=rect.bottom-area.bottom+margin;
       }else if(rect.top<area.top+margin){
         body.scrollTop-=area.top+margin-rect.top;
       }
@@ -3793,19 +3792,14 @@ function setupKeyboardAwareLayout(){
       if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
     }
   }
-  function refreshKeyboardAndCaret(){
-    keyboardPosition();
-    /* Let the browser finish resizing the visual viewport before measuring the caret. */
-    requestAnimationFrame(()=>requestAnimationFrame(keepCaretVisible));
-  }
-  if(vv){vv.addEventListener('resize',refreshKeyboardAndCaret);vv.addEventListener('scroll',refreshKeyboardAndCaret);}
-  window.addEventListener('resize',refreshKeyboardAndCaret);
+  if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
+  window.addEventListener('resize',keyboardPosition);
   body.addEventListener('input',keepCaretVisible);
   body.addEventListener('keyup',keepCaretVisible);
   body.addEventListener('click',keepCaretVisible);
   document.addEventListener('focusin',()=>requestAnimationFrame(()=>{keyboardPosition();keepCaretVisible();}));
   document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
-  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(refreshKeyboardAndCaret));
+  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(keyboardPosition));
   document.getElementById('reading-toggle')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.getElementById('focus-mode-btn')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.addEventListener('selectionchange',()=>{
