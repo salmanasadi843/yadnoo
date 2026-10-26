@@ -3798,16 +3798,22 @@ function setupKeyboardAwareLayout(){
     const editing=$('editor-content')?.style.display!=='none' &&
       !$('editor-pane')?.classList.contains('read-mode');
     const navHeight=focus?0:65;
-    /* Anchor toolbar to the visible viewport to avoid drift while scrolling long notes. */
+    /* Apply keyboard state first, then measure the toolbar after the browser lays it out.
+       Re-measure on the next frame so long-note scrolling/secondary toolbar changes cannot
+       leave the toolbar anchored using its previous height. */
+    cls.toggle('yadno-keyboard-open',keyboardUp);
+    document.documentElement.style.setProperty('--yadno-toolbar-bottom', navHeight+'px');
     if(keyboardUp && vv){
-      const visibleBottom = vv.offsetTop + vv.height;
-      const toolbarHeight = toolbar.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--yadno-toolbar-top', Math.max(0, visibleBottom-toolbarHeight)+'px');
+      requestAnimationFrame(()=>{
+        if(!cls.contains('yadno-keyboard-open') || !phone())return;
+        const visibleBottom=vv.offsetTop+vv.height;
+        const toolbarHeight=toolbar.getBoundingClientRect().height;
+        const top=Math.max(0,visibleBottom-toolbarHeight);
+        document.documentElement.style.setProperty('--yadno-toolbar-top',top+'px');
+      });
     }else{
       document.documentElement.style.removeProperty('--yadno-toolbar-top');
     }
-    document.documentElement.style.setProperty('--yadno-toolbar-bottom', navHeight+'px');
-    cls.toggle('yadno-keyboard-open',keyboardUp);
     const docked=!!editing;
     if(docked!==cls.contains('yadno-toolbar-docked')){
       cls.toggle('yadno-toolbar-docked',docked);
