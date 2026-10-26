@@ -1014,49 +1014,40 @@ body>.color-popover button{touch-action:manipulation}
 }
 
 
-  /* v45: let the editor itself scroll, with extra room while the keyboard is open */
+  /* v46: keep toolbar above the Android keyboard and reserve scroll room below the caret */
   @media(max-width:600px){
+    body.yadno-toolbar-docked #editor-pane:not(.read-mode) #editor-toolbar,
+    #app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{
+      bottom:var(--yadno-toolbar-bottom,65px)!important;
+      max-height:min(42dvh,270px)!important;
+      overflow-y:auto!important;
+      overscroll-behavior:contain!important;
+    }
     #editor-pane:not(.read-mode) #editor-content{
-      display:flex!important;
-      flex-direction:column!important;
-      overflow:hidden!important;
-      min-height:0!important;
-      height:100%!important;
-      padding:5px 9px 0!important;
+      display:flex!important;flex-direction:column!important;
+      min-height:0!important;overflow:hidden!important;padding:4px 8px 0!important;
     }
     #editor-pane:not(.read-mode) #body-editor{
-      display:block!important;
-      flex:1 1 0%!important;
-      min-height:0!important;
-      height:auto!important;
-      max-height:none!important;
-      overflow-y:auto!important;
-      overflow-x:hidden!important;
-      -webkit-overflow-scrolling:touch!important;
-      overscroll-behavior-y:contain;
-      touch-action:pan-y;
-      padding:8px 8px 120px!important;
-      scroll-padding-bottom:120px!important;
+      display:block!important;flex:1 1 0%!important;min-height:0!important;
+      height:auto!important;max-height:none!important;overflow-y:auto!important;
+      overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;
+      overscroll-behavior-y:contain!important;touch-action:pan-y!important;
+      padding:6px 7px 210px!important;scroll-padding-bottom:210px!important;
     }
-    body.yadno-keyboard-open #editor-pane:not(.read-mode) #editor-content{
-      padding:2px 7px 0!important;
+    body.yadno-keyboard-open #editor-pane:not(.read-mode) #editor-content{padding:2px 6px 0!important}
+    body.yadno-keyboard-open #editor-pane:not(.read-mode) #editor-toolbar,
+    body.yadno-keyboard-open #app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{
+      bottom:0!important;max-height:min(38dvh,235px)!important;
     }
     body.yadno-keyboard-open #editor-pane:not(.read-mode) #body-editor{
-      flex:1 1 0%!important;
-      min-height:0!important;
-      padding:4px 7px max(140px, 30dvh)!important;
-      scroll-padding-bottom:max(140px, 30dvh)!important;
-      overflow-y:auto!important;
+      padding-bottom:240px!important;scroll-padding-bottom:240px!important;
     }
-    #app.focus-mode #editor-pane:not(.read-mode) #editor-content{
-      overflow:hidden!important;
-      padding:4px 8px 0!important;
+    body.yadno-keyboard-open #editor-pane:not(.read-mode) #toolbar-secondary{
+      max-height:18dvh!important;overflow-y:auto!important;
     }
+    #app.focus-mode #editor-pane:not(.read-mode) #editor-content{overflow:hidden!important;padding:4px 7px 0!important}
     #app.focus-mode #editor-pane:not(.read-mode) #body-editor{
-      min-height:0!important;
-      flex:1 1 0%!important;
-      overflow-y:auto!important;
-      padding-bottom:120px!important;
+      min-height:0!important;flex:1 1 0%!important;overflow-y:auto!important;padding-bottom:210px!important;
     }
   }
 
@@ -3806,8 +3797,9 @@ function setupKeyboardAwareLayout(){
     const editing=$('editor-content')?.style.display!=='none' &&
       !$('editor-pane')?.classList.contains('read-mode');
     const navHeight=focus?0:65;
+    /* Android Chrome's fixed toolbar is aligned to the visual viewport; do not apply the keyboard gap twice. */
     document.documentElement.style.setProperty('--yadno-toolbar-bottom',
-      (keyboardUp?gap:navHeight)+'px');
+      (keyboardUp?0:navHeight)+'px');
     cls.toggle('yadno-keyboard-open',keyboardUp);
     const docked=!!editing;
     if(docked!==cls.contains('yadno-toolbar-docked')){
