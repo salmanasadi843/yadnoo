@@ -3765,9 +3765,6 @@ function setupKeyboardAwareLayout(){
     });
   }
 
-  const phone=()=>window.matchMedia('(max-width:600px)').matches;
-  const vv=window.visualViewport;
-  const cls=document.body.classList;
   function keyboardPosition(){
     if(!phone()){
       document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
