@@ -3756,9 +3756,14 @@ function setupKeyboardAwareLayout(){
         marker.remove();
       }
       const area=body.getBoundingClientRect();
-      const margin=14;
-      if(rect.bottom>area.bottom-margin){
-        body.scrollTop+=rect.bottom-area.bottom+margin;
+      const viewportBottom=vv?vv.offsetTop+vv.height:window.innerHeight;
+      const toolbarTop=toolbar.getBoundingClientRect().top;
+      /* The real writing boundary is above both the keyboard and the docked toolbar. */
+      const visibleBottom=Math.min(area.bottom,viewportBottom,
+        cls.contains('yadno-toolbar-docked')?toolbarTop:viewportBottom);
+      const margin=18;
+      if(rect.bottom>visibleBottom-margin){
+        body.scrollTop+=rect.bottom-visibleBottom+margin;
       }else if(rect.top<area.top+margin){
         body.scrollTop-=area.top+margin-rect.top;
       }
@@ -3788,14 +3793,19 @@ function setupKeyboardAwareLayout(){
       if(typeof closeAllColorPopovers==='function')closeAllColorPopovers();
     }
   }
-  if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
-  window.addEventListener('resize',keyboardPosition);
+  function refreshKeyboardAndCaret(){
+    keyboardPosition();
+    /* Let the browser finish resizing the visual viewport before measuring the caret. */
+    requestAnimationFrame(()=>requestAnimationFrame(keepCaretVisible));
+  }
+  if(vv){vv.addEventListener('resize',refreshKeyboardAndCaret);vv.addEventListener('scroll',refreshKeyboardAndCaret);}
+  window.addEventListener('resize',refreshKeyboardAndCaret);
   body.addEventListener('input',keepCaretVisible);
   body.addEventListener('keyup',keepCaretVisible);
   body.addEventListener('click',keepCaretVisible);
   document.addEventListener('focusin',()=>requestAnimationFrame(()=>{keyboardPosition();keepCaretVisible();}));
   document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
-  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(keyboardPosition));
+  document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(refreshKeyboardAndCaret));
   document.getElementById('reading-toggle')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.getElementById('focus-mode-btn')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.addEventListener('selectionchange',()=>{
