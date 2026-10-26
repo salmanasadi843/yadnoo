@@ -3734,6 +3734,40 @@ function setupKeyboardAwareLayout(){
   const phone=()=>window.matchMedia('(max-width:600px)').matches;
   const vv=window.visualViewport;
   const cls=document.body.classList;
+
+  /* Keep the active caret inside the visible, scrollable writing surface. */
+  let caretScrollQueued=false;
+  function keepCaretVisible(){
+    if(!phone() || document.activeElement!==body || caretScrollQueued)return;
+    caretScrollQueued=true;
+    requestAnimationFrame(()=>{
+      caretScrollQueued=false;
+      if(document.activeElement!==body)return;
+      const sel=window.getSelection();
+      if(!sel||!sel.rangeCount)return;
+      const range=sel.getRangeAt(0).cloneRange();
+      range.collapse(false);
+      let rect=range.getBoundingClientRect();
+      if(!rect || (!rect.height && !rect.width)){
+        const marker=document.createElement('span');
+        marker.textContent='\\u200b';
+        range.insertNode(marker);
+        rect=marker.getBoundingClientRect();
+        marker.remove();
+      }
+      const area=body.getBoundingClientRect();
+      const margin=14;
+      if(rect.bottom>area.bottom-margin){
+        body.scrollTop+=rect.bottom-area.bottom+margin;
+      }else if(rect.top<area.top+margin){
+        body.scrollTop-=area.top+margin-rect.top;
+      }
+    });
+  }
+
+  const phone=()=>window.matchMedia('(max-width:600px)').matches;
+  const vv=window.visualViewport;
+  const cls=document.body.classList;
   function keyboardPosition(){
     if(!phone()){
       document.documentElement.style.removeProperty('--yadno-keyboard-bottom');
@@ -3759,13 +3793,16 @@ function setupKeyboardAwareLayout(){
   }
   if(vv){vv.addEventListener('resize',keyboardPosition);vv.addEventListener('scroll',keyboardPosition);}
   window.addEventListener('resize',keyboardPosition);
-  document.addEventListener('focusin',()=>requestAnimationFrame(keyboardPosition));
+  body.addEventListener('input',keepCaretVisible);
+  body.addEventListener('keyup',keepCaretVisible);
+  body.addEventListener('click',keepCaretVisible);
+  document.addEventListener('focusin',()=>requestAnimationFrame(()=>{keyboardPosition();keepCaretVisible();}));
   document.addEventListener('focusout',()=>setTimeout(keyboardPosition,100));
   document.addEventListener('yadno:note-opened',()=>requestAnimationFrame(keyboardPosition));
   document.getElementById('reading-toggle')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.getElementById('focus-mode-btn')?.addEventListener('click',()=>requestAnimationFrame(keyboardPosition));
   document.addEventListener('selectionchange',()=>{
-    if(phone() && document.activeElement===body)requestAnimationFrame(keyboardPosition);
+    if(phone() && document.activeElement===body)requestAnimationFrame(()=>{keyboardPosition();keepCaretVisible();});
   });
   keyboardPosition();
 }
