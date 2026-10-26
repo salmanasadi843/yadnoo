@@ -1037,7 +1037,7 @@ body>.color-popover button{touch-action:manipulation}
     body.yadno-keyboard-open #editor-pane:not(.read-mode) #editor-content{padding:2px 6px 0!important}
     body.yadno-keyboard-open #editor-pane:not(.read-mode) #editor-toolbar,
     body.yadno-keyboard-open #app.focus-mode #editor-pane:not(.read-mode) #editor-toolbar{
-      bottom:0!important;max-height:min(38dvh,235px)!important;
+      bottom:var(--yadno-toolbar-bottom,0px)!important;max-height:min(38dvh,235px)!important;
     }
     body.yadno-keyboard-open #editor-pane:not(.read-mode) #body-editor{
       padding-bottom:240px!important;scroll-padding-bottom:240px!important;
@@ -3797,9 +3797,9 @@ function setupKeyboardAwareLayout(){
     const editing=$('editor-content')?.style.display!=='none' &&
       !$('editor-pane')?.classList.contains('read-mode');
     const navHeight=focus?0:65;
-    /* Android Chrome's fixed toolbar is aligned to the visual viewport; do not apply the keyboard gap twice. */
-    document.documentElement.style.setProperty('--yadno-toolbar-bottom',
-      (keyboardUp?0:navHeight)+'px');
+    /* Anchor toolbar to the measured visual viewport while the keyboard is open. */
+    const toolbarBottom = keyboardUp && vv ? Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) : navHeight;
+    document.documentElement.style.setProperty('--yadno-toolbar-bottom', toolbarBottom+'px');
     cls.toggle('yadno-keyboard-open',keyboardUp);
     const docked=!!editing;
     if(docked!==cls.contains('yadno-toolbar-docked')){
